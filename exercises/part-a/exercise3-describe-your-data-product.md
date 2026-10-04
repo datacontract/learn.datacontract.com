@@ -14,12 +14,13 @@ The product is the stable unit of ownership; its ports evolve.
 1. Create a new file `orders.odps.yaml` with this skeleton:
 
    ```yaml
-   apiVersion: v1.0.0
+   apiVersion: v1.1.0
    kind: DataProduct
    id: orders # snake_case of the name
    name: Orders
    version: 1.0.0 # the version of the data product, independent of the contract versions
    status: active
+   type: sourceAligned # new in ODPS 1.1: sourceAligned, aggregate, or consumerAligned
    domain: ecommerce
    description:
      purpose: # what is this data product for?
