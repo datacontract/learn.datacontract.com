@@ -73,14 +73,14 @@ psql_cmd < solutions/exercise6/sku_sales_per_year.sql
 datacontract test solutions/exercise4/sku_sales_per_year.odcs.yaml
 
 if [ -n "$ENTROPY_DATA_API_KEY" ]; then
-  echo "### Exercise 7: publish to Entropy Data"
-  ./solutions/exercise7/publish.sh
-  echo "### Exercise 8: semantics"
-  if ! ./solutions/exercise8/semantics.sh; then
+  echo "### Exercise 8: publish to Entropy Data"
+  ./solutions/exercise8/publish.sh
+  echo "### Exercise 9: semantics"
+  if ! ./solutions/exercise9/semantics.sh; then
     echo "Semantics not enabled - skipping exercise 8"
   fi
 else
-  echo "### Exercises 7+8: skipped (set ENTROPY_DATA_API_KEY and ENTROPY_DATA_HOST in .env to publish)"
+  echo "### Exercises 8+9: skipped (set ENTROPY_DATA_API_KEY and ENTROPY_DATA_HOST in .env to publish)"
 fi
 
 echo "All checks passed."

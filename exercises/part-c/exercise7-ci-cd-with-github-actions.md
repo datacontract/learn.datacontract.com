@@ -1,4 +1,4 @@
-# Exercise 9: CI/CD with GitHub Actions
+# Exercise 7: CI/CD with GitHub Actions
 
 Your contracts are only tested when someone runs `datacontract test`.
 Now you automate it: every push lints and tests all contracts, and every pull request is checked for **breaking changes** before it is merged.
@@ -34,7 +34,7 @@ Builds on Parts A and B only. You need a [GitHub](https://github.com) account.
    ```
 
    > [!WARNING]
-   > Your fork is public. Never commit an API key: if you added `ENTROPY_DATA_API_KEY` to `.env` in Part C, remove it before committing (`git diff .env`).
+   > Your fork is public. Never commit an API key: if you ever add `ENTROPY_DATA_API_KEY` to `.env` (Part D), remove it before committing (`git diff .env`).
 
 5. GitHub disables workflows in forks by default: open the **Actions** tab of your fork and click **I understand my workflows, go ahead and enable them**.
 
@@ -187,7 +187,7 @@ A breaking change in a contract breaks consumers. The pipeline catches it *befor
 
 - Make the checks mandatory: in your fork's **Settings → Rules → Rulesets**, require the status checks **Lint and test** and **Breaking changes** for `main`. Now a breaking change can't be merged anymore.
 - Remember the consumer-driven contract from [Exercise 6](../part-b/exercise6-consumer-driven-data-contracts.md)? It is tested in the same pipeline. In a real setup, the orders team runs the contracts of *all their consumers* in their pipeline. So they see exactly whom a change would break.
-- Publish the test results to Entropy Data (Part C): add your API key as repository secret `ENTROPY_DATA_API_KEY` (**Settings → Secrets and variables → Actions**) and change the test step to:
+- Publish the test results to Entropy Data (Part D): add your API key as repository secret `ENTROPY_DATA_API_KEY` (**Settings → Secrets and variables → Actions**) and change the test step to:
 
   ```yaml
         - name: Test data contracts
@@ -197,5 +197,5 @@ A breaking change in a contract breaks consumers. The pipeline catches it *befor
   ```
 
   Running Entropy Data locally (Community Edition)? GitHub can't reach your laptop, so this only works with the cloud.
-- Linked your contracts to semantic concepts (Exercise 8)? The CLI resolves these links on the Entropy Data host during `ci`. Add `--no-inline-references` to the test step if the pipeline can't reach it.
+- Linked your contracts to semantic concepts (Exercise 9)? The CLI resolves these links on the Entropy Data host during `ci`. Add `--no-inline-references` to the test step if the pipeline can't reach it.
 - **Schedule production tests with Airflow:** CI tests a contract when it changes, but the data changes every day. The [Data Contract provider for Airflow](https://github.com/datacontract/airflow-provider-datacontract) adds a `DataContractTestOperator` that runs `datacontract test` as a quality gate in your DAGs. See the [scheduling docs for Airflow](https://docs.datacontract.com/scheduling/airflow).

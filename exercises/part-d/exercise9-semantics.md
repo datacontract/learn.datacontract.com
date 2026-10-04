@@ -1,8 +1,8 @@
-# Exercise 8: Semantics
+# Exercise 9: Semantics
 
 Right now, the meaning of `order_id`, `order_total`, and `sku` is duplicated across your contracts: every contract carries its own copy of the descriptions. And the descriptions only say what a field *contains*, not what business concept it *is*. In this exercise, you define each concept *once* in an ontology file with stable **IRIs**, upload it to **Semantics** on the platform in one go, and link to it from the contracts you published in Exercise 7.
 
-> **Prerequisite:** This exercise builds on Exercise 7: your contracts are published and the Entropy Data CLI connection works. If you run the Community Edition from this repository, Semantics is already enabled.
+> **Prerequisite:** This exercise builds on Exercise 8: your contracts are published and the Entropy Data CLI connection works. If you run the Community Edition from this repository, Semantics is already enabled.
 
 An IRI is a globally unique, stable name for a concept, e.g. `https://learn.datacontract.com/ontology/ecommerce#sku`. It does not depend on the platform's host or your organization name, so the same contract links correctly on any instance. It does not need to be a reachable web page: the platform resolves it to the concept that carries it.
 

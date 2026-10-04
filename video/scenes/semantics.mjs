@@ -12,7 +12,7 @@ const cmd = (step, includes = '') => {
   return { cmd: found.cmd, out: local(found.out) }
 }
 
-const ontology = readFileSync(new URL('../../solutions/exercise8/semantics.yaml', import.meta.url), 'utf8').trimEnd()
+const ontology = readFileSync(new URL('../../solutions/exercise9/semantics.yaml', import.meta.url), 'utf8').trimEnd()
 const [head, rest] = [ontology.split('\n').slice(0, 13).join('\n'), ontology.split('\n').slice(13).join('\n')]
 
 const link = `schema:

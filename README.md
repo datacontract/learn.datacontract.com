@@ -56,19 +56,19 @@ To reset the database, run `docker compose down && docker compose up -d`.
 6. [Exercise 6: Consumer-Driven Data Contracts](exercises/part-b/exercise6-consumer-driven-data-contracts.md) (ODCS)
 
 
-## Part C: Publish to the Data Platform
+## Part C: Automate with CI/CD
 
-7. [Exercise 7: Publish to Entropy Data](exercises/part-c/exercise7-publish-to-entropy-data.md) (Entropy Data CLI)
-8. [Exercise 8: Semantics](exercises/part-c/exercise8-semantics.md) (Entropy Data CLI)
+Builds on Parts A and B. Needs a GitHub account.
+
+7. [Exercise 7: CI/CD with GitHub Actions](exercises/part-c/exercise7-ci-cd-with-github-actions.md) (Data Contract CLI, Data Product CLI, GitHub Actions)
+
+
+## Part D: Publish to the Data Platform
+
+8. [Exercise 8: Publish to Entropy Data](exercises/part-d/exercise8-publish-to-entropy-data.md) (Entropy Data CLI)
+9. [Exercise 9: Semantics](exercises/part-d/exercise9-semantics.md) (Entropy Data CLI)
 
 No account on [app.entropy-data.com](https://app.entropy-data.com)? Run the [Entropy Data Community Edition](https://github.com/entropy-data/entropy-data-ce) locally with `docker compose -f entropy-data-ce/docker-compose.yaml up -d` (web UI on [http://localhost:8081](http://localhost:8081), set `ENTROPY_DATA_HOST=http://localhost:8081` in your `.env`).
-
-
-## Part D: Automate with CI/CD
-
-Builds on Parts A and B only (Part C is not required). Needs a GitHub account.
-
-9. [Exercise 9: CI/CD with GitHub Actions](exercises/part-d/exercise9-ci-cd-with-github-actions.md) (Data Contract CLI, Data Product CLI, GitHub Actions)
 
 
 ## Links

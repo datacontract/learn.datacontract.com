@@ -6,7 +6,7 @@ const c = (step, includes) => command('ci-cd', step, includes)
 const shot = (name) => `../tutorial/public/screenshots/${name}`
 
 // the reference workflow, built up in three parts like in the chapter
-const workflow = readFileSync(new URL('../../solutions/exercise9/datacontract.yml', import.meta.url), 'utf8').split('\n')
+const workflow = readFileSync(new URL('../../solutions/exercise7/datacontract.yml', import.meta.url), 'utf8').split('\n')
 const part = (from, to) => workflow.slice(from - 1, to).join('\n')
 const lint = part(1, 37)
 const tests = part(38, 49)

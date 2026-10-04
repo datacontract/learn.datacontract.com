@@ -12,11 +12,11 @@ Everything below is for maintainers changing the workshop or the online tutorial
 - **Walkthrough videos**: `video/` records one video per tutorial chapter (see `video/README.md`).
 - The old Data Mesh Live 2026 version lives in a separate repo, `simonharrer/odcs-odps-workshop` (no SPA). Do not mention Data Mesh Live here.
 
-Exercise numbering differs: online, CI/CD is exercise 7, publish 8, semantics 9. On-site, publish is 7, semantics 8, and CI/CD is exercise 9 (Part D). Solution folders follow the on-site numbers.
+Online and on-site use the same numbering: Part C is CI/CD (exercise 7), Part D is the data platform (exercise 8 publish, exercise 9 semantics). Solution folders follow these numbers.
 
 ## Versions (keep in sync everywhere)
 
-- datacontract-cli `1.2.2`, dataproduct-cli `0.2.0`, entropy-data `0.3.13`: pinned in `scripts/install.sh`, `install.ps1`, `install.bat`, and in `solutions/exercise9/datacontract.yml`.
+- datacontract-cli `1.2.2`, dataproduct-cli `0.2.0`, entropy-data `0.3.13`: pinned in `scripts/install.sh`, `install.ps1`, `install.bat`, and in `solutions/exercise7/datacontract.yml`.
 - ODCS `v3.2.0` and ODPS `v1.1.0` in all solutions, examples, and `schemas/` (mapped in `.vscode/settings.json`).
 - GitHub Actions: `actions/checkout@v7`, `astral-sh/setup-uv@v10.2.0` (setup-uv has no floating major tags).
 - When bumping a CLI, re-capture the terminal outputs in the tutorial and re-record the affected videos.
@@ -53,7 +53,7 @@ Exercise numbering differs: online, CI/CD is exercise 7, publish 8, semantics 9.
 - Only `freshness` and `retention` SLA properties with an `element` become checks; `frequency` and `latency` are documentation.
 - Verified statement answers used in the content: 876 orders in 2023; top SKUs by units in 2024: D3KT74L5EV46T (146), IWMJ3ZX164 (62), TFH11HYOR (46).
 - `datacontract breaking` exits 1 on ERROR (removed field, type change, added `required`); adding a column is INFO. `datacontract ci` writes GitHub annotations and the step summary.
-- Semantics: one ontology file (`solutions/exercise8/semantics.yaml`, prefix `ecom: https://learn.datacontract.com/ontology/ecommerce#`) uploaded with `PUT /api/semantics/experimental/namespaces/{ns}/ontology.yaml`; the entropy-data CLI has no command for it.
+- Semantics: one ontology file (`solutions/exercise9/semantics.yaml`, prefix `ecom: https://learn.datacontract.com/ontology/ecommerce#`) uploaded with `PUT /api/semantics/experimental/namespaces/{ns}/ontology.yaml`; the entropy-data CLI has no command for it.
 - The hosted Data Contract Editor (editor.datacontract.com) runs tests via `api.datacontract.com`, which has credentials for the public Supabase copy (host `aws-1-eu-central-2.pooler.supabase.com`, port `6543`, database `postgres`, schemas `orders_v1`, `orders_v2`).
 - Participants remove the last `.gitignore` block (`# files created during the exercises`) in their fork before committing for the CI/CD exercise.
 
