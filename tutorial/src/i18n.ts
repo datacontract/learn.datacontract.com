@@ -41,8 +41,6 @@ const ui = {
     note: 'Note',
     warning: 'Warning',
     concept: 'Concept',
-    createdBy: 'Created by',
-    tscMember: 'TSC Member at',
     maintainedBy: 'Maintained by',
     watchVideo: 'Watch the walkthrough',
     videoHint: 'Silent video with captions',
@@ -88,8 +86,6 @@ const ui = {
     note: 'Hinweis',
     warning: 'Achtung',
     concept: 'Konzept',
-    createdBy: 'Erstellt von',
-    tscMember: 'TSC-Mitglied bei',
     maintainedBy: 'Gepflegt von',
     watchVideo: 'Walkthrough ansehen',
     videoHint: 'Stummes Video mit Untertiteln',
@@ -105,5 +101,5 @@ export function t(lang: Lang): Ui {
 }
 
 export function detectLang(): Lang {
-  return navigator.language?.toLowerCase().startsWith('de') ? 'de' : 'en'
+  return typeof navigator !== 'undefined' && navigator.language?.toLowerCase().startsWith('de') ? 'de' : 'en'
 }

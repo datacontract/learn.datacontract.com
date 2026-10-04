@@ -128,7 +128,7 @@ Füge einen Quality Check hinzu, dass `quantity` immer größer als 0 ist. Nutze
 
 </Solution>
 
-![line_items in orders_v2 mit der neuen Property quantity](screenshots/editor-quantity.webp)
+![line_items in orders_v2 mit der neuen Property quantity](/screenshots/editor-quantity.webp)
 
 </Step>
 
@@ -274,7 +274,7 @@ Details
 exit code: 1
 ```
 
-Diesmal gibt es einen **ERROR** und Exit-Code `1`. Dieser Exit-Code macht den Check zum Gate in CI/CD, siehe [CI/CD mit GitHub Actions](#/de/ci-cd).
+Diesmal gibt es einen **ERROR** und Exit-Code `1`. Dieser Exit-Code macht den Check zum Gate in CI/CD, siehe [CI/CD mit GitHub Actions](/de/ci-cd/).
 
 **Mach es rückgängig** und führe die Tests erneut aus:
 
@@ -301,7 +301,7 @@ Testing orders_v2.odcs.yaml
 
 Weil „breaking“ davon abhängt, wie Consumer die Daten nutzen. Ein Consumer, der `SELECT *` in eine strikte Tabelle lädt oder die exakte Spaltenliste prüft, *wird* brechen. Das Werkzeug prüft Kompatibilitätsregeln. Seine Consumer muss der Producer trotzdem kennen, und eine Major-Version ist eine bewusste, vorsichtige Entscheidung.
 
-[Consumer-driven Contracts](#/de/consumer-driven) zeigt, wie Consumer ihre tatsächlichen Abhängigkeiten explizit machen.
+[Consumer-driven Contracts](/de/consumer-driven/) zeigt, wie Consumer ihre tatsächlichen Abhängigkeiten explizit machen.
 </Callout>
 
 ## Die Migration durchführen

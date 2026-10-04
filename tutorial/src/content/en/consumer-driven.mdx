@@ -1,4 +1,4 @@
-Your view from the [previous exercise](#/en/implement) reads the producer's tables directly.
+Your view from the [previous exercise](/en/implement/) reads the producer's tables directly.
 It implicitly depends on the *whole* `orders_v2` contract, but needs only five fields.
 The orders team can't tell whether a change breaks you.
 
@@ -193,7 +193,7 @@ CREATE VIEW
 ```
 
 <Callout type="note">
-`sql/sku_sales_per_year.sql` now depends on `sql/sku_sales_input.sql`, so apply the input views first. The CI pipeline in [Part C](#/en/ci-cd) does exactly that.
+`sql/sku_sales_per_year.sql` now depends on `sql/sku_sales_input.sql`, so apply the input views first. The CI pipeline in [Part C](/en/ci-cd/) does exactly that.
 </Callout>
 
 <Solution title="sql/sku_sales_per_year.sql">
@@ -229,7 +229,7 @@ Testing sku_sales_per_year.odcs.yaml
 
 Your data product now touches only the fields in your consumer-driven contract.
 Everything else in `orders_v2` may change without breaking you.
-Even better: the orders team can run *your* contract in *their* CI pipeline and catch a breaking change before it ships. You build such a pipeline in the [next exercise](#/en/ci-cd).
+Even better: the orders team can run *your* contract in *their* CI pipeline and catch a breaking change before it ships. You build such a pipeline in the [next exercise](/en/ci-cd/).
 
 <Quiz
   question={"The orders team wants to drop customer_email_address from orders_v2. Does that break the SKU Sales data product?"}

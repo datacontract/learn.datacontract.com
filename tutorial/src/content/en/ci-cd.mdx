@@ -26,7 +26,7 @@ The earlier a problem is found, the cheaper it is to fix. This is called *shift 
 The workshop repository ignores the files you create in the exercises. In your fork, they are your source code.
 Open `.gitignore` and **delete the last block**: the comment `# files created during the exercises` and the five lines below it.
 
-Your views should already be in `sql/sku_sales_input.sql` and `sql/sku_sales_per_year.sql` (from [Consumer-Driven Contracts](#/en/consumer-driven)). The pipeline applies them in this order.
+Your views should already be in `sql/sku_sales_input.sql` and `sql/sku_sales_per_year.sql` (from [Consumer-Driven Contracts](/en/consumer-driven/)). The pipeline applies them in this order.
 
 Commit and push:
 
@@ -155,8 +155,8 @@ The database credentials come from the `.env` file in your repository.
 
 Push, open the run, and scroll down to the **summary**.
 
-![The workflow run in the Actions tab: both jobs, triggered by a push to main](screenshots/ci-run-overview.webp)
-![The step summary of datacontract ci: all four contracts passed, with every check listed below](screenshots/ci-step-summary.webp)
+![The workflow run in the Actions tab: both jobs, triggered by a push to main](/screenshots/ci-run-overview.webp)
+![The step summary of datacontract ci: all four contracts passed, with every check listed below](/screenshots/ci-step-summary.webp)
 
 </Step>
 
@@ -336,8 +336,8 @@ For a fork, GitHub proposes the original workshop repository as the base. Change
 
 The **Breaking changes** check fails, with an annotation on `orders_v2.odcs.yaml`.
 
-![The pull request: the Breaking changes check fails, Lint and test still passes](screenshots/ci-pr-checks.webp)
-![The job log: datacontract breaking reports the removed customer_id as an ERROR](screenshots/ci-breaking-log.webp)
+![The pull request: the Breaking changes check fails, Lint and test still passes](/screenshots/ci-pr-checks.webp)
+![The job log: datacontract breaking reports the removed customer_id as an ERROR](/screenshots/ci-breaking-log.webp)
 
 </Step>
 
@@ -346,7 +346,7 @@ The **Breaking changes** check fails, with an annotation on `orders_v2.odcs.yaml
 Restore `customer_id`. Instead, add a `description` to it, or a new tag. Push to the same branch.
 The check turns green, and you can merge.
 
-A change that consumers must adapt to needs a new major version: a new contract, like `orders_v2` for `orders_v1` in [Data Contract Evolution](#/en/evolution).
+A change that consumers must adapt to needs a new major version: a new contract, like `orders_v2` for `orders_v1` in [Data Contract Evolution](/en/evolution/).
 
 <Solution title=".github/workflows/datacontract.yml">
 
@@ -371,4 +371,29 @@ A change that consumers must adapt to needs a new major version: a new contract,
 - **Make the checks mandatory:** in your fork, go to **Settings → Rules → Rulesets** and require the checks **Lint and test** and **Breaking changes** for `main`. Now a breaking change can't be merged.
 - **Consumer-driven contracts in the producer's pipeline:** your consumer contract `orders_v2.consumer_sku_sales.odcs.yaml` runs in the same pipeline. In a real setup, the orders team runs the contracts of all its consumers. Then a failing check shows exactly whom a change would break.
 - **Read the changelog:** `datacontract changelog orders_v1.odcs.yaml orders_v2.odcs.yaml` lists all changes, not just the breaking ones.
-- **Publish test results:** in [Part D](#/en/publish), you can publish the results to Entropy Data from the pipeline. The reference workflow in the solution contains the step as a comment.
+- **Publish test results:** in [Part D](/en/publish/), you can publish the results to Entropy Data from the pipeline. The reference workflow in the solution contains the step as a comment.
+
+### Bonus: Schedule the tests with Airflow
+
+CI tests a contract when it changes. The data changes every day, so production tests also need a schedule. If your pipelines run in Apache Airflow, the [Data Contract provider for Airflow](https://github.com/datacontract/airflow-provider-datacontract) adds a `DataContractTestOperator`: it runs `datacontract test` as a quality gate in your DAG and fails the task when the contract is violated, so bad data stops before it reaches downstream tasks.
+
+```python title=dags/orders_contract.py
+from datetime import datetime
+from airflow.sdk import dag
+from datacontract_provider.operators.datacontract import DataContractTestOperator
+
+
+@dag(schedule="0 2 * * *", start_date=datetime(2026, 1, 1), catchup=False)
+def orders_contract():
+    DataContractTestOperator(
+        task_id="test_orders_v2",
+        data_contract_file="orders_v2.odcs.yaml",
+        server="Orders",
+        server_conn_id="workshop_postgres",  # Airflow connection with the database credentials
+    )
+
+
+orders_contract()
+```
+
+Install it with `pip install "airflow-provider-datacontract[postgres]"`. See the [scheduling docs for Airflow](https://docs.datacontract.com/scheduling/airflow) of the Data Contract CLI for connections, publishing results, and the results view. No Airflow? A `schedule:` trigger in GitHub Actions does the same, see the [scheduling docs for GitHub Actions](https://docs.datacontract.com/scheduling/github-actions).

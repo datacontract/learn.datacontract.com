@@ -2,7 +2,7 @@ The **purchasing team** wants to know how often each SKU is bought per year, to 
 You build them a new data product on top of Orders: **SKU Sales**.
 
 This time you work **contract-first**: you design the data contract and the data product description before writing any SQL.
-The contract is the specification. You implement it in the [next exercise](#/en/implement).
+The contract is the specification. You implement it in the [next exercise](/en/implement/).
 
 <Goals>
 - Design a data contract for a data product that does not exist yet
@@ -90,7 +90,7 @@ The schema says *which* columns exist. Quality checks say what must be *true* ab
 - `total_quantity` is never less than `order_count`
 - The view is not empty
 
-Use "count the bad rows, expect zero", as in [Exercise 1](#/en/contract):
+Use "count the bad rows, expect zero", as in [Exercise 1](/en/contract/):
 
 ```yaml
 quality:
@@ -125,7 +125,7 @@ properties:
     transformLogic: SUM(line_items.quantity)
 ```
 
-![Semantic Type in the property editor (Diagram view, click a property)](screenshots/editor-semantic-type.webp)
+![Semantic Type in the property editor (Diagram view, click a property)](/screenshots/editor-semantic-type.webp)
 
 <Callout type="concept" title="Measures and dimensions">
 A **dimension** is an attribute to group and filter by (`sku`, `year`).
@@ -137,7 +137,7 @@ Semantic layers, BI tools, and AI agents use these roles to build correct querie
 
 <Step id="ai-context" title="Add context for AI agents">
 
-Analysts will ask AI assistants about this data product. Tell them how to use it with a `context` block (new in ODCS 3.2, see [Exercise 1](#/en/contract)).
+Analysts will ask AI assistants about this data product. Tell them how to use it with a `context` block (new in ODCS 3.2, see [Exercise 1](/en/contract/)).
 In the editor, open **Context** in the navigation:
 
 ```yaml
@@ -149,7 +149,7 @@ context:
       answer: SELECT sku, total_quantity FROM analytics.sku_sales_per_year WHERE year = 2024 ORDER BY total_quantity DESC LIMIT 3;
 ```
 
-![Context of the SKU Sales contract](screenshots/editor-sku-context.webp)
+![Context of the SKU Sales contract](/screenshots/editor-sku-context.webp)
 
 The verified statement is a question with a known-good answer. You will check it once the view exists.
 
@@ -207,7 +207,7 @@ A consumer-aligned product declares the data it builds on through **input ports*
 
 <Step id="odps" title="Create the data product file">
 
-Create `sku_sales_per_year.odps.yaml` with the same structure as in [Exercise 3](#/en/data-product):
+Create `sku_sales_per_year.odps.yaml` with the same structure as in [Exercise 3](/en/data-product/):
 
 | Field | Value |
 |---|---|

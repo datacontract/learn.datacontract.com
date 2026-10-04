@@ -2,7 +2,7 @@ Das **Einkaufsteam** will wissen, wie oft jede SKU pro Jahr gekauft wird, um bes
 Dafür baust du ein neues Datenprodukt auf Orders auf: **SKU Sales**.
 
 Diesmal arbeitest du **contract-first**: Du entwirfst Datenkontrakt und Datenproduktbeschreibung, bevor du SQL schreibst.
-Der Kontrakt ist die Spezifikation. Implementiert wird er in der [nächsten Übung](#/de/implement).
+Der Kontrakt ist die Spezifikation. Implementiert wird er in der [nächsten Übung](/de/implement/).
 
 <Goals>
 - Einen Datenkontrakt für ein Datenprodukt entwerfen, das es noch nicht gibt
@@ -90,7 +90,7 @@ Das Schema sagt, *welche* Spalten es gibt. Quality Checks sagen, was über sie *
 - `total_quantity` ist nie kleiner als `order_count`
 - Die View ist nicht leer
 
-Nutze „fehlerhafte Zeilen zählen, null erwarten“, wie in [Übung 1](#/de/contract):
+Nutze „fehlerhafte Zeilen zählen, null erwarten“, wie in [Übung 1](/de/contract/):
 
 ```yaml
 quality:
@@ -125,7 +125,7 @@ properties:
     transformLogic: SUM(line_items.quantity)
 ```
 
-![Semantic Type im Property-Editor (Diagrammansicht, Klick auf eine Property)](screenshots/editor-semantic-type.webp)
+![Semantic Type im Property-Editor (Diagrammansicht, Klick auf eine Property)](/screenshots/editor-semantic-type.webp)
 
 <Callout type="concept" title="Measures und Dimensionen">
 Eine **Dimension** ist ein Merkmal zum Gruppieren und Filtern (`sku`, `year`).
@@ -137,7 +137,7 @@ Semantic Layer, BI-Tools und KI-Agenten nutzen diese Rollen für korrekte Abfrag
 
 <Step id="ai-context" title="Kontext für KI-Agenten hinzufügen">
 
-Analysten werden KI-Assistenten zu diesem Datenprodukt befragen. Sag ihnen mit einem `context`-Block, wie es zu nutzen ist (neu in ODCS 3.2, siehe [Übung 1](#/de/contract)).
+Analysten werden KI-Assistenten zu diesem Datenprodukt befragen. Sag ihnen mit einem `context`-Block, wie es zu nutzen ist (neu in ODCS 3.2, siehe [Übung 1](/de/contract/)).
 Öffne im Editor **Context** in der Navigation:
 
 ```yaml
@@ -149,7 +149,7 @@ context:
       answer: SELECT sku, total_quantity FROM analytics.sku_sales_per_year WHERE year = 2024 ORDER BY total_quantity DESC LIMIT 3;
 ```
 
-![Kontext des SKU-Sales-Kontrakts](screenshots/editor-sku-context.webp)
+![Kontext des SKU-Sales-Kontrakts](/screenshots/editor-sku-context.webp)
 
 Das Verified Statement ist eine Frage mit geprüfter Antwort. Du kontrollierst sie, sobald die View existiert.
 
@@ -207,7 +207,7 @@ Ein consumer-aligned Produkt deklariert seine Datenquellen über **Input-Ports**
 
 <Step id="odps" title="Datenprodukt-Datei anlegen">
 
-Lege `sku_sales_per_year.odps.yaml` an, mit derselben Struktur wie in [Übung 3](#/de/data-product):
+Lege `sku_sales_per_year.odps.yaml` an, mit derselben Struktur wie in [Übung 3](/de/data-product/):
 
 | Feld | Wert |
 |---|---|

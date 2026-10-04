@@ -1,4 +1,4 @@
-Deine View aus der [vorigen Übung](#/de/implement) liest direkt die Tabellen des Produzenten.
+Deine View aus der [vorigen Übung](/de/implement/) liest direkt die Tabellen des Produzenten.
 Sie hängt implizit vom *gesamten* `orders_v2`-Kontrakt ab, braucht aber nur fünf Felder.
 Das Orders-Team kann nicht erkennen, ob eine Änderung dich bricht.
 
@@ -193,7 +193,7 @@ CREATE VIEW
 ```
 
 <Callout type="note">
-`sql/sku_sales_per_year.sql` hängt jetzt von `sql/sku_sales_input.sql` ab, wende also zuerst die Input-Views an. Die CI-Pipeline in [Teil C](#/de/ci-cd) macht genau das.
+`sql/sku_sales_per_year.sql` hängt jetzt von `sql/sku_sales_input.sql` ab, wende also zuerst die Input-Views an. Die CI-Pipeline in [Teil C](/de/ci-cd/) macht genau das.
 </Callout>
 
 <Solution title="sql/sku_sales_per_year.sql">
@@ -229,7 +229,7 @@ Testing sku_sales_per_year.odcs.yaml
 
 Dein Datenprodukt berührt jetzt nur die Felder aus deinem Consumer-driven Contract.
 Alles andere in `orders_v2` darf sich ändern, ohne dich zu brechen.
-Noch besser: Das Orders-Team kann *deinen* Kontrakt in *seiner* CI-Pipeline ausführen und einen Breaking Change abfangen, bevor er live geht. So eine Pipeline baust du in der [nächsten Übung](#/de/ci-cd).
+Noch besser: Das Orders-Team kann *deinen* Kontrakt in *seiner* CI-Pipeline ausführen und einen Breaking Change abfangen, bevor er live geht. So eine Pipeline baust du in der [nächsten Übung](/de/ci-cd/).
 
 <Quiz
   question={"Das Orders-Team will customer_email_address aus orders_v2 entfernen. Bricht das das Datenprodukt SKU Sales?"}

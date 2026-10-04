@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
 import { load, save } from './storage'
 
 // progress is stored per chapter slug and step id — both are language independent,
@@ -17,7 +17,9 @@ const KEY = 'tutorial-progress-v1'
 const ProgressContext = createContext<Progress | null>(null)
 
 export function ProgressProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<ProgressState>(() => load<ProgressState>(KEY, {}))
+  // empty while prerendering, the stored progress is read after hydration
+  const [state, setState] = useState<ProgressState>({})
+  useEffect(() => setState(load<ProgressState>(KEY, {})), [])
 
   const update = useCallback((next: ProgressState) => {
     setState(next)

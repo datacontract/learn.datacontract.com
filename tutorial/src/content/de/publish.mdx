@@ -54,7 +54,7 @@ Wo unten `tutorial-<deinname>` steht, nimmst du `acme`.
 
 <Step id="connect" title="Verbindung konfigurieren">
 
-Das Install-Skript aus dem [Setup](#/de/setup) hat die Entropy Data CLI schon installiert. Prüfe es:
+Das Install-Skript aus dem [Setup](/de/setup/) hat die Entropy Data CLI schon installiert. Prüfe es:
 
 ```bash
 entropy-data --version
@@ -321,12 +321,12 @@ So kennt der Owner von Orders alle Konsumenten und kann sie vor Änderungen warn
 
 - Finde deine beiden Datenprodukte und ihre Output-Ports.
 - Öffne den Kontrakt `sku_sales_per_year` und vergleiche ihn mit dem Data Contract Editor.
-- Folge dem Access Agreement von SKU Sales zu Orders. Die Abhängigkeit aus [Contract-first entwerfen](#/de/contract-first) ist jetzt ein Link in der Datenproduktkarte.
+- Folge dem Access Agreement von SKU Sales zu Orders. Die Abhängigkeit aus [Contract-first entwerfen](/de/contract-first/) ist jetzt ein Link in der Datenproduktkarte.
 - Wie würde jemand ein Datenprodukt über SKUs finden, ohne zu wissen, dass es existiert?
 
-![Die Liste der Datenprodukte: Orders mit zwei Output-Ports, SKU Sales mit einem](screenshots/publish-data-products.webp)
+![Die Liste der Datenprodukte: Orders mit zwei Output-Ports, SKU Sales mit einem](/screenshots/publish-data-products.webp)
 
-![SKU Sales konsumiert Orders: das Access Agreement als Link in der Datenproduktkarte](screenshots/publish-sku-sales-product.webp)
+![SKU Sales konsumiert Orders: das Access Agreement als Link in der Datenproduktkarte](/screenshots/publish-sku-sales-product.webp)
 
 </Step>
 
@@ -372,7 +372,7 @@ datacontract test sku_sales_per_year.odcs.yaml --publish http://localhost:8081/a
 
 Die CLI schickt deinen API Key nur mit, wenn die URL zum Host in `ENTROPY_DATA_HOST` gehört. Die Ergebnisse findest du auf der Seite des Kontrakts.
 
-![Die Seite des Kontrakts mit den veröffentlichten Testergebnissen unter Data Quality](screenshots/publish-contract-test-results.webp)
+![Die Seite des Kontrakts mit den veröffentlichten Testergebnissen unter Data Quality](/screenshots/publish-contract-test-results.webp)
 
 <Solution title="publish.sh">
 
@@ -394,7 +394,7 @@ Richtig. Alles, was in ein öffentliches Repository committet wird, ist öffentl
 
 ## Bonus
 
-- **Testergebnisse aus der CI veröffentlichen.** Geh in deinem Fork auf GitHub zu **Settings → Secrets and variables → Actions** und leg ein Repository Secret `ENTROPY_DATA_API_KEY` an. Gib es im Workflow aus [CI/CD mit GitHub Actions](#/de/ci-cd) an den Test-Schritt weiter und ergänze `--publish`:
+- **Testergebnisse aus der CI veröffentlichen.** Geh in deinem Fork auf GitHub zu **Settings → Secrets and variables → Actions** und leg ein Repository Secret `ENTROPY_DATA_API_KEY` an. Gib es im Workflow aus [CI/CD mit GitHub Actions](/de/ci-cd/) an den Test-Schritt weiter und ergänze `--publish`:
 
   ```yaml
   - name: Test data contracts

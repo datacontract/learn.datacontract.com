@@ -128,7 +128,7 @@ Add a quality check that `quantity` is always greater than 0. Use the "count the
 
 </Solution>
 
-![line_items in orders_v2 with the new quantity property](screenshots/editor-quantity.webp)
+![line_items in orders_v2 with the new quantity property](/screenshots/editor-quantity.webp)
 
 </Step>
 
@@ -274,7 +274,7 @@ Details
 exit code: 1
 ```
 
-This time you get an **ERROR** and exit code `1`. That exit code turns the check into a CI/CD gate, see [CI/CD with GitHub Actions](#/en/ci-cd).
+This time you get an **ERROR** and exit code `1`. That exit code turns the check into a CI/CD gate, see [CI/CD with GitHub Actions](/en/ci-cd/).
 
 **Revert** and run the tests again:
 
@@ -301,7 +301,7 @@ Testing orders_v2.odcs.yaml
 
 Because "breaking" depends on how consumers use the data. A consumer that loads `SELECT *` into a strict table, or validates the exact column list, *will* break. The tool checks compatibility rules. The producer still has to know their consumers, and releasing a major version is a deliberate, conservative decision.
 
-[Consumer-Driven Contracts](#/en/consumer-driven) shows how consumers make their actual dependencies explicit.
+[Consumer-Driven Contracts](/en/consumer-driven/) shows how consumers make their actual dependencies explicit.
 </Callout>
 
 ## Execute the migration

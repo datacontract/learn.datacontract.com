@@ -12,7 +12,7 @@ import { promptLines } from './plugins/prompt-lines.ts'
 import { fileURLToPath } from 'node:url'
 
 export default defineConfig({
-  base: './',
+  base: '/',
   plugins: [
     {
       enforce: 'pre',

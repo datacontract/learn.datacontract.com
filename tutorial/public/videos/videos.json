@@ -1,0 +1,32 @@
+{
+  "ci-cd": {
+    "duration": 128.0
+  },
+  "consumer-driven": {
+    "duration": 141.6
+  },
+  "contract-first": {
+    "duration": 147.6
+  },
+  "contract": {
+    "duration": 166.1
+  },
+  "data-product": {
+    "duration": 85.2
+  },
+  "evolution": {
+    "duration": 145.1
+  },
+  "implement": {
+    "duration": 113.7
+  },
+  "publish": {
+    "duration": 146.3
+  },
+  "semantics": {
+    "duration": 130.2
+  },
+  "setup": {
+    "duration": 62.3
+  }
+}

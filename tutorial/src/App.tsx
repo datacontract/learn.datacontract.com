@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useRef, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { chapters, content, exerciseNumber, parts, REPO_URL, stepsOf } from './chapters'
 import { ChapterContext } from './components/ChapterContext'
 import { ArrowLeftIcon, ArrowRightIcon, CheckIcon, ClockIcon, GitHubIcon, MenuIcon, MoonIcon, SunIcon, XIcon } from './components/icons'
@@ -15,15 +15,11 @@ export function App() {
   const { lang, slug } = useRoute()
   const [menuOpen, setMenuOpen] = useState(false)
   const ui = t(lang)
-  const firstRoute = useRef(true)
 
   useEffect(() => {
     document.documentElement.lang = lang
     const chapter = chapters.find((c) => c.slug === slug)
     document.title = chapter ? `${chapter.title[lang]} · ${ui.title}` : ui.title
-    // the Umami script tracks the initial page view; chapter changes are hash changes, track them here
-    if (firstRoute.current) firstRoute.current = false
-    else (window as { umami?: { track: () => void } }).umami?.track()
   }, [lang, slug, ui.title])
 
   return (
@@ -75,7 +71,7 @@ function Header({ lang, slug, onMenu }: { lang: Lang; slug: string; onMenu: () =
           <MenuIcon />
         </button>
         <a href={href(lang, 'welcome')} className="flex min-w-0 items-center gap-2.5">
-          <img src="./favicon.png" alt="" className="h-8 w-8 dark:rounded-md dark:bg-white dark:p-0.5" />
+          <img src="/favicon.png" alt="" className="h-8 w-8 dark:rounded-md dark:bg-white dark:p-0.5" />
           <span className="truncate text-sm font-bold text-slate-900 sm:text-base dark:text-white">{ui.title}</span>
         </a>
         <div className="ml-auto flex items-center gap-2 sm:gap-4">
@@ -203,21 +199,14 @@ function ChapterPage({ lang, slug }: { lang: Lang; slug: string }) {
       </nav>
 
       <footer className="mt-10 border-t border-slate-200 pt-6 text-sm text-slate-500 dark:border-slate-800">
-        {ui.createdBy}{' '}
-        <a href="https://www.linkedin.com/in/simonharrer/" target="_blank" rel="noreferrer" className="font-medium text-slate-700 hover:text-brand-600 dark:text-slate-300 dark:hover:text-brand-300">Simon Harrer</a>
-        {' · '}
-        <a href="https://www.entropy-data.com" target="_blank" rel="noreferrer" className="hover:text-brand-600 dark:hover:text-brand-300">Entropy Data</a>
-        {' · '}
-        {ui.tscMember}{' '}
-        <a href="https://bitol.io" target="_blank" rel="noreferrer" className="hover:text-brand-600 dark:hover:text-brand-300">Bitol</a>
         <a
           href="https://www.entropy-data.com"
           target="_blank"
           rel="noreferrer"
-          className="mt-4 flex w-fit items-center gap-2.5 rounded-lg py-1 text-slate-500 transition hover:text-slate-900 dark:hover:text-white"
+          className="flex w-fit items-center gap-2.5 rounded-lg py-1 text-slate-500 transition hover:text-slate-900 dark:hover:text-white"
         >
           <span className="text-xs uppercase tracking-wider">{ui.maintainedBy}</span>
-          <img src="./entropy-data-logo.svg" alt="" className="h-6 w-6" />
+          <img src="/entropy-data-logo.svg" alt="" className="h-6 w-6" />
           <span className="font-semibold text-slate-800 dark:text-slate-100">Entropy Data</span>
         </a>
       </footer>

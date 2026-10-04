@@ -5,7 +5,7 @@ import { t, type Lang } from '../i18n'
 export function Walkthrough({ slug, lang }: { slug: string; lang: Lang }) {
   const ui = t(lang)
   const [open, setOpen] = useState(false)
-  const base = `videos/${slug}`
+  const base = `/videos/${slug}`
 
   if (!open) {
     return (

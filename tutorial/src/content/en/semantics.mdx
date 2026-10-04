@@ -1,6 +1,6 @@
 Each of your contracts has its own copy of the descriptions of `order_id`, `order_total`, and `sku`.
 And a description says what a field *contains*, not which business concept it *is*.
-Here you define each concept **once**, in one ontology file with stable **IRIs**, upload it in one go, and link the contracts from [the previous exercise](#/en/publish) to it.
+Here you define each concept **once**, in one ontology file with stable **IRIs**, upload it in one go, and link the contracts from [the previous exercise](/en/publish/) to it.
 
 <Goals>
 - Write a business ontology as one file: entities, properties, relationships
@@ -10,7 +10,7 @@ Here you define each concept **once**, in one ontology file with stable **IRIs**
 </Goals>
 
 <Callout type="note" title="Prerequisite">
-Builds on [Publish to Entropy Data](#/en/publish): your contracts are published and `entropy-data connection test` works. The Community Edition from the repository has Semantics enabled.
+Builds on [Publish to Entropy Data](/en/publish/): your contracts are published and `entropy-data connection test` works. The Community Edition from the repository has Semantics enabled.
 </Callout>
 
 <Callout type="concept" title="Contract vs. ontology">
@@ -191,7 +191,7 @@ Open https://app.entropy-data.com/tutorial-simon/datacontracts/sku_sales_per_yea
 
 <Callout type="warning" title="Your CI pipeline now needs the platform">
 `datacontract test` and `datacontract ci` resolve the IRIs through the platform. Without `ENTROPY_DATA_API_KEY`, or if the host is unreachable, the run fails with "Could not resolve business definition".
-In your workflow from [CI/CD with GitHub Actions](#/en/ci-cd), you have two options:
+In your workflow from [CI/CD with GitHub Actions](/en/ci-cd/), you have two options:
 
 - **Cloud:** pass the `ENTROPY_DATA_API_KEY` secret and `ENTROPY_DATA_HOST` to the step (see the bonus of the previous exercise).
 - **Community Edition** (unreachable from GitHub): add `--no-inline-references` to the `datacontract ci` command.
@@ -219,11 +219,11 @@ In the web UI, go to **Semantics → E-Commerce** and open **Article → SKU**:
 - **Metadata** shows the concept's IRI, both as `ecom:sku` and in full.
 - **Data Products** is the reverse lookup: every data product whose contracts link to the concept. *"Which data products contain SKUs?"* is now one click.
 
-![The SKU concept: ontology diagram, IRI, and the data products that use it](screenshots/semantics-concept-sku.webp)
+![The SKU concept: ontology diagram, IRI, and the data products that use it](/screenshots/semantics-concept-sku.webp)
 
 The data product list shows the linked concepts, too:
 
-![Data products with their linked concepts in the Semantics column](screenshots/semantics-data-products.webp)
+![Data products with their linked concepts in the Semantics column](/screenshots/semantics-data-products.webp)
 
 </Step>
 

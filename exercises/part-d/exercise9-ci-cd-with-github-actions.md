@@ -198,3 +198,4 @@ A breaking change in a contract breaks consumers. The pipeline catches it *befor
 
   Running Entropy Data locally (Community Edition)? GitHub can't reach your laptop, so this only works with the cloud.
 - Linked your contracts to semantic concepts (Exercise 8)? The CLI resolves these links on the Entropy Data host during `ci`. Add `--no-inline-references` to the test step if the pipeline can't reach it.
+- **Schedule production tests with Airflow:** CI tests a contract when it changes, but the data changes every day. The [Data Contract provider for Airflow](https://github.com/datacontract/airflow-provider-datacontract) adds a `DataContractTestOperator` that runs `datacontract test` as a quality gate in your DAGs. See the [scheduling docs for Airflow](https://docs.datacontract.com/scheduling/airflow).

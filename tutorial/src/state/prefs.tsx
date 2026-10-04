@@ -14,18 +14,25 @@ type Prefs = {
 const PrefsContext = createContext<Prefs | null>(null)
 
 function detectOs(): Os {
+  if (typeof navigator === 'undefined') return 'unix'
   return /win/i.test(navigator.userAgent) && !/darwin|mac/i.test(navigator.userAgent) ? 'windows' : 'unix'
 }
 
 export function PrefsProvider({ children }: { children: ReactNode }) {
-  const [os, setOsState] = useState<Os>(() => load<Os>('tutorial-os', detectOs()))
-  const [theme, setThemeState] = useState<Theme>(() =>
-    document.documentElement.classList.contains('dark') ? 'dark' : 'light',
-  )
+  // pages are prerendered: start with defaults and read the browser state after hydration
+  const [os, setOsState] = useState<Os>('unix')
+  const [theme, setThemeState] = useState<Theme>('light')
+  const [ready, setReady] = useState(false)
 
   useEffect(() => {
-    document.documentElement.classList.toggle('dark', theme === 'dark')
-  }, [theme])
+    setOsState(load<Os>('tutorial-os', detectOs()))
+    setThemeState(document.documentElement.classList.contains('dark') ? 'dark' : 'light')
+    setReady(true)
+  }, [])
+
+  useEffect(() => {
+    if (ready) document.documentElement.classList.toggle('dark', theme === 'dark')
+  }, [theme, ready])
 
   const setOs = (value: Os) => {
     setOsState(value)

@@ -54,7 +54,7 @@ Below, use `acme` wherever it says `tutorial-<yourname>`.
 
 <Step id="connect" title="Configure the connection">
 
-The install script from [Setup](#/en/setup) already installed the Entropy Data CLI. Check:
+The install script from [Setup](/en/setup/) already installed the Entropy Data CLI. Check:
 
 ```bash
 entropy-data --version
@@ -321,12 +321,12 @@ Open the web UI ([app.entropy-data.com](https://app.entropy-data.com) or [localh
 
 - Find your two data products and their output ports.
 - Open the `sku_sales_per_year` contract and compare it with the Data Contract Editor.
-- Follow the access agreement from SKU Sales to Orders. The dependency from [Design Contract-First](#/en/contract-first) is now a link in the data product map.
+- Follow the access agreement from SKU Sales to Orders. The dependency from [Design Contract-First](/en/contract-first/) is now a link in the data product map.
 - How would someone find a data product about SKUs without knowing it exists?
 
-![The data product list: Orders with two output ports, SKU Sales with one](screenshots/publish-data-products.webp)
+![The data product list: Orders with two output ports, SKU Sales with one](/screenshots/publish-data-products.webp)
 
-![SKU Sales consumes Orders: the access agreement as a link in the data product map](screenshots/publish-sku-sales-product.webp)
+![SKU Sales consumes Orders: the access agreement as a link in the data product map](/screenshots/publish-sku-sales-product.webp)
 
 </Step>
 
@@ -372,7 +372,7 @@ datacontract test sku_sales_per_year.odcs.yaml --publish http://localhost:8081/a
 
 The CLI sends your API key only if the URL belongs to the host in `ENTROPY_DATA_HOST`. Find the results on the contract page in the UI.
 
-![The contract page with the published test results under Data Quality](screenshots/publish-contract-test-results.webp)
+![The contract page with the published test results under Data Quality](/screenshots/publish-contract-test-results.webp)
 
 <Solution title="publish.sh">
 
@@ -394,7 +394,7 @@ Right. Anything committed to a public repository is public, including the histor
 
 ## Bonus
 
-- **Publish test results from CI.** In your fork on GitHub, go to **Settings → Secrets and variables → Actions** and add a repository secret `ENTROPY_DATA_API_KEY`. In the workflow from [CI/CD with GitHub Actions](#/en/ci-cd), pass it to the test step and add `--publish`:
+- **Publish test results from CI.** In your fork on GitHub, go to **Settings → Secrets and variables → Actions** and add a repository secret `ENTROPY_DATA_API_KEY`. In the workflow from [CI/CD with GitHub Actions](/en/ci-cd/), pass it to the test step and add `--publish`:
 
   ```yaml
   - name: Test data contracts

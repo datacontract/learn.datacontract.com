@@ -17,7 +17,7 @@ Answer them once, in a data contract.
 
 <Step id="explore" title="Look at the data">
 
-Make sure the database is running (see [Setup](#/en/setup)), then open a SQL prompt:
+Make sure the database is running (see [Setup](/en/setup/)), then open a SQL prompt:
 
 ```bash
 docker compose exec postgres psql -U workshop -d workshop
@@ -91,7 +91,7 @@ In the **Form** view, set the fundamentals:
 | Version | `1.0.0` (leave as is) |
 | Status | `draft` (leave as is) |
 
-![Data Contract Editor: the Form view with the fundamentals](screenshots/editor-fundamentals.webp)
+![Data Contract Editor: the Form view with the fundamentals](/screenshots/editor-fundamentals.webp)
 
 <Callout type="concept" title="Why version 1.0.0 and status draft?">
 Contracts use semantic versioning: a new **major** version signals a breaking change.
@@ -113,7 +113,7 @@ Go to **Servers** and add a server. It tells tools *where* the data lives, so th
 | Database | `workshop` |
 | Schema | `orders_v1` |
 
-![The server tells tools where the data lives](screenshots/editor-server.webp)
+![The server tells tools where the data lives](/screenshots/editor-server.webp)
 
 <Callout type="tip" title="Variables (ODCS 3.2)">
 Contracts may contain variables like `host: ${DB_HOST:-localhost}`. Tools resolve them at runtime from the environment, with the value after `:-` as default.
@@ -144,7 +144,7 @@ Go to **Schemas** and add two schemas with their properties.
 | `order_id` | `string` | `TEXT` |
 | `sku` | `string` | `TEXT` |
 
-![The orders schema with its properties, the preview on the right](screenshots/editor-schema.webp)
+![The orders schema with its properties, the preview on the right](/screenshots/editor-schema.webp)
 
 <Callout type="concept" title="Logical vs. physical type">
 The **logical type** is the technology-independent meaning (`integer`, `string`, `date`). Consumers reason about it.
@@ -253,7 +253,7 @@ In **Schemas**, edit `orders.customer_email_address`:
 
 Save, then find the new keys in the YAML file.
 
-![Diagram view: click a property to edit its classification and quality rules](screenshots/editor-property-email.webp)
+![Diagram view: click a property to edit its classification and quality rules](/screenshots/editor-property-email.webp)
 
 </Step>
 
@@ -314,7 +314,7 @@ schema:
             to: orders.order_id
 ```
 
-![The Diagram view shows the relationship between line_items and orders](screenshots/editor-diagram.webp)
+![The Diagram view shows the relationship between line_items and orders](/screenshots/editor-diagram.webp)
 
 </Step>
 
@@ -424,7 +424,7 @@ context:
       tags: ['pii']
 ```
 
-![The Context section: instructions, verified statements, and constraints](screenshots/editor-context.webp)
+![The Context section: instructions, verified statements, and constraints](/screenshots/editor-context.webp)
 
 Check your verified answer before you publish it. Run the query:
 
@@ -506,7 +506,7 @@ datacontract lint orders_v1.odcs.yaml
 🟢 data contract is valid. Run 1 checks. Took 0.13 seconds.
 ```
 
-![Synonyms and schema-level context under Advanced Metadata](screenshots/editor-synonyms.webp)
+![Synonyms and schema-level context under Advanced Metadata](/screenshots/editor-synonyms.webp)
 
 </Step>
 

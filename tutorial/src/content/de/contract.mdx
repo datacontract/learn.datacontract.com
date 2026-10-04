@@ -17,7 +17,7 @@ Beantworte das einmal, in einem Datenkontrakt.
 
 <Step id="explore" title="Daten ansehen">
 
-Stell sicher, dass die Datenbank läuft (siehe [Setup](#/de/setup)), und öffne einen SQL-Prompt:
+Stell sicher, dass die Datenbank läuft (siehe [Setup](/de/setup/)), und öffne einen SQL-Prompt:
 
 ```bash
 docker compose exec postgres psql -U workshop -d workshop
@@ -91,7 +91,7 @@ Setze in der **Form**-Ansicht die Grunddaten:
 | Version | `1.0.0` (so lassen) |
 | Status | `draft` (so lassen) |
 
-![Data Contract Editor: Formularansicht mit den Fundamentals](screenshots/editor-fundamentals.webp)
+![Data Contract Editor: Formularansicht mit den Fundamentals](/screenshots/editor-fundamentals.webp)
 
 <Callout type="concept" title="Warum Version 1.0.0 und Status draft?">
 Kontrakte nutzen Semantic Versioning: Eine neue **Major**-Version signalisiert einen Breaking Change.
@@ -113,7 +113,7 @@ Gehe zu **Servers** und füge einen Server hinzu. Er sagt den Werkzeugen, *wo* d
 | Database | `workshop` |
 | Schema | `orders_v1` |
 
-![Der Server sagt Werkzeugen, wo die Daten liegen](screenshots/editor-server.webp)
+![Der Server sagt Werkzeugen, wo die Daten liegen](/screenshots/editor-server.webp)
 
 <Callout type="tip" title="Variablen (ODCS 3.2)">
 Kontrakte dürfen Variablen enthalten, etwa `host: ${DB_HOST:-localhost}`. Werkzeuge lösen sie zur Laufzeit aus der Umgebung auf, der Wert nach `:-` ist der Default.
@@ -144,7 +144,7 @@ Gehe zu **Schemas** und lege zwei Schemas mit ihren Properties an.
 | `order_id` | `string` | `TEXT` |
 | `sku` | `string` | `TEXT` |
 
-![Das Schema orders mit seinen Properties, rechts die Vorschau](screenshots/editor-schema.webp)
+![Das Schema orders mit seinen Properties, rechts die Vorschau](/screenshots/editor-schema.webp)
 
 <Callout type="concept" title="Logischer vs. physischer Typ">
 Der **logische Typ** ist die technologieunabhängige Bedeutung (`integer`, `string`, `date`). Damit arbeiten Konsumenten.
@@ -253,7 +253,7 @@ Bearbeite unter **Schemas** das Feld `orders.customer_email_address`:
 
 Speichere und finde die neuen Keys in der YAML-Datei.
 
-![Diagrammansicht: Ein Klick auf eine Property öffnet Klassifizierung und Quality Rules](screenshots/editor-property-email.webp)
+![Diagrammansicht: Ein Klick auf eine Property öffnet Klassifizierung und Quality Rules](/screenshots/editor-property-email.webp)
 
 </Step>
 
@@ -314,7 +314,7 @@ schema:
             to: orders.order_id
 ```
 
-![Die Diagrammansicht zeigt die Beziehung zwischen line_items und orders](screenshots/editor-diagram.webp)
+![Die Diagrammansicht zeigt die Beziehung zwischen line_items und orders](/screenshots/editor-diagram.webp)
 
 </Step>
 
@@ -424,7 +424,7 @@ context:
       tags: ['pii']
 ```
 
-![Der Bereich Context: Instructions, Verified Statements und Constraints](screenshots/editor-context.webp)
+![Der Bereich Context: Instructions, Verified Statements und Constraints](/screenshots/editor-context.webp)
 
 Prüfe deine verifizierte Antwort, bevor du sie veröffentlichst. Führe die Abfrage aus:
 
@@ -506,7 +506,7 @@ datacontract lint orders_v1.odcs.yaml
 🟢 data contract is valid. Run 1 checks. Took 0.13 seconds.
 ```
 
-![Synonyme und Kontext auf Schema-Ebene unter Advanced Metadata](screenshots/editor-synonyms.webp)
+![Synonyme und Kontext auf Schema-Ebene unter Advanced Metadata](/screenshots/editor-synonyms.webp)
 
 </Step>
 

@@ -1,6 +1,6 @@
 Jeder deiner Kontrakte hat eine eigene Kopie der Beschreibungen von `order_id`, `order_total` und `sku`.
 Und eine Beschreibung sagt, was ein Feld *enthält*, nicht welcher fachliche Begriff es *ist*.
-Hier definierst du jeden Begriff **einmal**, in einer Ontologie-Datei mit stabilen **IRIs**, lädst sie in einem Rutsch hoch und verknüpfst die Kontrakte aus [der letzten Übung](#/de/publish) damit.
+Hier definierst du jeden Begriff **einmal**, in einer Ontologie-Datei mit stabilen **IRIs**, lädst sie in einem Rutsch hoch und verknüpfst die Kontrakte aus [der letzten Übung](/de/publish/) damit.
 
 <Goals>
 - Eine fachliche Ontologie als eine Datei schreiben: Entitäten, Properties, Beziehungen
@@ -10,7 +10,7 @@ Hier definierst du jeden Begriff **einmal**, in einer Ontologie-Datei mit stabil
 </Goals>
 
 <Callout type="note" title="Voraussetzung">
-Baut auf [Auf Entropy Data veröffentlichen](#/de/publish) auf: Deine Kontrakte sind veröffentlicht und `entropy-data connection test` funktioniert. In der Community Edition aus dem Repository ist Semantics aktiviert.
+Baut auf [Auf Entropy Data veröffentlichen](/de/publish/) auf: Deine Kontrakte sind veröffentlicht und `entropy-data connection test` funktioniert. In der Community Edition aus dem Repository ist Semantics aktiviert.
 </Callout>
 
 <Callout type="concept" title="Kontrakt vs. Ontologie">
@@ -191,7 +191,7 @@ Open https://app.entropy-data.com/tutorial-simon/datacontracts/sku_sales_per_yea
 
 <Callout type="warning" title="Deine CI-Pipeline braucht jetzt die Plattform">
 `datacontract test` und `datacontract ci` lösen die IRIs über die Plattform auf. Ohne `ENTROPY_DATA_API_KEY` oder wenn der Host nicht erreichbar ist, scheitert der Lauf mit „Could not resolve business definition“.
-In deinem Workflow aus [CI/CD mit GitHub Actions](#/de/ci-cd) hast du zwei Möglichkeiten:
+In deinem Workflow aus [CI/CD mit GitHub Actions](/de/ci-cd/) hast du zwei Möglichkeiten:
 
 - **Cloud:** Gib dem Step das Secret `ENTROPY_DATA_API_KEY` und `ENTROPY_DATA_HOST` mit (siehe Bonus der letzten Übung).
 - **Community Edition** (von GitHub aus nicht erreichbar): Ergänze `--no-inline-references` am Befehl `datacontract ci`.
@@ -219,11 +219,11 @@ Geh in der Weboberfläche auf **Semantics → E-Commerce** und öffne **Article 
 - **Metadata** zeigt die IRI des Begriffs, als `ecom:sku` und ausgeschrieben.
 - **Data Products** ist die Rückwärtssuche: alle Datenprodukte, deren Kontrakte auf den Begriff verweisen. *„Welche Datenprodukte enthalten SKUs?“* ist jetzt ein Klick.
 
-![Der Begriff SKU: Ontologie-Diagramm, IRI und die Datenprodukte, die ihn nutzen](screenshots/semantics-concept-sku.webp)
+![Der Begriff SKU: Ontologie-Diagramm, IRI und die Datenprodukte, die ihn nutzen](/screenshots/semantics-concept-sku.webp)
 
 Auch die Liste der Datenprodukte zeigt die verknüpften Begriffe:
 
-![Datenprodukte mit ihren verknüpften Begriffen in der Spalte Semantics](screenshots/semantics-data-products.webp)
+![Datenprodukte mit ihren verknüpften Begriffen in der Spalte Semantics](/screenshots/semantics-data-products.webp)
 
 </Step>
 

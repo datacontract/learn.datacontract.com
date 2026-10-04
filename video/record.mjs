@@ -6,7 +6,7 @@
 // them with ffmpeg, and writes tutorial/public/videos/<slug>.mp4 plus English and German
 // WebVTT captions (<slug>.en.vtt, <slug>.de.vtt) built from the cues of the scenes.
 import { execFileSync } from 'node:child_process'
-import { mkdirSync, rmSync, writeFileSync, readdirSync } from 'node:fs'
+import { mkdirSync, readFileSync, rmSync, writeFileSync, readdirSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { chromium } from 'playwright'
@@ -114,4 +114,10 @@ for (const lang of ['en', 'de']) {
   const vtt = ['WEBVTT', '', ...cues.filter((c) => c.text?.[lang]).flatMap((c, i) => [String(i + 1), `${ts(c.start)} --> ${ts(c.end - 0.05)}`, c.text[lang], ''])]
   writeFileSync(join(target, `${slug}.${lang}.vtt`), vtt.join('\n'))
 }
+// durations for the VideoObject structured data (tutorial/scripts/prerender.mjs)
+const indexFile = join(target, 'videos.json')
+let index = {}
+try { index = JSON.parse(readFileSync(indexFile, 'utf8')) } catch { /* first video */ }
+index[slug] = { duration: Math.round(offset * 10) / 10 }
+writeFileSync(indexFile, JSON.stringify(Object.fromEntries(Object.entries(index).sort()), null, 2))
 console.log(`wrote ${output} (${offset.toFixed(1)}s, ${cues.length} cues)`)
