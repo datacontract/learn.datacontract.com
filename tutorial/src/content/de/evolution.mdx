@@ -7,6 +7,7 @@ Deshalb veröffentlichst du die Änderung als **neue Major-Version**: `orders_v2
 - Eine Änderung als neue Major-Version eines Datenkontrakts veröffentlichen
 - Zwei Versionen mit `datacontract changelog` und `datacontract breaking` vergleichen
 - Verstehen, was als Breaking Change gilt und wo Werkzeuge an ihre Grenzen stoßen
+- Entfernungen früh ankündigen mit dem Flag `deprecated` (neu in ODCS 3.2)
 - Den Lebenszyklus eines Kontrakts durchlaufen: draft → active → deprecated → retired
 </Goals>
 
@@ -29,29 +30,30 @@ Kontrakte nutzen **Semantic Versioning**: Breaking Changes erhöhen die **Major*
 Das Schema `orders_v2` enthält beide Tabellen: `orders` ist unverändert, `line_items` hat die neue Spalte `quantity`.
 
 ```bash
-docker compose exec postgres psql -U workshop -d workshop
+docker compose exec postgres psql -U workshop -d workshop -c '\dt orders_v2.*' -c 'SELECT * FROM orders_v2.line_items LIMIT 5;'
 ```
 
 ```powershell
-docker compose exec postgres psql -U workshop -d workshop
+docker compose exec postgres psql -U workshop -d workshop -c '\dt orders_v2.*' -c 'SELECT * FROM orders_v2.line_items LIMIT 5;'
 ```
 
-```sql
-\dt orders_v2.*
-SELECT * FROM orders_v2.line_items LIMIT 5;
-```
+```output
+             List of relations
+  Schema   |    Name    | Type  |  Owner
+-----------+------------+-------+----------
+ orders_v2 | line_items | table | workshop
+ orders_v2 | orders     | table | workshop
+(2 rows)
 
-Du solltest etwa Folgendes sehen:
-
-```text
             lines_item_id             |               order_id               |      sku      | quantity
 --------------------------------------+--------------------------------------+---------------+----------
  94aa82c8-50ba-47fb-994a-9b041b4127af | a8c38fec-2acd-4b55-883b-4b48572d4a26 | D3KT74L5EV46T |        1
  d67c963f-42a4-4aa8-afff-d7869008e3a9 | 9e44da97-4f72-4bcf-821a-9d9500d06651 | E202K62FT     |        3
  270ad2c1-f651-438e-a81a-d77713c1d3a3 | 8fc4621c-66ae-4031-91f1-5313beb9f541 | 1O7RID9Y5QJ   |        1
+ cc763a72-cc07-4bc4-8ddf-c88d09db5daa | 98d48daf-3532-4a59-b7c2-3777164bdc65 | 7KJ8466FI39LW |        5
+ d7ea7f72-a266-469c-a9ef-60063d5ac243 | 2fd9df43-77e8-4d00-b380-ab270e8b73f8 | 7HXBABF0AOT5  |        2
+(5 rows)
 ```
-
-Verlasse den Prompt mit `\q`.
 
 </Step>
 
@@ -93,8 +95,10 @@ Die ID ändert sich mit der Major-Version: Consumer wechseln bewusst auf `orders
 
 Ersetze dann in allen SQL-**Quality Checks** `orders_v1.` durch `orders_v2.` (z. B. im Check für `customer_email_address`). Sonst prüfen sie weiter die alten Tabellen.
 
+Die Kopie hat auch deinen KI-`context`-Block übernommen. Seine `verifiedStatements` enthalten SQL-Antworten auf `orders_v1`. Stelle sie ebenfalls auf `orders_v2` um, sonst beantwortet ein KI-Agent Fragen aus der alten Version.
+
 <Callout type="tip">
-Suchen und Ersetzen `orders_v1.` → `orders_v2.` in deiner IDE erledigt das in einem Rutsch. Prüfe danach `id:` und das `schema:` des Servers.
+Suchen und Ersetzen `orders_v1.` → `orders_v2.` in deiner IDE erledigt das in einem Rutsch, für Quality Checks und Verified Statements. Prüfe danach `id:` und das `schema:` des Servers.
 </Callout>
 
 </Step>
@@ -138,6 +142,23 @@ datacontract test orders_v2.odcs.yaml
 datacontract test orders_v2.odcs.yaml
 ```
 
+```output
+Testing orders_v2.odcs.yaml
+Server: Orders (type=postgres, host=localhost, port=5433, database=workshop, schema=orders_v2)
+╭────────┬───────────────────────────────────────────────┬───────────────────────────────┬─────────╮
+│ Result │ Check                                         │ Field                         │ Details │
+├────────┼───────────────────────────────────────────────┼───────────────────────────────┼─────────┤
+│ passed │ Ensure line_items table has data              │ line_items                    │         │
+…
+│ passed │ Check that field 'quantity' is present        │ line_items.quantity           │         │
+│ passed │ Check that field quantity has physical type   │ line_items.quantity           │         │
+│        │ bigint                                        │                               │         │
+│ passed │ Ensure quantity is positive                   │ line_items.quantity           │         │
+…
+╰────────┴───────────────────────────────────────────────┴───────────────────────────────┴─────────╯
+🟢 data contract is valid. Run 36 checks. Took 0.63683 seconds.
+```
+
 Alle Checks sollten grün sein, auch der neue Check für `quantity`.
 
 </Step>
@@ -156,18 +177,27 @@ datacontract changelog orders_v1.odcs.yaml orders_v2.odcs.yaml
 datacontract changelog orders_v1.odcs.yaml orders_v2.odcs.yaml
 ```
 
-Du bekommst eine Zusammenfassung und eine detaillierte Liste aller Änderungen:
+```output
+Summary
+[ 1 Added ]  [ 16 Updated ]
+╭─────────┬─────────────────────────────────────────────────────────────────╮
+│ Change  │ Field                                                           │
+├─────────┼─────────────────────────────────────────────────────────────────┤
+│ Updated │ context.verifiedStatements.How many orders were placed in 2023? │
+│ Updated │ context.verifiedStatements.What was the revenue per year?       │
+│ Updated │ id                                                              │
+│ Updated │ schema.line_items.properties.lines_item_id.quality.[1]          │
+│ Added   │ schema.line_items.properties.quantity                           │
+…
+│ Updated │ servers.Orders                                                  │
+│ Updated │ version                                                         │
+╰─────────┴─────────────────────────────────────────────────────────────────╯
 
-```text
-│ Change  │ Field                                 │
-├─────────┼───────────────────────────────────────┤
-│ Updated │ id                                    │
-│ Added   │ schema.line_items.properties.quantity │
-│ Updated │ servers.postgres                      │
-│ Updated │ version                               │
+Details
+…
 ```
 
-Eine gute Grundlage für Release Notes.
+Du bekommst eine Zusammenfassung und eine detaillierte Liste aller Änderungen, auch der umgestellten Quality-Queries und Verified Statements. Eine gute Grundlage für Release Notes.
 
 </Step>
 
@@ -185,7 +215,26 @@ datacontract breaking orders_v1.odcs.yaml orders_v2.odcs.yaml
 echo "exit code: $LASTEXITCODE"
 ```
 
-`quantity` wird als **INFO** gemeldet, Exit-Code `0`: Eine zusätzliche Spalte ist schemakompatibel.
+```output
+Summary
+[ 11 Warning ]  [ 6 Info ]
+╭──────────┬─────────┬─────────────────────────────────────────────────────────────────╮
+│ Severity │ Change  │ Field                                                           │
+├──────────┼─────────┼─────────────────────────────────────────────────────────────────┤
+│ INFO     │ Updated │ context.verifiedStatements.How many orders were placed in 2023? │
+│ INFO     │ Updated │ context.verifiedStatements.What was the revenue per year?       │
+│ INFO     │ Updated │ id                                                              │
+│ WARNING  │ Updated │ schema.line_items.properties.lines_item_id.quality.[1]          │
+│ INFO     │ Added   │ schema.line_items.properties.quantity                           │
+…
+│ INFO     │ Updated │ servers.Orders                                                  │
+│ INFO     │ Updated │ version                                                         │
+╰──────────┴─────────┴─────────────────────────────────────────────────────────────────╯
+…
+exit code: 0
+```
+
+`quantity` wird als **INFO** gemeldet: Eine zusätzliche Spalte ist schemakompatibel. Die geänderten Quality-Queries sind **WARNING**s, weil die Checks jetzt gegen andere Tabellen laufen. Nichts ist ein ERROR, daher ist der Exit-Code `0`.
 
 Jetzt provozierst du einen echten Breaking Change. Lege eine Kopie an, ändere den `physicalType` von `quantity` auf `text` (oder lösche `customer_id`) und vergleiche:
 
@@ -203,6 +252,26 @@ datacontract breaking orders_v2.before.odcs.yaml orders_v2.odcs.yaml
 echo "exit code: $LASTEXITCODE"
 ```
 
+```output
+Summary
+[ 1 Error ]
+╭──────────┬─────────┬───────────────────────────────────────╮
+│ Severity │ Change  │ Field                                 │
+├──────────┼─────────┼───────────────────────────────────────┤
+│ ERROR    │ Updated │ schema.line_items.properties.quantity │
+╰──────────┴─────────┴───────────────────────────────────────╯
+
+Details
+╭──────────┬─────────┬────────────────────────────────────────────────────┬───────────┬───────────┬────────────────────────────────╮
+│ Severity │ Change  │ Path                                               │ Old Value │ New Value │ Message                        │
+├──────────┼─────────┼────────────────────────────────────────────────────┼───────────┼───────────┼────────────────────────────────┤
+│ ERROR    │ Updated │ schema.line_items.properties.quantity.physicalType │ bigint    │ text      │ Changed type at                │
+│          │         │                                                    │           │           │ schema.line_items.properties.… │
+│          │         │                                                    │           │           │ from 'bigint' to 'text'        │
+╰──────────┴─────────┴────────────────────────────────────────────────────┴───────────┴───────────┴────────────────────────────────╯
+exit code: 1
+```
+
 Diesmal gibt es einen **ERROR** und Exit-Code `1`. Dieser Exit-Code macht den Check zum Gate in CI/CD, siehe [CI/CD mit GitHub Actions](#/de/ci-cd).
 
 **Mach es rückgängig** und führe die Tests erneut aus:
@@ -215,6 +284,12 @@ datacontract test orders_v2.odcs.yaml
 ```powershell
 Move-Item -Force orders_v2.before.odcs.yaml orders_v2.odcs.yaml
 datacontract test orders_v2.odcs.yaml
+```
+
+```output
+Testing orders_v2.odcs.yaml
+…
+🟢 data contract is valid. Run 36 checks. Took 0.63683 seconds.
 ```
 
 </Step>
@@ -240,6 +315,59 @@ Eine Kontraktversion durchläuft diese Zustände:
 Eine vollständige Migration: v2 auf `active` setzen, v1 mit Enddatum abkündigen, das im Support-Kanal ankündigen und v1 stilllegen, sobald niemand mehr darauf zugreift.
 </Callout>
 
+<Callout type="concept" title="Einzelne Felder abkündigen (neu in ODCS 3.2)">
+Nicht jede Änderung braucht sofort eine neue Major-Version. Mit `deprecated: true` an einem Schema-Objekt oder einer Property kündigst du an: „Dieses Feld fällt mit der nächsten Major-Version weg, bau nicht mehr darauf.“
+Das Feld bleibt dokumentiert und getestet, bestehende Consumer laufen weiter. Es später zu entfernen ist trotzdem ein Breaking Change und braucht die nächste Major-Version.
+</Callout>
+
+<Step id="deprecate-field" title="Ein Feld abkündigen">
+
+Das Orders-Team will `customer_id` in einer künftigen v3 streichen. Kündige es jetzt an. Lege zuerst eine Kopie der aktuellen Version an:
+
+```bash
+cp orders_v2.odcs.yaml orders_v2.before.odcs.yaml
+```
+
+```powershell
+Copy-Item orders_v2.odcs.yaml orders_v2.before.odcs.yaml
+```
+
+Ergänze in `orders_v2.odcs.yaml` an der Property `customer_id` die Zeile `deprecated: true`:
+
+```yaml
+- name: customer_id
+  deprecated: true
+  physicalType: text
+  logicalType: string
+```
+
+Vergleiche beide Versionen:
+
+```bash
+datacontract breaking orders_v2.before.odcs.yaml orders_v2.odcs.yaml
+```
+
+```powershell
+datacontract breaking orders_v2.before.odcs.yaml orders_v2.odcs.yaml
+```
+
+```output
+Summary
+[ 1 Info ]
+╭──────────┬────────┬──────────────────────────────────────╮
+│ Severity │ Change │ Field                                │
+├──────────┼────────┼──────────────────────────────────────┤
+│ INFO     │ Added  │ schema.orders.properties.customer_id │
+╰──────────┴────────┴──────────────────────────────────────╯
+…
+│ INFO     │ Added  │ schema.orders.properties.customer_id.deprecated │           │ True      │ Added contract at              │
+…
+```
+
+Nur INFO: Abkündigen ist non-breaking. Lösche `orders_v2.before.odcs.yaml` danach.
+
+</Step>
+
 <Step id="deprecate" title="v1 abkündigen (zur Übung)">
 
 Setze in `orders_v1.odcs.yaml` `status: deprecated` und ergänze eine SLA-Property `endOfSupport`:
@@ -252,7 +380,24 @@ slaProperties:
     description: orders_v1 is replaced by orders_v2. Please migrate until end of 2026.
 ```
 
-Prüfe, dass der Kontrakt gültig bleibt: `datacontract lint orders_v1.odcs.yaml`.
+Prüfe, dass der Kontrakt gültig bleibt:
+
+```bash
+datacontract lint orders_v1.odcs.yaml
+```
+
+```powershell
+datacontract lint orders_v1.odcs.yaml
+```
+
+```output
+╭────────┬────────────────────────────────────────────┬───────┬─────────╮
+│ Result │ Check                                      │ Field │ Details │
+├────────┼────────────────────────────────────────────┼───────┼─────────┤
+│ passed │ Data contract is valid against ODCS v3.2.0 │       │         │
+╰────────┴────────────────────────────────────────────┴───────┴─────────╯
+🟢 data contract is valid. Run 1 checks. Took 0.122955 seconds.
+```
 
 </Step>
 
@@ -271,6 +416,12 @@ datacontract test orders_v2.odcs.yaml
 
 ```powershell
 datacontract test orders_v2.odcs.yaml
+```
+
+```output
+Testing orders_v2.odcs.yaml
+…
+🟢 data contract is valid. Run 36 checks. Took 0.63683 seconds.
 ```
 
 <Solution title="orders_v2.odcs.yaml">
@@ -294,3 +445,4 @@ Eine Typänderung bricht jeden Consumer, der sich auf den alten Typ verlässt; `
 
 - Exportiere beide Versionen als HTML und vergleiche: `datacontract export html orders_v2.odcs.yaml --output orders_v2.odcs.html`
 - Sag den Schweregrad voraus, bevor du `datacontract breaking` ausführst: ein Feld umbenennen, `required: true` entfernen, eine neue Tabelle hinzufügen.
+- Entferne das abgekündigte `customer_id` aus einer Kopie von v2 und führe `datacontract breaking` aus. Das Flag macht das Entfernen nicht kompatibel.

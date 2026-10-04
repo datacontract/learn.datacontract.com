@@ -53,6 +53,14 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
+```output
+downloading uv 0.12.19
+installing to ~/.local/bin
+  uv
+  uvx
+everything's installed!
+```
+
 Verify in a new terminal:
 
 ```bash
@@ -67,15 +75,13 @@ docker compose version
 uv --version
 ```
 
-You should see three version numbers, for example:
-
-```text
-git version 2.47.0
-Docker Compose version v2.31.0
-uv 0.9.5
+```output
+git version 2.54.0
+Docker Compose version v5.1.4
+uv 0.12.19
 ```
 
-If `docker compose version` fails, start Docker Desktop.
+Your version numbers may differ. If `docker compose version` fails, start Docker Desktop.
 
 </Step>
 
@@ -94,6 +100,12 @@ gh repo fork datacontract/learn.datacontract.com --clone
 
 ```powershell
 gh repo fork datacontract/learn.datacontract.com --clone
+```
+
+```output
+✓ Created fork you/learn.datacontract.com
+Cloning into 'learn.datacontract.com'...
+✓ Cloned fork
 ```
 
 <Callout type="concept" title="Why a fork?">
@@ -117,6 +129,13 @@ git clone https://github.com/<your-username>/learn.datacontract.com.git
 cd learn.datacontract.com
 ```
 
+```output
+Cloning into 'learn.datacontract.com'...
+remote: Enumerating objects: 512, done.
+Receiving objects: 100% (512/512), done.
+Resolving deltas: 100% (231/231), done.
+```
+
 Run all commands in this tutorial from this folder, the repository root.
 
 </Step>
@@ -133,6 +152,21 @@ scripts/install.sh
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts\install.ps1
+```
+
+```output
+Resolved 182 packages in 2.41s
+…
+Installed 1 executable: datacontract
+…
+Installed 1 executable: dataproduct
+…
+Installed 1 executable: entropy-data
+1.2.2
+0.2.0
+…
+Status: Downloaded newer image for postgres:17
+docker.io/library/postgres:17
 ```
 
 This takes a few minutes: the Data Contract CLI ships drivers for many databases.
@@ -153,9 +187,7 @@ datacontract --version
 dataproduct --version
 ```
 
-You should see two version numbers:
-
-```text
+```output
 1.2.2
 0.2.0
 ```
@@ -182,6 +214,15 @@ docker compose up -d
 docker compose up -d
 ```
 
+```output
+ Network learndatacontractcom_default Creating
+ Network learndatacontractcom_default Created
+ Container odcs-odps-workshop-postgres Creating
+ Container odcs-odps-workshop-postgres Created
+ Container odcs-odps-workshop-postgres Starting
+ Container odcs-odps-workshop-postgres Started
+```
+
 Run a quick query:
 
 ```bash
@@ -192,9 +233,7 @@ docker compose exec postgres psql -U workshop -d workshop -c "SELECT COUNT(*) FR
 docker compose exec postgres psql -U workshop -d workshop -c "SELECT COUNT(*) FROM orders_v1.orders;"
 ```
 
-You should see the row count:
-
-```text
+```output
  count
 -------
   5000

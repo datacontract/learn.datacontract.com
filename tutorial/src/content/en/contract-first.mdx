@@ -7,6 +7,7 @@ The contract is the specification. You implement it in the [next exercise](#/en/
 <Goals>
 - Design a data contract for a data product that does not exist yet
 - Express the semantics of a view as quality checks
+- Mark measures and dimensions, and give AI agents context (ODCS 3.2)
 - Describe a consumer-aligned data product with input and output ports
 - Understand why failing tests are the expected starting point
 </Goals>
@@ -30,6 +31,14 @@ datacontract edit sku_sales_per_year.odcs.yaml
 
 ```powershell
 datacontract edit sku_sales_per_year.odcs.yaml
+```
+
+```output
+File 'sku_sales_per_year.odcs.yaml' does not exist. Initialize a new data contract? [y/N]: y
+📄 data contract written to sku_sales_per_year.odcs.yaml
+Editing: /Users/you/learn.datacontract.com/sku_sales_per_year.odcs.yaml
+Data Contract Editor running at http://localhost:4243
+Press Ctrl+C to stop
 ```
 
 Set the fundamentals:
@@ -97,6 +106,51 @@ Uniqueness over two columns: `GROUP BY ... HAVING COUNT(*) > 1` in a subquery. P
 
 </Step>
 
+<Step id="semantic-types" title="Mark measures and dimensions">
+
+ODCS 3.2 lets you declare the role a property plays with `semanticType`.
+In the editor, open a property in **Schemas** and set **Semantic Type** and **Transform Logic**, or edit the YAML:
+
+```yaml
+properties:
+  - name: sku
+    semanticType: dimension
+  - name: year
+    semanticType: dimension
+  - name: order_count
+    semanticType: measure
+    transformLogic: COUNT(*)
+  - name: total_quantity
+    semanticType: measure
+    transformLogic: SUM(line_items.quantity)
+```
+
+<Callout type="concept" title="Measures and dimensions">
+A **dimension** is an attribute to group and filter by (`sku`, `year`).
+A **measure** is an aggregated value (`order_count`, `total_quantity`); `transformLogic` says how it is computed.
+Semantic layers, BI tools, and AI agents use these roles to build correct queries, e.g. to sum measures but never sum a year.
+</Callout>
+
+</Step>
+
+<Step id="ai-context" title="Add context for AI agents">
+
+Analysts will ask AI assistants about this data product. Tell them how to use it with a `context` block (new in ODCS 3.2, see [Exercise 1](#/en/contract)).
+In the editor, open **Context** in the navigation:
+
+```yaml
+context:
+  instructions: >-
+    One row per SKU and year. Sum order_count or total_quantity across years for totals.
+  verifiedStatements:
+    - question: Which three SKUs sold the most units in 2024?
+      answer: SELECT sku, total_quantity FROM analytics.sku_sales_per_year WHERE year = 2024 ORDER BY total_quantity DESC LIMIT 3;
+```
+
+The verified statement is a question with a known-good answer. You will check it once the view exists.
+
+</Step>
+
 <Step id="test-red" title="Run the tests and watch them fail">
 
 Save and run the tests:
@@ -107,6 +161,25 @@ datacontract test sku_sales_per_year.odcs.yaml
 
 ```powershell
 datacontract test sku_sales_per_year.odcs.yaml
+```
+
+```output
+Testing sku_sales_per_year.odcs.yaml
+Server: postgres (type=postgres, host=localhost, port=5433, database=workshop, schema=analytics)
+╭────────┬────────────────────────────────────┬────────────────┬───────────────────────────────────╮
+│ Result │ Check                              │ Field          │ Details                           │
+├────────┼────────────────────────────────────┼────────────────┼───────────────────────────────────┤
+│ failed │ Ensure the view has data           │                │ Could not read model              │
+│        │                                    │                │ 'sku_sales_per_year':             │
+│        │                                    │                │ sku_sales_per_year                │
+│ failed │ Check that field 'order_count' is  │ order_count    │ Could not read model              │
+│        │ present                            │                │ 'sku_sales_per_year':             │
+│        │                                    │                │ sku_sales_per_year                │
+…
+╰────────┴────────────────────────────────────┴────────────────┴───────────────────────────────────╯
+🔴 data contract is invalid, found the following errors:
+1) 15 checks on sku, year, order_count, total_quantity: Could not read model 'sku_sales_per_year': 
+sku_sales_per_year
 ```
 
 The tests **fail**, of course: nothing is implemented yet. That is the point. The purchasing team can review the interface while you turn the tests green in the next exercise.
@@ -181,6 +254,11 @@ dataproduct lint sku_sales_per_year.odps.yaml
 
 ```powershell
 dataproduct lint sku_sales_per_year.odps.yaml
+```
+
+```output
+✅ Data product is valid against ODPS v1.0.0
+🟢 Data product is valid.
 ```
 
 <Solution title="sku_sales_per_year.odps.yaml">

@@ -23,7 +23,7 @@ Wähle **eine** Option.
 Namen sind plattformweit eindeutig. Erlaubt sind Kleinbuchstaben, Ziffern und Bindestriche.
 Erstelle in den Organisationseinstellungen einen **API Key** mit Schreibrechten für die Organisation.
 
-**Option 2: Community Edition, lokal.** Starte sie in Docker und führe das Setup-Skript aus. Es legt ein Konto, eine Organisation namens `workshop` und einen API Key an:
+**Option 2: Community Edition, lokal.** Starte sie in Docker und führe das Setup-Skript aus. Es legt ein Konto, eine Organisation namens `acme` und einen API Key an:
 
 ```bash
 docker compose -f entropy-data-ce/docker-compose.yaml up -d
@@ -36,7 +36,7 @@ powershell -ExecutionPolicy Bypass -File scripts\setup-entropy-data-ce.ps1
 ```
 
 Melde dich unter [http://localhost:8081](http://localhost:8081) mit `workshop@example.com` / `workshop` an.
-Wo unten `tutorial-<deinname>` steht, nimmst du `workshop`.
+Wo unten `tutorial-<deinname>` steht, nimmst du `acme`.
 
 </Step>
 
@@ -50,6 +50,10 @@ entropy-data --version
 
 ```powershell
 entropy-data --version
+```
+
+```output
+entropy-data 0.3.13
 ```
 
 **Cloud:** Setz deinen API Key als Umgebungsvariable in deinem Terminal:
@@ -80,6 +84,10 @@ entropy-data connection test
 
 ```powershell
 entropy-data connection test
+```
+
+```output
+Connection successful.
 ```
 
 </Step>
@@ -126,6 +134,20 @@ description: Builds analytical data products for purchasing
 entropy-data teams list
 ```
 
+```output
+Team 'order_data_team' saved.
+Team 'purchasing_analytics_team' saved.
+                                   teams (page 0)
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━━━━━┓
+┃ ID                        ┃ Name                      ┃ Type             ┃ Parent ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━╇━━━━━━━━┩
+│ governance-group          │ Governance Group          │ Governance Group │        │
+│ platform-team             │ Platform Team             │ Platform Team    │        │
+│ order_data_team           │ Order Data Team           │ team             │        │
+│ purchasing_analytics_team │ Purchasing Analytics Team │ team             │        │
+└───────────────────────────┴───────────────────────────┴──────────────────┴────────┘
+```
+
 Der `team.name` in deinen ODCS- und ODPS-Dateien muss der Team-ID entsprechen, z. B. `order_data_team`.
 
 </Step>
@@ -152,6 +174,26 @@ entropy-data datacontracts put orders_v2_consumer_sku_sales --file orders_v2.con
 entropy-data datacontracts list
 ```
 
+```output
+Data contract 'orders_v1' saved.
+Open https://app.entropy-data.com/tutorial-simon/datacontracts/orders_v1
+Data contract 'orders_v2' saved.
+Open https://app.entropy-data.com/tutorial-simon/datacontracts/orders_v2
+Data contract 'sku_sales_per_year' saved.
+Open https://app.entropy-data.com/tutorial-simon/datacontracts/sku_sales_per_year
+Data contract 'orders_v2_consumer_sku_sales' saved.
+Open https://app.entropy-data.com/tutorial-simon/datacontracts/orders_v2_consumer_sku_sales
+                                  datacontracts (page 0)
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ ID                           ┃ Title              ┃ Version ┃ Owner                     ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ orders_v1                    │ Orders             │ 1.0.0   │ order_data_team           │
+│ orders_v2                    │ Orders             │ 2.0.0   │ order_data_team           │
+│ sku_sales_per_year           │ SKU Sales per Year │ 1.0.0   │ purchasing_analytics_team │
+│ orders_v2_consumer_sku_sales │ Orders (SKU Sales) │ 2.0.0   │ purchasing_analytics_team │
+└──────────────────────────────┴────────────────────┴─────────┴───────────────────────────┘
+```
+
 </Step>
 
 <Step id="products" title="Datenprodukte veröffentlichen">
@@ -173,6 +215,18 @@ entropy-data dataproducts put sku_sales --file sku_sales_per_year.odps.yaml
 entropy-data dataproducts list
 ```
 
+```output
+Data product 'orders' saved.
+Data product 'sku_sales' saved.
+                    dataproducts (page 0)
+┏━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ ID        ┃ Title     ┃ Status ┃ Owner                     ┃
+┡━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ orders    │ Orders    │ active │ order_data_team           │
+│ sku_sales │ SKU Sales │ draft  │ purchasing_analytics_team │
+└───────────┴───────────┴────────┴───────────────────────────┘
+```
+
 <Callout type="warning" title="Workaround">
 Wegen eines aktuellen Bugs in Entropy Data schlägt das Veröffentlichen fehl, wenn die ODPS-Datei `inputPorts` enthält. Entferne den Abschnitt `inputPorts` aus `sku_sales_per_year.odps.yaml` direkt vor dem Veröffentlichen. Der nächste Schritt bildet die Abhängigkeit anders ab.
 </Callout>
@@ -186,6 +240,10 @@ dataproduct publish orders.odps.yaml
 
 ```powershell
 dataproduct publish orders.odps.yaml
+```
+
+```output
+✅ Published data product successfully
 ```
 
 </Callout>
@@ -230,6 +288,10 @@ consumer:
 '@ | entropy-data access put sku_sales_consumes_orders --file -
 ```
 
+```output
+Access agreement 'sku_sales_consumes_orders' saved.
+```
+
 Mit Status `approved` und einem `startDate` in der Vergangenheit ist das Agreement aktiv.
 
 <Callout type="concept" title="Warum ein Access Agreement?">
@@ -265,6 +327,21 @@ datacontract test sku_sales_per_year.odcs.yaml --publish https://api.entropy-dat
 
 ```powershell
 datacontract test sku_sales_per_year.odcs.yaml --publish https://api.entropy-data.com/api/test-results
+```
+
+```output
+Testing sku_sales_per_year.odcs.yaml
+🚀 Open https://app.entropy-data.com/tutorial-simon/datacontracts/sku_sales_per_year/servers/postgres/checks
+Server: postgres (type=postgres, host=localhost, port=5433, database=workshop, schema=analytics)
+╭────────┬──────────────────────────────────────────────────┬─────────────┬─────────╮
+│ Result │ Check                                            │ Field       │ Details │
+├────────┼──────────────────────────────────────────────────┼─────────────┼─────────┤
+│ passed │ Ensure the view has data                         │             │         │
+│ passed │ Check that field 'order_count' is present        │ order_count │         │
+│ …      │                                                  │             │         │
+│ passed │ Ensure year is plausible                         │ year        │         │
+╰────────┴──────────────────────────────────────────────────┴─────────────┴─────────╯
+🟢 data contract is valid. Run 15 checks. Took 0.58 seconds.
 ```
 
 Community Edition:

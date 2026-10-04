@@ -6,6 +6,7 @@ A perfect task for an **AI coding agent**: the contract specifies exactly what t
 - Implement a data product from its contract
 - Let an AI coding agent work against a contract and a test feedback loop
 - Learn why types are part of the contract
+- Check a verified statement from the contract's AI context
 - Take a data product live
 </Goals>
 
@@ -28,6 +29,7 @@ Start your AI coding agent (Claude Code, Codex, Copilot, …) in the repository 
 Watch what the agent does:
 
 - Does it read both contracts (yours for the target, `orders_v2` for the source)?
+- Does it use their `context`? The instructions say how to join the tables, and the verified statements show working queries.
 - Does it run the tests and react to failures?
 - The repository tells agents not to peek into `solutions/`, so it has to work from the contract, like an engineer.
 
@@ -60,6 +62,11 @@ docker compose exec -T postgres psql -U workshop -d workshop < sql/sku_sales_per
 Get-Content sql/sku_sales_per_year.sql | docker compose exec -T postgres psql -U workshop -d workshop
 ```
 
+```output
+CREATE SCHEMA
+CREATE VIEW
+```
+
 <Callout type="warning" title="Types are part of your contract">
 `EXTRACT(YEAR FROM order_timestamp)` returns `numeric` in PostgreSQL: cast it with `::int`.
 `SUM(quantity)` also returns `numeric`: cast it with `::bigint`.
@@ -86,12 +93,55 @@ datacontract test sku_sales_per_year.odcs.yaml
 datacontract test sku_sales_per_year.odcs.yaml
 ```
 
+```output
+Testing sku_sales_per_year.odcs.yaml
+Server: postgres (type=postgres, host=localhost, port=5433, database=workshop, schema=analytics)
+╭────────┬──────────────────────────────────────────────────────────┬────────────────┬─────────╮
+│ Result │ Check                                                    │ Field          │ Details │
+├────────┼──────────────────────────────────────────────────────────┼────────────────┼─────────┤
+│ passed │ Ensure the view has data                                 │                │         │
+│ passed │ Check that field 'order_count' is present                │ order_count    │         │
+│ passed │ Check that field order_count has physical type bigint    │ order_count    │         │
+│ passed │ Ensure order_count is positive                           │ order_count    │         │
+…
+│ passed │ Check that field year has physical type integer          │ year           │         │
+│ passed │ Check that field year has no missing values              │ year           │         │
+│ passed │ Ensure year is plausible                                 │ year           │         │
+╰────────┴──────────────────────────────────────────────────────────┴────────────────┴─────────╯
+🟢 data contract is valid. Run 15 checks. Took 0.588051 seconds.
+```
+
 <Solution title="sql/sku_sales_per_year.sql">
 
 ```sql file=../../../../solutions/exercise5/sku_sales_per_year.sql
 ```
 
 </Solution>
+
+</Step>
+
+<Step id="verified-statement" title="Check the verified statement">
+
+Your contract's `context` promises an answer to "Which three SKUs sold the most units in 2024?". Run it:
+
+```bash
+docker compose exec -T postgres psql -U workshop -d workshop -c "SELECT sku, total_quantity FROM analytics.sku_sales_per_year WHERE year = 2024 ORDER BY total_quantity DESC LIMIT 3;"
+```
+
+```powershell
+docker compose exec -T postgres psql -U workshop -d workshop -c "SELECT sku, total_quantity FROM analytics.sku_sales_per_year WHERE year = 2024 ORDER BY total_quantity DESC LIMIT 3;"
+```
+
+```output
+      sku      | total_quantity
+---------------+----------------
+ D3KT74L5EV46T |            146
+ IWMJ3ZX164    |             62
+ TFH11HYOR     |             46
+(3 rows)
+```
+
+Now ask your AI agent the same question, with only the contract as input. Does it come up with this query?
 
 </Step>
 
@@ -107,6 +157,17 @@ dataproduct lint sku_sales_per_year.odps.yaml
 ```powershell
 datacontract lint sku_sales_per_year.odcs.yaml
 dataproduct lint sku_sales_per_year.odps.yaml
+```
+
+```output
+╭────────┬────────────────────────────────────────────┬───────┬─────────╮
+│ Result │ Check                                      │ Field │ Details │
+├────────┼────────────────────────────────────────────┼───────┼─────────┤
+│ passed │ Data contract is valid against ODCS v3.2.0 │       │         │
+╰────────┴────────────────────────────────────────────┴───────┴─────────╯
+🟢 data contract is valid. Run 1 checks. Took 0.12012 seconds.
+✅ Data product is valid against ODPS v1.0.0
+🟢 Data product is valid.
 ```
 
 </Step>

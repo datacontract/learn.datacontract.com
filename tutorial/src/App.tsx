@@ -74,7 +74,7 @@ function Header({ lang, slug, onMenu }: { lang: Lang; slug: string; onMenu: () =
           <MenuIcon />
         </button>
         <a href={href(lang, 'welcome')} className="flex min-w-0 items-center gap-2.5">
-          <img src="./favicon.svg" alt="" className="h-8 w-8" />
+          <img src="./favicon.png" alt="" className="h-8 w-8 dark:rounded-md dark:bg-white dark:p-0.5" />
           <span className="truncate text-sm font-bold text-slate-900 sm:text-base dark:text-white">{ui.title}</span>
         </a>
         <div className="ml-auto flex items-center gap-2 sm:gap-4">
@@ -181,6 +181,16 @@ function ChapterPage({ lang, slug }: { lang: Lang; slug: string }) {
           </a>
         )}
       </nav>
+
+      <footer className="mt-10 border-t border-slate-200 pt-6 text-sm text-slate-500 dark:border-slate-800">
+        {ui.createdBy}{' '}
+        <a href="https://www.linkedin.com/in/simonharrer/" target="_blank" rel="noreferrer" className="font-medium text-slate-700 hover:text-brand-600 dark:text-slate-300 dark:hover:text-brand-300">Simon Harrer</a>
+        {' · '}
+        <a href="https://www.entropy-data.com" target="_blank" rel="noreferrer" className="hover:text-brand-600 dark:hover:text-brand-300">Entropy Data</a>
+        {' · '}
+        {ui.tscMember}{' '}
+        <a href="https://bitol.io" target="_blank" rel="noreferrer" className="hover:text-brand-600 dark:hover:text-brand-300">Bitol</a>
+      </footer>
     </article>
   )
 }

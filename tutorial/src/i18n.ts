@@ -41,6 +41,8 @@ const ui = {
     note: 'Note',
     warning: 'Warning',
     concept: 'Concept',
+    createdBy: 'Created by',
+    tscMember: 'TSC Member at',
   },
   de: {
     title: 'Datenkontrakte in der Praxis',
@@ -81,6 +83,8 @@ const ui = {
     note: 'Hinweis',
     warning: 'Achtung',
     concept: 'Konzept',
+    createdBy: 'Erstellt von',
+    tscMember: 'TSC-Mitglied bei',
   },
 } satisfies Record<Lang, Record<string, unknown>>
 

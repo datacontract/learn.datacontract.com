@@ -46,7 +46,28 @@ You consume the `orders_v2` contract — it guarantees you the `quantity` column
    - `total_quantity` is never less than `order_count`
    - The view is not empty
 
-5. Save the contract and run the tests:
+5. Declare the semantic role of each property (`semanticType`, new in ODCS 3.2): `sku` and `year` are dimensions you group and filter by, `order_count` and `total_quantity` are measures. `transformLogic` says how a measure is computed. In the editor, open the property and set **Semantic Type** and **Transform Logic**:
+
+   ```yaml
+   - name: year
+     semanticType: dimension
+   - name: total_quantity
+     semanticType: measure
+     transformLogic: SUM(line_items.quantity)
+   ```
+
+6. Add a `context` block for AI agents (new in ODCS 3.2, editor: **Context**), with instructions and a verified statement you can check after Exercise 5:
+
+   ```yaml
+   context:
+     instructions: >-
+       One row per SKU and year. Sum order_count or total_quantity across years for totals.
+     verifiedStatements:
+       - question: Which three SKUs sold the most units in 2024?
+         answer: SELECT sku, total_quantity FROM analytics.sku_sales_per_year WHERE year = 2024 ORDER BY total_quantity DESC LIMIT 3;
+   ```
+
+7. Save the contract and run the tests:
 
    ```bash
    datacontract test sku_sales_per_year.odcs.yaml
@@ -58,14 +79,14 @@ You consume the `orders_v2` contract — it guarantees you the `quantity` column
 
 ## Describe the Data Product
 
-6. Create `sku_sales_per_year.odps.yaml`, following the same structure as in [Exercise 3]:
+8. Create `sku_sales_per_year.odps.yaml`, following the same structure as in [Exercise 3]:
    
    - **ID**: `sku_sales`
    - **Name**: `SKU Sales`
    - **Status**: `draft`
    - **Domain** `ecommerce`
 
-7. Add an **output port** referencing your `sku_sales_per_year` contract — like in [Exercise 3] with `displayName` and the `server` as `customProperties`:
+9. Add an **output port** referencing your `sku_sales_per_year` contract, like in [Exercise 3]:
 
    ```yaml
    outputPorts:
@@ -74,7 +95,7 @@ You consume the `orders_v2` contract — it guarantees you the `quantity` column
        contractId: sku_sales_per_year
       ```
  
-8. Add an **input port** referencing the `orders_v2` contract — this declares which data (and which guarantees!) your product builds on:
+10. Add an **input port** referencing the `orders_v2` contract. It declares which data (and which guarantees!) your product builds on:
 
    ```yaml
    inputPorts:
@@ -83,7 +104,7 @@ You consume the `orders_v2` contract — it guarantees you the `quantity` column
        contractId: orders_v2
    ```
 
-9. Validate:
+11. Validate:
 
    ```bash
    dataproduct lint sku_sales_per_year.odps.yaml

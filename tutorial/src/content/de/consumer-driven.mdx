@@ -35,6 +35,12 @@ Copy-Item orders_v2.odcs.yaml orders_v2.consumer_sku_sales.odcs.yaml
 datacontract edit orders_v2.consumer_sku_sales.odcs.yaml
 ```
 
+```output
+Editing: /Users/you/learn.datacontract.com/orders_v2.consumer_sku_sales.odcs.yaml
+Data Contract Editor running at http://localhost:4243
+Press Ctrl+C to stop
+```
+
 Setze die **ID** auf `orders_v2_consumer_sku_sales`. Lass die **Version** bei `2.0.0`, da der Kontrakt auf den v2-Daten basiert.
 
 </Step>
@@ -47,6 +53,8 @@ Entferne alle Properties, die deine View nicht nutzt, samt ihren Quality Checks.
 - `line_items`: `order_id`, `sku`, `quantity`
 
 Behalte den Check `quantity > 0`. Dein Datenprodukt verlässt sich darauf: Sonst könnte `total_quantity` kleiner als `order_count` sein.
+
+Die Kopie enthält auch `context` und `synonyms` des Produzenten (ODCS 3.2). Entferne den `context` auf Kontrakt-Ebene: Seine Verified Statements fragen `order_total` und die Tabellen des Produzenten ab, und sein Constraint betrifft ein Feld, das du entfernt hast. Kontext und Synonyme auf Schema-Ebene für behaltene Felder dürfen bleiben.
 
 </Step>
 
@@ -79,6 +87,22 @@ datacontract test orders_v2.consumer_sku_sales.odcs.yaml
 datacontract test orders_v2.consumer_sku_sales.odcs.yaml
 ```
 
+```output
+Testing orders_v2.consumer_sku_sales.odcs.yaml
+Server: postgres (type=postgres, host=localhost, port=5433, database=workshop, 
+schema=sku_sales_input)
+╭────────┬───────────────────────────────┬────────────────────────┬────────────────────────────────╮
+│ Result │ Check                         │ Field                  │ Details                        │
+├────────┼───────────────────────────────┼────────────────────────┼────────────────────────────────┤
+│ failed │ Check that field 'order_id'   │ line_items.order_id    │ Could not read model           │
+│        │ is present                    │                        │ 'line_items': line_items       │
+…
+🔴 data contract is invalid, found the following errors:
+1) 7 checks on orders.order_id, orders.order_timestamp: Could not read model 'orders': orders
+2) 9 checks on line_items.order_id, line_items.sku, line_items.quantity: Could not read model 
+'line_items': line_items
+```
+
 Sie schlagen fehl, weil es die Views noch nicht gibt. Contract-first, schon wieder.
 
 <Solution title="orders_v2.consumer_sku_sales.odcs.yaml">
@@ -109,6 +133,12 @@ docker compose exec -T postgres psql -U workshop -d workshop < sql/sku_sales_inp
 Get-Content sql/sku_sales_input.sql | docker compose exec -T postgres psql -U workshop -d workshop
 ```
 
+```output
+CREATE SCHEMA
+CREATE VIEW
+CREATE VIEW
+```
+
 </Step>
 
 <Step id="test-green" title="Tests ausführen: grün">
@@ -119,6 +149,25 @@ datacontract test orders_v2.consumer_sku_sales.odcs.yaml
 
 ```powershell
 datacontract test orders_v2.consumer_sku_sales.odcs.yaml
+```
+
+```output
+Testing orders_v2.consumer_sku_sales.odcs.yaml
+Server: postgres (type=postgres, host=localhost, port=5433, database=workshop, 
+schema=sku_sales_input)
+╭────────┬──────────────────────────────────────────────────────┬────────────────────────┬─────────╮
+│ Result │ Check                                                │ Field                  │ Details │
+├────────┼──────────────────────────────────────────────────────┼────────────────────────┼─────────┤
+│ passed │ Check that field 'order_id' is present               │ line_items.order_id    │         │
+│ passed │ Check that field order_id has physical type text     │ line_items.order_id    │         │
+│ passed │ Check that field order_id has no missing values      │ line_items.order_id    │         │
+│ passed │ Check that field 'quantity' is present               │ line_items.quantity    │         │
+│ passed │ Check that field quantity has physical type bigint   │ line_items.quantity    │         │
+│ passed │ Ensure quantity is positive                          │ line_items.quantity    │         │
+…
+│ passed │ Check that field 'order_timestamp' is present        │ orders.order_timestamp │         │
+╰────────┴──────────────────────────────────────────────────────┴────────────────────────┴─────────╯
+🟢 data contract is valid. Run 16 checks. Took 0.545395 seconds.
 ```
 
 </Step>
@@ -135,6 +184,12 @@ docker compose exec -T postgres psql -U workshop -d workshop < sql/sku_sales_per
 
 ```powershell
 Get-Content sql/sku_sales_per_year.sql | docker compose exec -T postgres psql -U workshop -d workshop
+```
+
+```output
+NOTICE:  schema "analytics" already exists, skipping
+CREATE SCHEMA
+CREATE VIEW
 ```
 
 <Callout type="note">
@@ -160,6 +215,14 @@ datacontract test sku_sales_per_year.odcs.yaml
 
 ```powershell
 datacontract test sku_sales_per_year.odcs.yaml
+```
+
+```output
+Testing sku_sales_per_year.odcs.yaml
+…
+│ passed │ Ensure year is plausible                                 │ year           │         │
+╰────────┴──────────────────────────────────────────────────────────┴────────────────┴─────────╯
+🟢 data contract is valid. Run 15 checks. Took 0.606872 seconds.
 ```
 
 </Step>

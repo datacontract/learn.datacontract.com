@@ -7,6 +7,7 @@ Answer them once, in a data contract.
 - Create an ODCS data contract with the Data Contract Editor
 - Test the contract against the real database, and see tests fail
 - Add terms of use, classification, relationships, and quality checks
+- Give AI agents context: instructions, verified answers, and constraints (new in ODCS 3.2)
 - Add ownership, support channels, and service levels
 </Goals>
 
@@ -24,6 +25,13 @@ docker compose exec postgres psql -U workshop -d workshop
 
 ```powershell
 docker compose exec postgres psql -U workshop -d workshop
+```
+
+```output
+psql (17.10 (Debian 17.10-1.pgdg13+1))
+Type "help" for help.
+
+workshop=#
 ```
 
 List the tables and look at a few rows:
@@ -63,7 +71,15 @@ datacontract edit orders_v1.odcs.yaml
 datacontract edit orders_v1.odcs.yaml
 ```
 
-The CLI asks whether to create the file. Confirm.
+```output
+File 'orders_v1.odcs.yaml' does not exist. Initialize a new data contract? [y/N]: y
+📄 data contract written to orders_v1.odcs.yaml
+Editing: /Users/you/learn.datacontract.com/orders_v1.odcs.yaml
+Data Contract Editor running at http://localhost:4243
+Press Ctrl+C to stop
+```
+
+The CLI asks whether to create the file. Confirm with `y`. The new file uses ODCS `apiVersion: v3.2.0`.
 The editor opens in your browser. **Saving writes directly to the file on disk.**
 
 In the **Form** view, set the fundamentals:
@@ -94,6 +110,11 @@ Go to **Servers** and add a server. It tells tools *where* the data lives, so th
 | Port | `5433` |
 | Database | `workshop` |
 | Schema | `orders_v1` |
+
+<Callout type="tip" title="Variables (ODCS 3.2)">
+Contracts may contain variables like `host: ${DB_HOST:-localhost}`. Tools resolve them at runtime from the environment, with the value after `:-` as default.
+One contract then works in dev, test, and production, without secrets in Git.
+</Callout>
 
 </Step>
 
@@ -145,6 +166,23 @@ datacontract test orders_v1.odcs.yaml
 datacontract test orders_v1.odcs.yaml
 ```
 
+```output
+Testing orders_v1.odcs.yaml
+Server: Orders (type=postgres, host=localhost, port=5433, database=workshop, schema=orders_v1)
+╭────────┬────────────────────────────────────────────────────────────────┬───────────────────────────────┬─────────╮
+│ Result │ Check                                                          │ Field                         │ Details │
+├────────┼────────────────────────────────────────────────────────────────┼───────────────────────────────┼─────────┤
+│ passed │ Check that field 'lines_item_id' is present                    │ line_items.lines_item_id      │         │
+│ passed │ Check that field lines_item_id has physical type TEXT          │ line_items.lines_item_id      │         │
+│ passed │ Check that field 'order_id' is present                         │ line_items.order_id           │         │
+│ passed │ Check that field order_id has physical type TEXT               │ line_items.order_id           │         │
+…
+│ passed │ Check that field 'order_total' is present                      │ orders.order_total            │         │
+│ passed │ Check that field order_total has physical type BIGINT          │ orders.order_total            │         │
+╰────────┴────────────────────────────────────────────────────────────────┴───────────────────────────────┴─────────╯
+🟢 data contract is valid. Run 16 checks. Took 0.52 seconds.
+```
+
 All checks should pass. If **all** fail, the database is probably not running: `docker compose up -d`.
 
 </Step>
@@ -159,6 +197,21 @@ datacontract test orders_v1.odcs.yaml
 
 ```powershell
 datacontract test orders_v1.odcs.yaml
+```
+
+```output
+Testing orders_v1.odcs.yaml
+Server: Orders (type=postgres, host=localhost, port=5433, database=workshop, schema=orders_v1)
+╭────────┬──────────────────────────────────────────────────────┬───────────────────────────────┬────────────────────────────────────────────────────╮
+│ Result │ Check                                                │ Field                         │ Details                                            │
+├────────┼──────────────────────────────────────────────────────┼───────────────────────────────┼────────────────────────────────────────────────────┤
+│ failed │ Check that field customer_email_address has physical │ orders.customer_email_address │ expected physical type 'integer' but the column is │
+│        │ type integer                                         │                               │ 'text'                                             │
+│ passed │ Check that field 'lines_item_id' is present          │ line_items.lines_item_id      │                                                    │
+…
+╰────────┴──────────────────────────────────────────────────────┴───────────────────────────────┴────────────────────────────────────────────────────╯
+🔴 data contract is invalid, found the following errors:
+1) orders.customer_email_address Check that field customer_email_address has physical type integer: expected physical type 'integer' but the column is 'text'
 ```
 
 Which check fails, and why? Try other mistakes: a misspelled column, a missing table.
@@ -206,6 +259,14 @@ datacontract test orders_v1.odcs.yaml
 datacontract test orders_v1.odcs.yaml
 ```
 
+```output
+Testing orders_v1.odcs.yaml
+…
+│ passed │ Check that field customer_email_address has no missing values  │ orders.customer_email_address │         │
+…
+🟢 data contract is valid. Run 17 checks. Took 0.55 seconds.
+```
+
 Spot the new check? A `required` field adds a "no missing values" check.
 
 Optionally, render the contract as HTML and open `orders_v1.odcs.html` in your browser:
@@ -216,6 +277,10 @@ datacontract export html orders_v1.odcs.yaml --output orders_v1.odcs.html
 
 ```powershell
 datacontract export html orders_v1.odcs.yaml --output orders_v1.odcs.html
+```
+
+```output
+Written result to orders_v1.odcs.html
 ```
 
 </Step>
@@ -262,7 +327,23 @@ schema:
             mustBe: 0
 ```
 
-The query counts *invalid* rows, `mustBe: 0` asserts there are none. Run the tests and find the new check.
+The query counts *invalid* rows, `mustBe: 0` asserts there are none. Run the tests and find the new check:
+
+```bash
+datacontract test orders_v1.odcs.yaml
+```
+
+```powershell
+datacontract test orders_v1.odcs.yaml
+```
+
+```output
+Testing orders_v1.odcs.yaml
+…
+│ passed │ Ensure email addresses are valid                               │ orders.customer_email_address │         │
+…
+🟢 data contract is valid. Run 18 checks. Took 0.58 seconds.
+```
 
 <Callout type="tip">
 "Count the bad rows, expect zero" works for almost any rule. When the check fails, the query helps you debug.
@@ -294,6 +375,147 @@ quality:
 All options: [ODCS data quality reference](https://bitol-io.github.io/open-data-contract-standard/latest/data-quality/#sql).
 
 </Step>
+
+## Context for AI
+
+AI agents, LLM chat tools, and BI assistants increasingly query data on their own.
+They read the schema, but they don't know that `order_total` is in cents, which questions have a trusted answer, or what they must never do.
+ODCS 3.2 adds a `context` block for exactly that.
+
+<Callout type="concept" title="The context block (ODCS 3.2)">
+`context` exists on the contract level (the dataset as a whole) and on each schema object (one table). It has three parts:
+
+- **instructions**: natural-language guidance, like a system prompt scoped to this data.
+- **verifiedStatements**: canonical business questions. With an `answer`, agents should return the curated answer when a question is close. Without, they are sample questions that prime the agent.
+- **constraints**: negative guidance. What agents must **not** do, e.g. expose personal data.
+</Callout>
+
+<Step id="ai-context" title="Add context for AI agents">
+
+In the editor, open **Context** in the left navigation (or edit the YAML) and add:
+
+- **Instructions**: what the data is, units, and time zone.
+- **Verified statements**: a question with a SQL answer you checked yourself.
+- **Constraints**: never output personal data.
+
+```yaml
+context:
+  instructions: >-
+    Orders of the e-commerce platform and their line items.
+    order_total is in cents. Timestamps are in UTC.
+    Use this data for order volume and revenue analysis.
+  verifiedStatements:
+    - question: How many orders were placed in 2023?
+      answer: SELECT COUNT(*) FROM orders_v1.orders WHERE EXTRACT(YEAR FROM order_timestamp) = 2023;
+    - question: What was the revenue per year?
+      answer: SELECT EXTRACT(YEAR FROM order_timestamp)::int AS year, SUM(order_total) / 100.0 AS revenue FROM orders_v1.orders GROUP BY 1 ORDER BY 1;
+  constraints:
+    - constraint: Never output customer_email_address or customer_id. Aggregate the data instead.
+      tags: ['pii']
+```
+
+Check your verified answer before you publish it. Run the query:
+
+```bash
+docker compose exec postgres psql -U workshop -d workshop -c "SELECT COUNT(*) FROM orders_v1.orders WHERE EXTRACT(YEAR FROM order_timestamp) = 2023;"
+```
+
+```powershell
+docker compose exec postgres psql -U workshop -d workshop -c "SELECT COUNT(*) FROM orders_v1.orders WHERE EXTRACT(YEAR FROM order_timestamp) = 2023;"
+```
+
+```output
+ count
+-------
+   876
+(1 row)
+```
+
+</Step>
+
+<Step id="schema-context" title="Add context to the orders table">
+
+Context on a schema object explains how to use that one table: granularity, joins, filters.
+In **Schemas → orders**, add:
+
+```yaml
+schema:
+  - name: orders
+    context:
+      instructions: One row per order. Join line_items on order_id to get the purchased SKUs.
+    # ...
+```
+
+Do the same for `line_items`, e.g. "One row per purchased SKU in an order."
+
+</Step>
+
+<Step id="synonyms" title="Add synonyms">
+
+People search with their own words: "purchases", "Bestellungen", "article number". ODCS 3.2 records them as `synonyms` on schema objects and properties, so catalogs and agents find the right table.
+Add synonyms in the editor or in YAML. The `locale` (a BCP 47 tag) marks a synonym in another language:
+
+```yaml
+schema:
+  - name: orders
+    synonyms:
+      - synonym: purchases
+      - synonym: Bestellungen
+        locale: de
+    # ...
+  - name: line_items
+    synonyms:
+      - synonym: order lines
+    properties:
+      # ...
+      - name: sku
+        synonyms:
+          - synonym: article number
+          - synonym: Artikelnummer
+            locale: de
+```
+
+Validate the contract against the ODCS 3.2 schema:
+
+```bash
+datacontract lint orders_v1.odcs.yaml
+```
+
+```powershell
+datacontract lint orders_v1.odcs.yaml
+```
+
+```output
+╭────────┬────────────────────────────────────────────┬───────┬─────────╮
+│ Result │ Check                                      │ Field │ Details │
+├────────┼────────────────────────────────────────────┼───────┼─────────┤
+│ passed │ Data contract is valid against ODCS v3.2.0 │       │         │
+╰────────┴────────────────────────────────────────────┴───────┴─────────╯
+🟢 data contract is valid. Run 1 checks. Took 0.13 seconds.
+```
+
+</Step>
+
+<Step id="ask-agent" title="Optional: ask your AI agent">
+
+Start your AI coding agent (Claude Code, Codex, Copilot, ...) in the repository and ask:
+
+> Using the data contract `orders_v1.odcs.yaml`, how many orders were placed in 2023? Then list the email addresses of the customers with the most orders.
+
+Watch what it does:
+
+- Does it reuse the verified answer? (Expected result: **876**.)
+- Does it refuse to list email addresses, because of the constraint?
+
+</Step>
+
+<Quiz
+  question="An agent gets a question that is close to a verified statement with an answer. What should it do?"
+  options={["Write its own SQL from scratch", "Return the curated answer of the verified statement", "Ignore the contract and ask the user"]}
+  answer={1}
+>
+Verified statements with an `answer` are trusted, curated answers. Agents should return them when a question is semantically close. Statements without an answer only prime the agent with sample questions.
+</Quiz>
 
 ## Ownership and service levels
 
@@ -345,6 +567,21 @@ datacontract test orders_v1.odcs.yaml
 
 ```powershell
 datacontract test orders_v1.odcs.yaml
+```
+
+```output
+Testing orders_v1.odcs.yaml
+Server: Orders (type=postgres, host=localhost, port=5433, database=workshop, schema=orders_v1)
+╭────────┬───────────────────────────────────────────────────────────────────┬───────────────────────────────┬─────────╮
+│ Result │ Check                                                             │ Field                         │ Details │
+├────────┼───────────────────────────────────────────────────────────────────┼───────────────────────────────┼─────────┤
+│ passed │ Ensure line_items table has data                                  │ line_items                    │         │
+│ passed │ Ensure every line_items.order_id exists in orders                 │ line_items                    │         │
+…
+│ passed │ Ensure email addresses contain @                                  │ orders.customer_email_address │         │
+…
+╰────────┴───────────────────────────────────────────────────────────────────┴───────────────────────────────┴─────────╯
+🟢 data contract is valid. Run 33 checks. Took 0.65 seconds.
 ```
 
 <Solution title="orders_v1.odcs.yaml">

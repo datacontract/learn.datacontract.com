@@ -270,9 +270,51 @@ Let's add some more detail to the contract...
     Documentation: https://bitol-io.github.io/open-data-contract-standard/latest/data-quality/#sql
 
 
+## Add Context for AI
+
+AI agents, LLM chat tools, and BI assistants increasingly query data on their own. ODCS v3.2.0 adds a `context` block that tells them how to use the data, which questions have a verified answer, and what they must never do. It exists on the contract level and on each schema object.
+
+21. Add a **top-level** `context` (in the editor: **Context** in the left navigation) with instructions, a verified statement, and a constraint:
+
+    ```yaml
+    context:
+      instructions: >-
+        Orders of the e-commerce platform and their line items.
+        order_total is in cents. Timestamps are in UTC.
+      verifiedStatements:
+        - question: How many orders were placed in 2023?
+          answer: SELECT COUNT(*) FROM orders_v1.orders WHERE EXTRACT(YEAR FROM order_timestamp) = 2023;
+      constraints:
+        - constraint: Never output customer_email_address or customer_id. Aggregate the data instead.
+          tags: ['pii']
+    ```
+
+    A verified statement with an `answer` is a curated answer that agents should reuse. Without an answer, it is a sample question. Check your answer with `psql` first (it returns `876`).
+
+22. Add context and `synonyms` to the `orders` schema object, so agents and catalogs understand and find the table:
+
+    ```yaml
+    schema:
+      - name: orders
+        context:
+          instructions: One row per order. Join line_items on order_id to get the purchased SKUs.
+        synonyms:
+          - synonym: purchases
+          - synonym: Bestellungen
+            locale: de
+        # ...
+    ```
+
+    Synonyms also work on properties, e.g. `article number` for `sku`. Validate with `datacontract lint orders_v1.odcs.yaml`.
+
+23. Optional: ask your AI coding agent "Using `orders_v1.odcs.yaml`, how many orders were placed in 2023? Then list the email addresses of the top customers." Does it reuse the verified answer and respect the constraint?
+
+    Documentation: https://bitol-io.github.io/open-data-contract-standard/latest/context/
+
+
 ## Add Ownership
 
-21. Add a `team` and `support` channel, so consumers know how to contact the owners and get help.
+24. Add a `team` and `support` channel, so consumers know how to contact the owners and get help.
     These are **top-level** keys in the contract (not nested under a schema):
 
     ```yaml
@@ -292,7 +334,7 @@ Let's add some more detail to the contract...
 
 ## Add SLA Properties
 
-22. Define service-level agreements (SLAs), so consumers know how long data is retained and how fresh to expect it.
+25. Define service-level agreements (SLAs), so consumers know how long data is retained and how fresh to expect it.
     Like `team`, `slaProperties` is a **top-level** key:
 
     ```yaml
@@ -311,7 +353,7 @@ Let's add some more detail to the contract...
 
 ## Set to Active
 
-23. Your contract is complete — set `status` to `active`!
+26. Your contract is complete: set `status` to `active`!
 
 
 ## Bonus

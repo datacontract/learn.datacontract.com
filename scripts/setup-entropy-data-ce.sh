@@ -13,7 +13,7 @@ if [ -f .env ]; then set -a; . ./.env; set +a; fi
 HOST="${ENTROPY_DATA_CE_HOST:-http://localhost:8081}"
 EMAIL="${ENTROPY_DATA_CE_EMAIL:-workshop@example.com}"
 PASSWORD="${ENTROPY_DATA_CE_PASSWORD:-workshop}"
-ORGANIZATION="${ENTROPY_DATA_CE_ORGANIZATION:-workshop}"
+ORGANIZATION="${ENTROPY_DATA_CE_ORGANIZATION:-acme}"
 
 COOKIES=$(mktemp)
 PAGE=$(mktemp)

@@ -4,7 +4,7 @@ Das beschreibt das **Datenprodukt**, mit dem [Open Data Product Standard](https:
 
 <Goals>
 - Den Unterschied zwischen Datenprodukt und Datenkontrakt verstehen
-- Das Datenprodukt Orders mit ODPS beschreiben, inklusive seiner Output-Ports
+- Das Datenprodukt Orders mit ODPS 1.1 beschreiben, inklusive Typ und Output-Ports
 - Die Beschreibung mit der Data Product CLI validieren
 </Goals>
 
@@ -32,16 +32,21 @@ dataproduct init orders.odps.yaml
 dataproduct init orders.odps.yaml
 ```
 
+```output
+📄 data product written to orders.odps.yaml
+```
+
 Öffne `orders.odps.yaml` in deiner IDE. Sie enthält Platzhalter und auskommentierte Abschnitte.
 Ersetze den oberen Teil durch die Grunddaten deines Orders-Produkts:
 
 ```yaml
-apiVersion: v1.0.0
+apiVersion: v1.1.0
 kind: DataProduct
 id: orders
 name: Orders
 version: 1.0.0 # die Version des Datenprodukts, unabhängig von den Kontraktversionen
 status: active
+type: sourceAligned
 domain: ecommerce
 description:
   purpose: # wofür ist dieses Datenprodukt gedacht?
@@ -49,6 +54,14 @@ description:
 ```
 
 Ersetze die Kommentare bei `purpose` und `limitations` durch echten Text: Was muss ein Consumer wissen, bevor er Zugriff beantragt?
+
+<Callout type="concept" title="Typen von Datenprodukten (neu in ODPS 1.1)">
+`type` sagt Consumern, wie ein Produkt ausgerichtet ist:
+
+- **`sourceAligned`**: stellt Daten nah an einem operativen System bereit, wie Orders
+- **`aggregate`**: kombiniert mehrere Quellen
+- **`consumerAligned`**: für einen konkreten Anwendungsfall gebaut, wie das Produkt SKU Sales in [Teil B](#/de/contract-first)
+</Callout>
 
 </Step>
 
@@ -60,6 +73,7 @@ Ergänze pro Datenkontrakt einen **Output-Port**. Die `contractId` muss der `id`
 outputPorts:
   - name: orders_v1
     description: Orders and line items tables in PostgreSQL (v1, superseded by v2)
+    deprecated: true
     version: 1.0.0
     contractId: orders_v1
   - name: orders_v2
@@ -69,6 +83,8 @@ outputPorts:
 ```
 
 Schreib die Beschreibung für `orders_v2` selbst. Entferne den Beispiel-Port von `dataproduct init`.
+
+`deprecated: true` (neu in ODPS 1.1) markiert den Port `orders_v1` als nicht mehr empfohlen. Er bleibt für bestehende Consumer dokumentiert, neue Consumer wählen `orders_v2`.
 
 </Step>
 
@@ -105,11 +121,28 @@ dataproduct lint orders.odps.yaml
 dataproduct lint orders.odps.yaml
 ```
 
-```text
+```output
+✅ Data product is valid against ODPS v1.1.0
 🟢 Data product is valid.
 ```
 
-Lass es einmal fehlschlagen: Ändere `kind: DataProduct` in `kind: DataProdukt` und linte erneut. Die CLI nennt das falsche Feld und endet mit Exit-Code `1`. Mach es danach rückgängig.
+Lass es einmal fehlschlagen: Ändere `kind: DataProduct` in `kind: DataProdukt` und linte erneut:
+
+```bash
+dataproduct lint orders.odps.yaml
+```
+
+```powershell
+dataproduct lint orders.odps.yaml
+```
+
+```output
+❌ Check that data product is valid against ODPS v1.1.0: kind: 'DataProdukt' is not one of
+['DataProduct']
+🔴 Data product is invalid.
+```
+
+Die CLI nennt das falsche Feld und endet mit Exit-Code `1`. Mach es danach rückgängig.
 
 <Solution title="orders.odps.yaml">
 
@@ -135,5 +168,6 @@ Das Datenprodukt bleibt dasselbe: Es ist die stabile Einheit der Verantwortung. 
 
 ## Bonus
 
-- `orders_v1` ist `retired`. Sollte sein Output-Port in der Produktbeschreibung bleiben? Wäge Transparenz für bestehende Consumer gegen einen aufgeräumten Katalog ab.
+- `orders_v1` ist `retired`. Sollte sein als deprecated markierter Output-Port in der Produktbeschreibung bleiben oder entfernt werden? Wäge Transparenz für bestehende Consumer gegen einen aufgeräumten Katalog ab.
+- ODPS 1.1 kennt wie ODCS 3.2 einen `context`-Block für KI-Agenten, auf Produkt- und Output-Port-Ebene. Ergänze `instructions`, die einem Agenten sagen, welchen Port er nutzen soll.
 - Ergänze `tags` am Datenprodukt, z. B. `['orders', 'ecommerce']`, und linte erneut.

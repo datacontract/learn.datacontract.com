@@ -59,3 +59,50 @@ body {
 .prose :where(pre) {
   @apply m-0 bg-transparent p-0;
 }
+
+/* terminal windows: always dark, prompts per command line, output revealed line by line */
+.terminal .shiki,
+.terminal .shiki span {
+  color: var(--shiki-dark);
+}
+.terminal pre[data-output],
+.terminal pre[data-output] .line,
+.terminal pre[data-output] .line span {
+  color: rgb(203 213 225);
+  line-height: 1.3;
+}
+.terminal .line[data-prompt]::before {
+  content: '$ ';
+  color: rgb(52 211 153);
+  user-select: none;
+}
+.terminal[data-os='windows'] .line[data-prompt]::before {
+  content: 'PS> ';
+}
+.terminal pre[data-output] {
+  margin-top: 0.5rem;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .terminal[data-revealed='false'] pre[data-output] .line {
+    opacity: 0;
+  }
+  .terminal[data-revealed='true'] pre[data-output] .line {
+    animation: terminal-line 0.25s ease-out both;
+  }
+  .terminal[data-revealed='true'] pre[data-output] .line {
+    animation-delay: 0s;
+  }
+  .terminal[data-revealed='true'] pre[data-output] .line[style] {
+    animation-delay: calc(0.3s + min(var(--line-index, 0) * 40ms, 1.5s));
+  }
+}
+@keyframes terminal-line {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

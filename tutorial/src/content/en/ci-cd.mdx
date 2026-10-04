@@ -42,6 +42,23 @@ git commit -m "Add data contracts, data products, and views"
 git push
 ```
 
+```output
+[main 6ee37e4] Add data contracts, data products, and views
+ 9 files changed, 601 insertions(+)
+ create mode 100644 orders.odps.yaml
+ create mode 100644 orders_v1.odcs.yaml
+ …
+ create mode 100644 sql/sku_sales_per_year.sql
+Enumerating objects: 14, done.
+Counting objects: 100% (14/14), done.
+Delta compression using up to 18 threads
+Compressing objects: 100% (11/11), done.
+Writing objects: 100% (12/12), 5.32 KiB | 5.32 MiB/s, done.
+Total 12 (delta 1), reused 0 (delta 0), pack-reused 0 (from 0)
+To https://github.com/<your-username>/learn.datacontract.com.git
+   18f0f52..6ee37e4  main -> main
+```
+
 <Callout type="warning">
 Your fork is public. Never commit an API key. Check with `git diff .env` that `.env` only contains the workshop credentials.
 </Callout>
@@ -171,6 +188,26 @@ datacontract breaking orders_v1.odcs.yaml orders_v2.odcs.yaml
 datacontract breaking orders_v1.odcs.yaml orders_v2.odcs.yaml
 ```
 
+```output
+Summary
+[ 11 Warning ]  [ 6 Info ]
+╭──────────┬─────────┬───────────────────────────────────────────────────────────╮
+│ Severity │ Change  │ Field                                                     │
+├──────────┼─────────┼───────────────────────────────────────────────────────────┤
+│ INFO     │ Updated │ id                                                        │
+│ WARNING  │ Updated │ schema.line_items.properties.lines_item_id.quality.[1]    │
+│ INFO     │ Added   │ schema.line_items.properties.quantity                     │
+│ WARNING  │ Updated │ schema.line_items.properties.sku.quality.[1]              │
+│ …        │         │                                                           │
+│ WARNING  │ Updated │ schema.orders.quality.[2]                                 │
+│ INFO     │ Updated │ servers.postgres                                          │
+│ INFO     │ Updated │ version                                                   │
+╰──────────┴─────────┴───────────────────────────────────────────────────────────╯
+
+Details
+…
+```
+
 Adding `quantity` is `INFO`. The changed SQL quality queries are `WARNING`s: worth a look, but not breaking. The command exits with code `0`.
 Now compare in the other direction, as if you removed `quantity` again:
 
@@ -182,6 +219,24 @@ echo $?
 ```powershell
 datacontract breaking orders_v2.odcs.yaml orders_v1.odcs.yaml
 $LASTEXITCODE
+```
+
+```output
+Summary
+[ 1 Error ]  [ 11 Warning ]  [ 5 Info ]
+╭──────────┬─────────┬───────────────────────────────────────────────────────────╮
+│ Severity │ Change  │ Field                                                     │
+├──────────┼─────────┼───────────────────────────────────────────────────────────┤
+│ INFO     │ Updated │ id                                                        │
+│ WARNING  │ Updated │ schema.line_items.properties.lines_item_id.quality.[1]    │
+│ ERROR    │ Removed │ schema.line_items.properties.quantity                     │
+│ …        │         │                                                           │
+│ INFO     │ Updated │ version                                                   │
+╰──────────┴─────────┴───────────────────────────────────────────────────────────╯
+
+Details
+…
+1
 ```
 
 The removed property is an `ERROR`, and the exit code is `1`. That is what fails a pipeline.
@@ -249,6 +304,25 @@ git switch -c remove-customer-id
 # edit orders_v2.odcs.yaml: remove customer_id
 git commit -am "Remove customer_id"
 git push -u origin remove-customer-id
+```
+
+```output
+Switched to a new branch 'remove-customer-id'
+[remove-customer-id 86465a7] Remove customer_id
+ 1 file changed, 10 deletions(-)
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 18 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 305 bytes | 305.00 KiB/s, done.
+Total 3 (delta 2), reused 0 (delta 0), pack-reused 0 (from 0)
+remote:
+remote: Create a pull request for 'remove-customer-id' on GitHub by visiting:
+remote:      https://github.com/<your-username>/learn.datacontract.com/pull/new/remove-customer-id
+remote:
+To https://github.com/<your-username>/learn.datacontract.com.git
+ * [new branch]      remove-customer-id -> remove-customer-id
+branch 'remove-customer-id' set up to track 'origin/remove-customer-id'.
 ```
 
 Open a pull request on GitHub.

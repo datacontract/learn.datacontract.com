@@ -97,6 +97,12 @@ properties:
 '@ | entropy-data semantics concepts put main article --file -
 ```
 
+```output
+Semantic namespace 'main' saved.
+Concept 'order' saved in namespace 'main'.
+Concept 'article' saved in namespace 'main'.
+```
+
 </Step>
 
 <Step id="relationship" title="Entitäten verbinden">
@@ -129,6 +135,10 @@ verbalizes:
 '@ | entropy-data semantics relationships put main order-contains-article --file -
 ```
 
+```output
+Relationship 'order-contains-article' saved in namespace 'main'.
+```
+
 </Step>
 
 ## Datenkontrakte verknüpfen
@@ -153,7 +163,7 @@ schema:
 Mach dasselbe für `order_total` (`order.order_total`, in jedem Kontrakt, der es enthält) und `sku` (`article.sku`).
 **Entferne danach die kopierten Beschreibungen** aus diesen Feldern. Die Definition steht jetzt im Begriff.
 
-Ersetze `tutorial-<deinname>` durch den Namen deiner Organisation (in der Community Edition `workshop`).
+Ersetze `tutorial-<deinname>` durch den Namen deiner Organisation (in der Community Edition `acme`).
 Die URLs sind bewusst relativ zum Host, damit sie auf jeder Instanz funktionieren, in der Cloud wie lokal.
 
 Prüfe, ob die Kontrakte noch gültig sind:
@@ -170,6 +180,19 @@ datacontract lint orders_v2.odcs.yaml
 datacontract lint sku_sales_per_year.odcs.yaml
 ```
 
+```output
+╭────────┬────────────────────────────────────────────┬───────┬─────────╮
+│ Result │ Check                                      │ Field │ Details │
+├────────┼────────────────────────────────────────────┼───────┼─────────┤
+│ passed │ Data contract is valid against ODCS v3.2.0 │       │         │
+╰────────┴────────────────────────────────────────────┴───────┴─────────╯
+🟢 data contract is valid. Run 1 checks. Took 0.18 seconds.
+…
+🟢 data contract is valid. Run 1 checks. Took 0.14 seconds.
+…
+🟢 data contract is valid. Run 1 checks. Took 0.15 seconds.
+```
+
 </Step>
 
 <Step id="republish" title="Kontrakte erneut veröffentlichen">
@@ -184,6 +207,15 @@ entropy-data datacontracts put sku_sales_per_year --file sku_sales_per_year.odcs
 entropy-data datacontracts put orders_v1 --file orders_v1.odcs.yaml
 entropy-data datacontracts put orders_v2 --file orders_v2.odcs.yaml
 entropy-data datacontracts put sku_sales_per_year --file sku_sales_per_year.odcs.yaml
+```
+
+```output
+Data contract 'orders_v1' saved.
+Open https://app.entropy-data.com/tutorial-simon/datacontracts/orders_v1
+Data contract 'orders_v2' saved.
+Open https://app.entropy-data.com/tutorial-simon/datacontracts/orders_v2
+Data contract 'sku_sales_per_year' saved.
+Open https://app.entropy-data.com/tutorial-simon/datacontracts/sku_sales_per_year
 ```
 
 <Callout type="warning" title="Deine CI-Pipeline braucht jetzt die Plattform">

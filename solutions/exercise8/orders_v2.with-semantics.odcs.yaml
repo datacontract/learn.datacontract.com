@@ -2,7 +2,7 @@
 # and without the text descriptions that the semantic concepts now carry - keep in sync!
 version: 2.0.0
 kind: DataContract
-apiVersion: v3.1.0
+apiVersion: v3.2.0
 id: orders_v2
 name: Orders
 status: active
@@ -11,6 +11,19 @@ description:
   purpose: Order data for analytics and reporting
   limitations: Contains PII (customer email addresses)
 tags: ['orders', 'ecommerce']
+context:
+  instructions: >-
+    Orders of the e-commerce platform and their line items.
+    order_total is in cents. Timestamps are in UTC.
+    Use this data for order volume and revenue analysis.
+  verifiedStatements:
+  - question: How many orders were placed in 2023?
+    answer: SELECT COUNT(*) FROM orders_v2.orders WHERE EXTRACT(YEAR FROM order_timestamp) = 2023;
+  - question: What was the revenue per year?
+    answer: SELECT EXTRACT(YEAR FROM order_timestamp)::int AS year, SUM(order_total) / 100.0 AS revenue FROM orders_v2.orders GROUP BY 1 ORDER BY 1;
+  constraints:
+  - constraint: Never output customer_email_address or customer_id. Aggregate the data instead.
+    tags: ['pii']
 servers:
 - server: postgres
   type: postgres
@@ -20,12 +33,18 @@ servers:
   schema: orders_v2
 schema:
 - name: orders
+  synonyms:
+  - synonym: purchases
+  - synonym: Bestellungen
+    locale: de
+  context:
+    instructions: One row per order. Join line_items on order_id to get the purchased SKUs.
   physicalType: table
   logicalType: object
   physicalName: orders
   authoritativeDefinitions:
   - type: semantics
-    url: /workshop/semantics/main/order
+    url: /acme/semantics/main/order
   properties:
   - name: order_id
     physicalType: text
@@ -34,7 +53,7 @@ schema:
     primaryKey: true
     authoritativeDefinitions:
     - type: semantics
-      url: /workshop/semantics/main/order.order_id
+      url: /acme/semantics/main/order.order_id
     quality:
     - type: sql
       description: Ensure order_id is unique
@@ -55,13 +74,14 @@ schema:
     logicalType: integer
     authoritativeDefinitions:
     - type: semantics
-      url: /workshop/semantics/main/order.order_total
+      url: /acme/semantics/main/order.order_total
     quality:
     - type: sql
       description: Ensure order_total is non-negative
       query: SELECT COUNT(*) FROM orders_v2.orders WHERE order_total < 0;
       mustBe: 0
   - name: customer_id
+    deprecated: true
     physicalType: text
     logicalType: string
     quality:
@@ -96,6 +116,12 @@ schema:
     query: SELECT COUNT(*) FROM orders_v2.orders o LEFT JOIN orders_v2.line_items li ON o.order_id = li.order_id WHERE li.order_id IS NULL;
     mustBe: 0
 - name: line_items
+  synonyms:
+  - synonym: order lines
+  - synonym: Bestellpositionen
+    locale: de
+  context:
+    instructions: One row per purchased SKU in an order.
   physicalType: table
   logicalType: object
   physicalName: line_items
@@ -118,16 +144,20 @@ schema:
     required: true
     authoritativeDefinitions:
     - type: semantics
-      url: /workshop/semantics/main/order.order_id
+      url: /acme/semantics/main/order.order_id
     relationships:
     - type: foreignKey
       to: orders.order_id
   - name: sku
+    synonyms:
+    - synonym: article number
+    - synonym: Artikelnummer
+      locale: de
     physicalType: text
     logicalType: string
     authoritativeDefinitions:
     - type: semantics
-      url: /workshop/semantics/main/article.sku
+      url: /acme/semantics/main/article.sku
     quality:
     - type: sql
       description: Ensure sku is not empty

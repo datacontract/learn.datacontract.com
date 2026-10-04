@@ -2,7 +2,7 @@
 # and with the active status from the end of exercise 5 - keep in sync!
 version: 1.0.0
 kind: DataContract
-apiVersion: v3.1.0
+apiVersion: v3.2.0
 id: sku_sales_per_year
 name: SKU Sales per Year
 status: active
@@ -11,6 +11,12 @@ description:
   purpose: Shows how often each SKU is bought, grouped by year. Built for the purchasing team to support supplier negotiations.
   limitations: Aggregated data only, no PII. Based on the orders data product.
 tags: ['sku', 'sales', 'analytics']
+context:
+  instructions: >-
+    One row per SKU and year. Sum order_count or total_quantity across years for totals.
+  verifiedStatements:
+  - question: Which three SKUs sold the most units in 2024?
+    answer: SELECT sku, total_quantity FROM analytics.sku_sales_per_year WHERE year = 2024 ORDER BY total_quantity DESC LIMIT 3;
 servers:
 - server: postgres
   type: postgres
@@ -25,18 +31,20 @@ schema:
   physicalName: sku_sales_per_year
   properties:
   - name: sku
+    semanticType: dimension
     physicalType: text
     logicalType: string
     required: true
     authoritativeDefinitions:
     - type: semantics
-      url: /workshop/semantics/main/article.sku
+      url: /acme/semantics/main/article.sku
     quality:
     - type: sql
       description: Ensure sku and year combination is unique
       query: SELECT COUNT(*) FROM (SELECT sku, year FROM analytics.sku_sales_per_year GROUP BY sku, year HAVING COUNT(*) > 1) duplicates;
       mustBe: 0
   - name: year
+    semanticType: dimension
     physicalType: integer
     logicalType: integer
     required: true
@@ -46,6 +54,8 @@ schema:
       query: SELECT COUNT(*) FROM analytics.sku_sales_per_year WHERE year < 2020 OR year > 2100;
       mustBe: 0
   - name: order_count
+    semanticType: measure
+    transformLogic: COUNT(*)
     physicalType: bigint
     logicalType: integer
     quality:
@@ -56,6 +66,8 @@ schema:
       query: SELECT COUNT(*) FROM analytics.sku_sales_per_year WHERE order_count <= 0;
       mustBe: 0
   - name: total_quantity
+    semanticType: measure
+    transformLogic: SUM(line_items.quantity)
     physicalType: bigint
     logicalType: integer
     quality:

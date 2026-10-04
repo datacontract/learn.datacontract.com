@@ -2,10 +2,7 @@ import { useRef, useState, type ComponentProps } from 'react'
 import { t } from '../i18n'
 import { useChapter } from './ChapterContext'
 import { CheckIcon, CopyIcon } from './icons'
-import { usePrefs, type Os } from '../state/prefs'
 import { useInTerminal } from './Terminal'
-
-const OS_LABELS: Record<Os, string> = { unix: 'macOS / Linux', windows: 'Windows' }
 
 const LANG_LABELS: Record<string, string> = {
   bash: 'Terminal',
@@ -30,7 +27,6 @@ export function CodeBlock(props: ComponentProps<'pre'> & { 'data-title'?: string
   const { lang: uiLang } = useChapter()
   const ui = t(uiLang)
   const inTerminal = useInTerminal()
-  const { os, setOs } = usePrefs()
 
   const copy = async () => {
     const text = ref.current?.innerText ?? ''
@@ -43,35 +39,21 @@ export function CodeBlock(props: ComponentProps<'pre'> & { 'data-title'?: string
     }
   }
 
+  if (inTerminal) {
+    return (
+      <pre className={`${className ?? ''} w-max min-w-full`} data-lang={lang} {...rest}>
+        {children}
+      </pre>
+    )
+  }
+
   const label = title ?? (lang ? (LANG_LABELS[lang] ?? lang.toUpperCase()) : undefined)
   const isOutput = lang === 'text' || lang === 'txt'
 
   return (
     <div className={`not-prose group my-4 overflow-hidden rounded-xl border ${isOutput ? 'border-dashed border-slate-300 dark:border-slate-700' : 'border-slate-200 dark:border-slate-800'} bg-slate-50 dark:bg-slate-900`}>
       <div className="flex items-center justify-between border-b border-slate-200 px-4 py-1.5 dark:border-slate-800">
-        {inTerminal ? (
-          <div role="tablist" className="flex items-center gap-1">
-            {(Object.keys(OS_LABELS) as Os[]).map((value) => (
-              <button
-                key={value}
-                role="tab"
-                type="button"
-                aria-selected={os === value}
-                onClick={() => setOs(value)}
-                className={`rounded-md px-2 py-0.5 text-xs font-medium transition ${
-                  os === value
-                    ? 'bg-white text-slate-900 shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:text-white dark:ring-slate-700'
-                    : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
-                }`}
-              >
-                {OS_LABELS[value]}
-              </button>
-            ))}
-            <span className="ml-1 font-mono text-[11px] text-slate-400">{os === 'windows' ? 'PowerShell' : 'Terminal'}</span>
-          </div>
-        ) : (
-          <span className="font-mono text-xs text-slate-500 dark:text-slate-400">{label}</span>
-        )}
+        <span className="font-mono text-xs text-slate-500 dark:text-slate-400">{label}</span>
         <button
           type="button"
           onClick={copy}

@@ -1,9 +1,10 @@
-apiVersion: v1.0.0
+apiVersion: v1.1.0
 kind: DataProduct
 id: orders
 name: Orders
 version: 1.0.0
 status: active
+type: sourceAligned
 domain: ecommerce
 description:
   purpose: Source-aligned data product exposing orders and line items from the e-commerce platform.
@@ -12,6 +13,7 @@ tags: ['orders', 'ecommerce']
 outputPorts:
 - name: orders_v1
   description: Orders and line items tables in PostgreSQL (v1, superseded by v2)
+  deprecated: true
   version: 1.0.0
   contractId: orders_v1
 - name: orders_v2
