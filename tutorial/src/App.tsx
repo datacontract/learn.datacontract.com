@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useState } from 'react'
+import { Suspense, useEffect, useRef, useState } from 'react'
 import { chapters, content, exerciseNumber, parts, REPO_URL, stepsOf } from './chapters'
 import { ChapterContext } from './components/ChapterContext'
 import { ArrowLeftIcon, ArrowRightIcon, ClockIcon, GitHubIcon, MenuIcon, MoonIcon, SunIcon, XIcon } from './components/icons'
@@ -14,11 +14,15 @@ export function App() {
   const { lang, slug } = useRoute()
   const [menuOpen, setMenuOpen] = useState(false)
   const ui = t(lang)
+  const firstRoute = useRef(true)
 
   useEffect(() => {
     document.documentElement.lang = lang
     const chapter = chapters.find((c) => c.slug === slug)
     document.title = chapter ? `${chapter.title[lang]} · ${ui.title}` : ui.title
+    // the Umami script tracks the initial page view; chapter changes are hash changes, track them here
+    if (firstRoute.current) firstRoute.current = false
+    else (window as { umami?: { track: () => void } }).umami?.track()
   }, [lang, slug, ui.title])
 
   return (
