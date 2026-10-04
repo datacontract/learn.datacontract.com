@@ -1,0 +1,45 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:03.450
+Setup: alles, was du für die Übungen brauchst.
+
+2
+00:00:03.500 --> 00:00:12.101
+Prüfe die Voraussetzungen: git, Docker mit Compose und uv.
+
+3
+00:00:12.152 --> 00:00:17.627
+Öffne das Workshop-Repository auf GitHub und klicke auf Fork.
+
+4
+00:00:17.677 --> 00:00:22.127
+Dein Fork ist deine eigene Kopie. Im CI/CD-Kapitel pushst du dorthin.
+
+5
+00:00:22.177 --> 00:00:29.193
+Klone deinen Fork und wechsle in den Ordner.
+
+6
+00:00:29.243 --> 00:00:35.518
+Das Install-Skript installiert die Data Contract CLI und die Data Product CLI.
+
+7
+00:00:35.568 --> 00:00:42.762
+Prüfe die Versionen: 1.2.2 und 0.2.0.
+
+8
+00:00:42.812 --> 00:00:47.419
+Starte PostgreSQL. Die Orders-Daten sind schon geladen.
+
+9
+00:00:47.468 --> 00:00:54.870
+Eine kurze Abfrage zeigt 5000 Bestellungen.
+
+10
+00:00:54.920 --> 00:01:01.623
+Die Datei .env enthält die Zugangsdaten. Die CLIs lesen sie automatisch.
+
+11
+00:01:01.673 --> 00:01:04.622
+Fertig. Als Nächstes: Daten unter Vertrag nehmen.

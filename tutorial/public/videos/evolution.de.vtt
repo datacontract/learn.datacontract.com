@@ -1,0 +1,65 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:03.452
+Übung 2: Evolution von Datenkontrakten.
+
+2
+00:00:03.502 --> 00:00:14.065
+Das Orders-Team ergänzt die Spalte quantity im neuen Schema orders_v2.
+
+3
+00:00:14.116 --> 00:00:21.035
+Starte v2 als Kopie des v1-Kontrakts.
+
+4
+00:00:21.086 --> 00:00:23.537
+Öffne die Kopie im Editor. Sie heißt noch orders_v1.
+
+5
+00:00:23.587 --> 00:00:27.554
+Neue Major-Version: ID orders_v2, Version 2.0.0.
+
+6
+00:00:27.604 --> 00:00:31.932
+Lass den Server auf das Schema orders_v2 zeigen.
+
+7
+00:00:31.982 --> 00:00:42.654
+Ergänze die neue Property quantity in line_items.
+
+8
+00:00:42.703 --> 00:00:58.014
+Ergänze eine Quality-Regel: quantity muss größer als 0 sein.
+
+9
+00:00:58.064 --> 00:01:12.020
+Speichern, dann die Tests gegen orders_v2 laufen lassen.
+
+10
+00:01:12.070 --> 00:01:25.360
+Der Editor hat alles in die YAML-Datei geschrieben.
+
+11
+00:01:25.410 --> 00:01:35.148
+datacontract changelog listet jeden Unterschied zwischen v1 und v2.
+
+12
+00:01:35.198 --> 00:01:46.261
+datacontract breaking bewertet jede Änderung. Eine neue Spalte ist für das Tool kein Breaking Change.
+
+13
+00:01:46.311 --> 00:02:01.101
+Einen Typ zu ändern ist breaking: ERROR und Exit-Code 1.
+
+14
+00:02:01.151 --> 00:02:10.805
+Neu in ODCS 3.2: Markiere ein Feld zuerst als deprecated. Das ist nur INFO.
+
+15
+00:02:10.856 --> 00:02:17.960
+Lebenszyklus: draft, active, deprecated, retired. Setze v1 auf deprecated mit einem Support-Ende.
+
+16
+00:02:18.011 --> 00:02:25.313
+Gib v2 als active frei und setze v1 auf retired. Fertig.

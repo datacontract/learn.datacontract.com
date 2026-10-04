@@ -1,0 +1,85 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:03.451
+Übung 6: Consumer-driven Contracts.
+
+2
+00:00:03.501 --> 00:00:08.953
+Heute kann jede Änderung an orders_v2 dich brechen. Und der Producer sieht nicht, was du nutzt.
+
+3
+00:00:09.003 --> 00:00:16.640
+Deine View braucht nur fünf Felder aus orders_v2. Starte mit einer Kopie des Producer-Kontrakts.
+
+4
+00:00:16.690 --> 00:00:20.793
+Das ist jetzt dein Kontrakt. Gib ihm eine eigene ID, die Version bleibt 2.0.0.
+
+5
+00:00:20.843 --> 00:00:32.331
+Behalte nur, was deine View liest: order_id und order_timestamp aus orders.
+
+6
+00:00:32.381 --> 00:00:38.391
+Aus line_items: order_id, sku und quantity.
+
+7
+00:00:38.441 --> 00:00:44.090
+Behalte den Check quantity > 0: Dein Datenprodukt verlässt sich darauf.
+
+8
+00:00:44.140 --> 00:00:48.489
+Das Ergebnis: ein kleiner Kontrakt mit genau deinen Abhängigkeiten, in deiner Verantwortung.
+
+9
+00:00:48.539 --> 00:00:54.991
+Server-Schema sku_sales_input, physischer Typ view: Hier liegen deine Zugriffs-Views.
+
+10
+00:00:55.041 --> 00:01:05.263
+Der Server zeigt jetzt auf sku_sales_input. Die Views gibt es noch nicht: rot.
+
+11
+00:01:05.313 --> 00:01:14.594
+Lege Zugriffs-Views an, die genau die vereinbarten Felder zeigen.
+
+12
+00:01:14.643 --> 00:01:19.595
+Alles andere in orders_v2 bleibt für dein Datenprodukt unsichtbar.
+
+13
+00:01:19.645 --> 00:01:25.071
+Wende die Views an.
+
+14
+00:01:25.121 --> 00:01:35.450
+Teste den Consumer-Kontrakt erneut: grün.
+
+15
+00:01:35.500 --> 00:01:41.614
+Ändere den Owner: Das Purchasing Analytics Team besitzt diesen Kontrakt.
+
+16
+00:01:41.664 --> 00:01:46.579
+Der Server zeigt auf sku_sales_input, wo deine Zugriffs-Views liegen.
+
+17
+00:01:46.629 --> 00:01:54.665
+Mit den Views sind die Tests auch im Editor grün.
+
+18
+00:01:54.715 --> 00:02:03.411
+Baue dein Datenprodukt um: Es liest aus sku_sales_input statt aus orders_v2.
+
+19
+00:02:03.461 --> 00:02:08.982
+Lege die View neu an.
+
+20
+00:02:09.032 --> 00:02:18.661
+Deine eigenen Konsumenten merken nichts: Die SKU-Sales-Tests bleiben grün.
+
+21
+00:02:18.712 --> 00:02:23.662
+Das Orders-Team kann deinen Kontrakt in seiner Pipeline ausführen. Das ist die nächste Übung.

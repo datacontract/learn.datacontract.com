@@ -1,0 +1,61 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:03.451
+Exercise 9: define business concepts once and link your contracts to them.
+
+2
+00:00:03.501 --> 00:00:15.884
+Write the whole ontology in one file. The prefix ecom gives every concept a stable IRI.
+
+3
+00:00:15.934 --> 00:00:25.023
+Entities Order and Article, their properties, and how they relate.
+
+4
+00:00:25.073 --> 00:00:26.974
+Load the API key and host into your shell.
+
+5
+00:00:27.024 --> 00:00:37.857
+Upload the file in one go. One PUT replaces the whole namespace.
+
+6
+00:00:37.907 --> 00:00:46.722
+All five concepts are there.
+
+7
+00:00:46.772 --> 00:01:01.970
+Link the contract fields to the concepts: authoritativeDefinitions with the IRI as url.
+
+8
+00:01:02.020 --> 00:01:10.198
+The contracts stay valid.
+
+9
+00:01:10.248 --> 00:01:22.972
+Re-publish the linked contracts.
+
+10
+00:01:23.022 --> 00:01:27.960
+Open Semantics. Your namespace E-Commerce is there.
+
+11
+00:01:28.010 --> 00:01:35.063
+The two entities, Order and Article. Switch to the diagram.
+
+12
+00:01:35.113 --> 00:01:44.386
+Open Article, then its property SKU.
+
+13
+00:01:44.436 --> 00:01:53.891
+SKU: defined once, with its own IRI.
+
+14
+00:01:53.941 --> 00:02:01.458
+The reverse lookup: every data product that uses an SKU.
+
+15
+00:02:01.508 --> 00:02:10.471
+On the SKU Sales page, its business concepts appear under Semantics.

@@ -5,6 +5,7 @@ import { ArrowLeftIcon, ArrowRightIcon, CheckIcon, ClockIcon, GitHubIcon, MenuIc
 import { mdxComponents } from './components/mdx'
 import { Sidebar } from './components/Sidebar'
 import { StepRail } from './components/StepRail'
+import { Walkthrough } from './components/Walkthrough'
 import { langs, t, type Lang } from './i18n'
 import { href, useRoute } from './router'
 import { usePrefs } from './state/prefs'
@@ -154,6 +155,8 @@ function ChapterPage({ lang, slug }: { lang: Lang; slug: string }) {
         <span className="inline-flex items-center gap-1.5"><ClockIcon width={15} height={15} /> ~{chapter.minutes} {ui.minutes}</span>
         {steps.length > 0 && <span>{ui.stepsDone(done, steps.length)}</span>}
       </div>
+
+      {chapter.video && <Walkthrough key={slug} slug={slug} lang={lang} />}
 
       <div className="steps-root prose prose-slate mt-8 max-w-none dark:prose-invert prose-headings:scroll-mt-20 prose-h2:mt-12 prose-h2:text-2xl prose-a:text-brand-600 prose-a:underline-offset-2 dark:prose-a:text-brand-300">
         <Suspense fallback={<div className="h-96 animate-pulse rounded-2xl bg-slate-100 dark:bg-slate-900" />}>

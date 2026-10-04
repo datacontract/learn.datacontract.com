@@ -436,11 +436,12 @@ Testing orders_v2.odcs.yaml
 </Step>
 
 <Quiz
-  question="Welche Änderung an einem aktiven Kontrakt ist für Consumer breaking?"
-  options={["Eine neue optionale Spalte hinzufügen", "Den physischen Typ einer Spalte von BIGINT auf TEXT ändern", "Einer Spalte eine Beschreibung hinzufügen"]}
+  question={"Welche Änderung am aktiven Kontrakt orders_v2 ist für Consumer ein Breaking Change?"}
+  options={["Eine neue Spalte hinzufügen", "Den physischen Typ einer Spalte von BIGINT auf TEXT ändern", "Einer Spalte eine Beschreibung geben", "Eine Spalte mit deprecated: true markieren"]}
   answer={1}
+  feedback={["Stimmt für Consumer, die SELECT * nutzen oder Spalten über ihre Position ansprechen: Deren Ausgabe oder Code kann sich ändern. Trotzdem gilt es meist nicht als breaking, weil Data-Contract-Policies additive Änderungen als kompatibel behandeln und von Consumern erwarten, neue Spalten zu tolerieren. `datacontract breaking` meldet es als INFO.", "", "Beschreibungen sind Dokumentation. Keine Abfrage und keine Pipeline bricht wegen besserer Doku.", "Deprecation kündigt das spätere Entfernen nur an. Die Spalte bleibt, heute bricht also nichts. Breaking ist erst das Entfernen, und das braucht eine neue Major-Version."]}
 >
-Eine Typänderung bricht jeden Consumer, der sich auf den alten Typ verlässt; `datacontract breaking` meldet sie als ERROR. Optionale Spalten und Beschreibungen sind schemakompatibel (auch wenn deine Consumer das anders sehen können).
+Eine Typänderung bricht jeden Consumer, der sich auf den alten Typ verlässt, vom SQL-Vergleich bis zum nachgelagerten Schema. `datacontract breaking` meldet sie als ERROR, sie gehört also in eine neue Major-Version.
 </Quiz>
 
 ## Bonus

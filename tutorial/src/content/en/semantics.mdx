@@ -228,9 +228,10 @@ The data product list shows the linked concepts, too:
 </Step>
 
 <Quiz
-  question="Why link contract fields by IRI instead of by the concept's URL on the platform?"
-  options={["IRIs are shorter to type", "The IRI is a stable global identifier, so the link works on every instance and in other tools", "The platform cannot show concepts linked by URL"]}
+  question={"Why link contract fields by IRI instead of by the concept's URL on the platform?"}
+  options={["IRIs are shorter to type", "The IRI is a stable global identifier, so the link works on every instance and in other tools", "The platform cannot show concepts linked by URL", "IRIs make datacontract test check the semantics"]}
   answer={1}
+  feedback={["With the prefix they look short in the ontology file, but in the contract you write the full IRI. Length is not the point.", "", "The platform can resolve links either way. The difference is what happens when the host or organization changes: a URL breaks, an IRI doesn't.", "The tests check structure and quality of the data. The CLI resolves the IRI to show the definition, but it doesn't test meaning."]}
 >
 Exactly. A URL contains host and organization and breaks when either changes. The IRI names the concept itself, and the platform resolves it wherever the ontology lives.
 </Quiz>

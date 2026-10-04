@@ -384,11 +384,12 @@ Die CLI schickt deinen API Key nur mit, wenn die URL zum Host in `ENTROPY_DATA_H
 </Step>
 
 <Quiz
-  question="Wohin gehört der Entropy Data API Key, wenn du in einem öffentlichen Fork arbeitest?"
-  options={["In die getrackte .env-Datei, die ist für Zugangsdaten gedacht", "In eine Umgebungsvariable deiner Shell, bzw. in ein GitHub-Actions-Secret in der CI", "In den Datenkontrakt, neben den Server"]}
+  question={"Wohin gehört der Entropy Data API Key, wenn du in einem öffentlichen Fork arbeitest?"}
+  options={["In die getrackte .env, die ist für Zugangsdaten gedacht", "In eine Umgebungsvariable deiner Shell oder in CI in ein GitHub-Actions-Secret", "In den Datenkontrakt, neben den Server", "In die .env, aber vor dem Push wieder löschen"]}
   answer={1}
+  feedback={["Die .env enthält die Zugangsdaten der Workshop-Datenbank, und die sind nicht geheim. Ein API Key mit Schreibrechten auf deine Organisation schon, und die getrackte Datei landet in deinem öffentlichen Fork.", "", "Kontrakte werden geteilt, veröffentlicht und versioniert. Ein Key darin ist für alle sichtbar, die den Kontrakt lesen können.", "Das vergisst man leicht, und ist der Key einmal in einem Commit, bleibt er in der Historie, auch wenn du ihn später löschst."]}
 >
-Richtig. Alles, was in einem öffentlichen Repository landet, ist öffentlich, auch in der Historie. Secrets gehören in deine Umgebung oder in den Secret Store deines CI-Systems.
+Richtig. Alles, was in ein öffentliches Repository committet wird, ist öffentlich, inklusive Historie. Secrets gehören in deine Umgebung oder in den Secret Store deines CI-Systems.
 </Quiz>
 
 ## Bonus

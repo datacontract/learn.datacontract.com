@@ -1,0 +1,85 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:03.451
+Exercise 6: consumer-driven contracts.
+
+2
+00:00:03.501 --> 00:00:08.953
+Today, any change to orders_v2 could break you. And the producer cannot see what you use.
+
+3
+00:00:09.003 --> 00:00:16.640
+Your view needs only five fields of orders_v2. Start from a copy of the producer contract.
+
+4
+00:00:16.690 --> 00:00:20.793
+This is your contract now. Give it its own ID, the version stays 2.0.0.
+
+5
+00:00:20.843 --> 00:00:32.331
+Keep only what your view reads: order_id and order_timestamp from orders.
+
+6
+00:00:32.381 --> 00:00:38.391
+From line_items: order_id, sku, and quantity.
+
+7
+00:00:38.441 --> 00:00:44.090
+Keep the quantity > 0 check: your data product relies on it.
+
+8
+00:00:44.140 --> 00:00:48.489
+The result: a small contract with exactly your dependencies, owned by you.
+
+9
+00:00:48.539 --> 00:00:54.991
+Server schema sku_sales_input, physical type view: this is where your access views live.
+
+10
+00:00:55.041 --> 00:01:05.263
+The server now points to sku_sales_input. The views do not exist yet: red.
+
+11
+00:01:05.313 --> 00:01:14.594
+Create access views that expose exactly the contracted fields.
+
+12
+00:01:14.643 --> 00:01:19.595
+Everything else in orders_v2 stays hidden from your data product.
+
+13
+00:01:19.645 --> 00:01:25.071
+Apply the views.
+
+14
+00:01:25.121 --> 00:01:35.450
+Test the consumer contract again: green.
+
+15
+00:01:35.500 --> 00:01:41.614
+Change the owner: the purchasing analytics team owns this contract.
+
+16
+00:01:41.664 --> 00:01:46.579
+The server points to sku_sales_input, where your access views live.
+
+17
+00:01:46.629 --> 00:01:54.665
+With the views in place, the tests pass in the editor, too.
+
+18
+00:01:54.715 --> 00:02:03.411
+Rebase your data product: read from sku_sales_input instead of orders_v2.
+
+19
+00:02:03.461 --> 00:02:08.982
+Recreate the view.
+
+20
+00:02:09.032 --> 00:02:18.661
+Your own consumers are unaffected: the SKU Sales tests stay green.
+
+21
+00:02:18.712 --> 00:02:23.662
+The orders team can run your contract in their pipeline. That is the next exercise.

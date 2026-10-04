@@ -384,9 +384,10 @@ The CLI sends your API key only if the URL belongs to the host in `ENTROPY_DATA_
 </Step>
 
 <Quiz
-  question="Where should the Entropy Data API key go when you work in a public fork?"
-  options={["Into the tracked .env file, it is meant for credentials", "Into an environment variable in your shell, or a GitHub Actions secret in CI", "Into the data contract, next to the server"]}
+  question={"Where should the Entropy Data API key go when you work in a public fork?"}
+  options={["Into the tracked .env file, it is meant for credentials", "Into an environment variable in your shell, or a GitHub Actions secret in CI", "Into the data contract, next to the server", "Into the .env file, but delete it again before you push"]}
   answer={1}
+  feedback={[".env holds the workshop database credentials, which are not secret. An API key with write access to your organization is, and the tracked file ends up in your public fork.", "", "Contracts are shared, published, and versioned. A key in there leaks to everyone who can read the contract.", "Easy to forget, and once it is in a commit, it stays in the history even if you delete it later."]}
 >
 Right. Anything committed to a public repository is public, including the history. Keep secrets in your environment or your CI system's secret store.
 </Quiz>

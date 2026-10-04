@@ -358,11 +358,12 @@ A change that consumers must adapt to needs a new major version: a new contract,
 </Step>
 
 <Quiz
-  question="A pull request removes a column from an active contract. Which command makes the pipeline fail?"
-  options={["datacontract lint", "datacontract ci", "datacontract breaking"]}
+  question={"A pull request removes customer_id from orders_v2, and the column still exists in the database. Which check makes the pipeline fail?"}
+  options={["datacontract lint", "datacontract ci", "datacontract breaking against the base branch", "None, the contract is still valid"]}
   answer={2}
+  feedback={["The changed file is still valid ODCS. Lint checks the syntax, not compatibility.", "The tests check the contract against the data. A contract with fewer columns than the table still passes, so `ci` stays green.", "", "Valid, yes, but not compatible. Consumers relying on customer_id would break. That is what the compatibility check is for."]}
 >
-`lint` only checks the syntax, and `ci` checks the contract against the data. Only `breaking` compares the new version with the old one and fails on incompatible changes.
+`lint` checks the syntax, and `ci` checks the contract against the data. Only `breaking` compares the new version with the base branch and fails on the removed column (ERROR).
 </Quiz>
 
 ## Bonus

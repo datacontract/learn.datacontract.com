@@ -279,11 +279,12 @@ Das Repository bringt die offiziellen Schemas in `schemas/` mit und verknüpft s
 </Step>
 
 <Quiz
-  question="Warum arbeitest du in deinem eigenen Fork, statt die Dateien nur herunterzuladen?"
-  options={["Forks sind schneller", "Damit du später Änderungen pushen und GitHub Actions auf deine Kontrakte anwenden kannst", "Die CLIs funktionieren nur in Forks"]}
+  question={"Warum arbeitest du in deinem eigenen Fork, statt die Dateien nur herunterzuladen?"}
+  options={["Forks laufen schneller", "Damit du deine Kontrakte versionierst und in Teil C GitHub Actions darauf laufen lässt", "Die CLIs funktionieren nur in einem Git-Repository", "Um deine Lösungen im Original-Repository einzureichen"]}
   answer={1}
+  feedback={["Ein Fork ist nur eine Kopie des Repositorys auf GitHub. An der Geschwindigkeit ändert das nichts.", "", "Die CLIs arbeiten mit jeder Datei auf der Platte, ob mit Git oder ohne. Git zählt für Historie, Reviews und CI.", "Du musst keine Pull Requests ans Original-Repository stellen. Dein Fork ist deine eigene Spielwiese, in Teil C öffnest du Pull Requests sogar innerhalb davon."]}
 >
-Kontrakte gehören in Git. In deinem Fork kannst du committen, Pull Requests öffnen und Tests in Teil C mit GitHub Actions automatisieren.
+Kontrakte gehören wie Code in Git. In deinem Fork kannst du committen, Änderungen in Pull Requests prüfen und in Teil C Tests mit GitHub Actions automatisieren.
 </Quiz>
 
 Alles bereit. Zeit für deinen ersten Datenkontrakt!

@@ -1,0 +1,65 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:03.451
+Übung 5: das Datenprodukt SKU Sales implementieren.
+
+2
+00:00:03.501 --> 00:00:12.043
+Ausgangslage: Der Kontrakt existiert, die View nicht. Die Tests sind rot.
+
+3
+00:00:12.094 --> 00:00:15.197
+Der Kontrakt ist die Spezifikation: eine View, vier Spalten, exakte Typen.
+
+4
+00:00:15.248 --> 00:00:21.198
+Dimensionen gruppieren, Measures werden aggregiert. transformLogic sagt, wie.
+
+5
+00:00:21.249 --> 00:00:27.619
+Option 1: Lass einen KI-Coding-Agenten ran. Die Kontrakte sagen ihm genau, was zu bauen ist.
+
+6
+00:00:27.669 --> 00:00:33.622
+Die Tests geben dem Agenten eine Rückkopplung, um seine Arbeit zu prüfen.
+
+7
+00:00:33.672 --> 00:00:49.537
+Option 2: Schreib die View von Hand. Gruppiert nach SKU und Jahr.
+
+8
+00:00:49.586 --> 00:00:55.539
+Caste auf int und bigint: Die Typen sind Teil deines Kontrakts.
+
+9
+00:00:55.589 --> 00:01:01.135
+Wende die SQL-Datei auf die Datenbank an.
+
+10
+00:01:01.185 --> 00:01:10.735
+Tests erneut ausführen: grün. Die Implementierung erfüllt den Kontrakt.
+
+11
+00:01:10.785 --> 00:01:23.563
+Prüfe das Verified Statement aus dem Kontext: die drei Top-SKUs 2024.
+
+12
+00:01:23.613 --> 00:01:30.672
+Zurück im Editor: Der Kontext sagt Agenten, wie sie das Produkt abfragen.
+
+13
+00:01:30.722 --> 00:01:36.073
+Und dieselben Tests sind einen Klick entfernt.
+
+14
+00:01:36.123 --> 00:01:40.576
+Alle Checks der View sind grün: Typen, Eindeutigkeit und Plausibilität.
+
+15
+00:01:40.626 --> 00:01:50.259
+Setze Kontrakt und Datenprodukt auf active und linte beide. Fertig.
+
+16
+00:01:50.309 --> 00:01:54.261
+Dein Datenprodukt ist live. Als Nächstes: Consumer-driven Contracts.

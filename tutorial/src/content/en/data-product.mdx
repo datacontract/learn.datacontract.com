@@ -159,11 +159,12 @@ Whether the data behind an output port keeps its promise is checked by `datacont
 </Callout>
 
 <Quiz
-  question="Your Orders product releases orders_v3 next year. What changes in orders.odps.yaml?"
-  options={["You create a new data product orders_v3", "You add an output port that references the orders_v3 contract", "Nothing, the data product doesn't know about contracts"]}
+  question={"Your Orders product releases orders_v3 next year. What changes in orders.odps.yaml?"}
+  options={["You create a new data product orders_v3", "You add an output port that references the orders_v3 contract", "Nothing, the data product doesn't reference contracts", "You replace the orders_v2 port with orders_v3 right away"]}
   answer={1}
+  feedback={["The data product is the stable unit of ownership. Same team, same purpose: a new contract version doesn't make it a new product.", "", "It does: each output port references a contract via `contractId`. That is how consumers find the interface.", "Consumers of orders_v2 still need that port during the migration. Mark it `deprecated: true` first and remove it once the contract is retired."]}
 >
-The data product stays the same: it is the stable unit of ownership. A new contract version becomes a new output port. Old ports are removed once their contracts are retired.
+The data product stays the same. A new contract version becomes a new output port, and old ports are deprecated and later removed once their contracts are retired.
 </Quiz>
 
 ## Bonus

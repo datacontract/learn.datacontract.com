@@ -1,0 +1,61 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:03.451
+Übung 9: fachliche Begriffe einmal definieren und Kontrakte damit verknüpfen.
+
+2
+00:00:03.501 --> 00:00:15.884
+Schreibe die ganze Ontologie in eine Datei. Das Präfix ecom gibt jedem Begriff eine stabile IRI.
+
+3
+00:00:15.934 --> 00:00:25.023
+Die Entitäten Order und Article, ihre Properties und wie sie zusammenhängen.
+
+4
+00:00:25.073 --> 00:00:26.974
+Lade API Key und Host in deine Shell.
+
+5
+00:00:27.024 --> 00:00:37.857
+Lade die Datei in einem Rutsch hoch. Ein PUT ersetzt den ganzen Namespace.
+
+6
+00:00:37.907 --> 00:00:46.722
+Alle fünf Begriffe sind da.
+
+7
+00:00:46.772 --> 00:01:01.970
+Verknüpfe die Kontraktfelder mit den Begriffen: authoritativeDefinitions mit der IRI als url.
+
+8
+00:01:02.020 --> 00:01:10.198
+Die Kontrakte bleiben gültig.
+
+9
+00:01:10.248 --> 00:01:22.972
+Veröffentliche die verknüpften Kontrakte erneut.
+
+10
+00:01:23.022 --> 00:01:27.960
+Öffne Semantics. Dein Namespace E-Commerce ist da.
+
+11
+00:01:28.010 --> 00:01:35.063
+Die beiden Entitäten Order und Article. Wechsle zum Diagramm.
+
+12
+00:01:35.113 --> 00:01:44.386
+Öffne Article und dann seine Property SKU.
+
+13
+00:01:44.436 --> 00:01:53.891
+SKU: einmal definiert, mit eigener IRI.
+
+14
+00:01:53.941 --> 00:02:01.458
+Die Rückwärtssuche: jedes Datenprodukt, das eine SKU nutzt.
+
+15
+00:02:01.508 --> 00:02:10.471
+Auf der Seite von SKU Sales stehen die fachlichen Begriffe unter Semantics.

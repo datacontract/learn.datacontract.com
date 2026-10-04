@@ -173,9 +173,10 @@ dataproduct lint sku_sales_per_year.odps.yaml
 </Step>
 
 <Quiz
-  question="Deine View liefert die richtigen Zahlen, aber der Test für die Spalte year schlägt fehl. Wahrscheinlichster Grund?"
-  options={["Der Kontrakt ist zu streng", "EXTRACT liefert numeric, der Kontrakt erwartet aber INTEGER", "PostgreSQL unterstützt keine Views"]}
+  question={"Deine View liefert die richtigen Zahlen, aber der Check für den physischen Typ der Spalte year schlägt fehl. Wahrscheinlichster Grund?"}
+  options={["Der Kontrakt ist zu streng, entferne den physicalType", "EXTRACT liefert numeric, der Kontrakt verspricht aber INTEGER", "Spalten von PostgreSQL-Views haben keine Typen", "Die Jahreswerte liegen außerhalb des erlaubten Bereichs"]}
   answer={1}
+  feedback={["Damit versteckst du das Problem vor dir, nicht vor deinen Consumern. Deren Code verlässt sich auf den versprochenen Typ.", "", "Auch View-Spalten haben Typen, sie ergeben sich aus den SELECT-Ausdrücken. Genau deshalb zählt der Cast.", "Ein Bereichsproblem ließe den Plausibilitäts-Check fehlschlagen, nicht den Check für den physischen Typ."]}
 >
 Richtig. Der physische Typ ist Teil des Kontrakts. Caste `EXTRACT(YEAR FROM ...)` mit `::int`, damit Consumer genau den versprochenen Typ bekommen.
 </Quiz>

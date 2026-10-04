@@ -275,9 +275,10 @@ dataproduct lint sku_sales_per_year.odps.yaml
 </Step>
 
 <Quiz
-  question="Du hast gerade den Kontrakt entworfen und die Tests schlagen fehl. Was sagt dir das?"
-  options={["Der Kontrakt ist falsch und muss korrigiert werden", "Es ist noch nichts implementiert: Die roten Tests sind die To-do-Liste", "Die Datenbank läuft nicht"]}
+  question={"Du hast gerade den Kontrakt sku_sales_per_year entworfen, und datacontract test schlägt fehl. Was sagt dir das?"}
+  options={["Der Kontrakt ist falsch und muss korrigiert werden", "Es ist noch nichts implementiert: Die roten Tests sind deine To-do-Liste", "Die Datenbank läuft nicht", "Du solltest die Quality Checks lockern, bis die Tests grün sind"]}
   answer={1}
+  feedback={["Nicht unbedingt. Der Kontrakt ist die Spezifikation, die beschriebene View gibt es nur noch nicht. Korrigiere den Kontrakt nur, wenn der Entwurf selbst falsch ist.", "", "Wäre die Datenbank weg, schlüge jeder Check mit einem Verbindungsfehler fehl. Hier schlagen sie fehl, weil die View `analytics.sku_sales_per_year` fehlt.", "Damit schwächst du das Versprechen an deine Consumer. Implementiere die View, bis sie den Kontrakt erfüllt, nicht umgekehrt."]}
 >
 Genau. Bei Contract-first sind rote Tests der erwartete Startpunkt. Sie werden grün, sobald die Implementierung die Spezifikation erfüllt.
 </Quiz>

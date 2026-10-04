@@ -173,9 +173,10 @@ dataproduct lint sku_sales_per_year.odps.yaml
 </Step>
 
 <Quiz
-  question="Your view returns the right numbers, but the test for the year column fails. Most likely reason?"
-  options={["The contract is too strict", "EXTRACT returns numeric, but the contract expects INTEGER", "PostgreSQL does not support views"]}
+  question={"Your view returns the right numbers, but the physical type check for the year column fails. Most likely reason?"}
+  options={["The contract is too strict, remove the physicalType", "EXTRACT returns numeric, but the contract promises INTEGER", "PostgreSQL views cannot have typed columns", "The year values are out of range"]}
   answer={1}
+  feedback={["Removing it would hide the problem from you, not from your consumers. Their code relies on the promised type.", "", "View columns have types; they come from the SELECT expressions. That is exactly why the cast matters.", "A range problem would fail the plausibility quality check, not the physical type check."]}
 >
 Right. The physical type is part of the contract. Cast `EXTRACT(YEAR FROM ...)` with `::int` so consumers get exactly the promised type.
 </Quiz>

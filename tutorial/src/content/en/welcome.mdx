@@ -75,11 +75,12 @@ Commands have a copy button. Where instructions differ between macOS/Linux and W
 Stuck? Most exercises have a **Show solution** button. Try it yourself first.
 
 <Quiz
-  question="Which standard describes the interface of a single dataset, including its schema and quality rules?"
-  options={["ODPS: Open Data Product Standard", "ODCS: Open Data Contract Standard", "OpenAPI"]}
+  question={"Your team wants to tell consumers which columns a dataset has, which quality rules hold, and how fresh it is. Which standard fits?"}
+  options={["ODPS: Open Data Product Standard", "ODCS: Open Data Contract Standard", "OpenAPI", "A JSON Schema of the table"]}
   answer={1}
+  feedback={["Close, but ODPS describes the data product around the data: purpose, owner, and ports. The schema, quality rules, and SLAs live in the contract that a port references.", "", "OpenAPI describes REST APIs (endpoints, requests, responses). It has no concept of tables, data quality rules, or freshness.", "A JSON Schema can describe the structure, but not quality rules, SLAs, ownership, or the server where the data lives. That is what ODCS adds."]}
 >
-Right. ODCS describes the interface (schema, quality, SLAs) of a dataset. ODPS describes the data product that offers one or more of these interfaces through its ports.
+Right. ODCS describes the interface of a dataset: schema, quality, SLAs, and support. ODPS describes the data product that offers one or more of these interfaces through its ports.
 </Quiz>
 
 **Prerequisites:** basic YAML and SQL. Plan about 5–6 hours for Parts A–C, plus about an hour for the optional Part D.

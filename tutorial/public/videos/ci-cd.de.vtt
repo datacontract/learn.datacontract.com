@@ -1,0 +1,73 @@
+WEBVTT
+
+1
+00:00:00.001 --> 00:00:03.452
+Übung 7: CI/CD mit GitHub Actions in deinem eigenen Fork.
+
+2
+00:00:03.502 --> 00:00:09.453
+Die Pipeline prüft dreierlei: Syntax, Realität und Kompatibilität.
+
+3
+00:00:09.504 --> 00:00:21.499
+Nimm die Übungsdateien aus .gitignore, dann committe und pushe sie in deinen Fork.
+
+4
+00:00:21.551 --> 00:00:29.572
+Lege den Workflow an. Zuerst: gepinnte CLIs installieren und alle Dateien linten.
+
+5
+00:00:29.622 --> 00:00:34.074
+Lint prüft die Syntax gegen die Standards ODCS und ODPS.
+
+6
+00:00:34.123 --> 00:00:43.066
+Dann gegen die Realität testen: Datenbank starten, Views anlegen, datacontract ci ausführen.
+
+7
+00:00:43.116 --> 00:00:50.976
+Brich den Lint absichtlich: logicalType text gibt es in ODCS nicht. Das meldet der Lauf.
+
+8
+00:00:51.025 --> 00:01:00.528
+Brich einen Typ: Der Test gegen die Datenbank findet bigint statt integer.
+
+9
+00:01:00.578 --> 00:01:08.033
+Push: GitHub Actions führt den Workflow bei jeder Änderung auf main aus.
+
+10
+00:01:08.083 --> 00:01:16.536
+datacontract ci schreibt eine Step Summary: jeder Kontrakt, jeder Check.
+
+11
+00:01:16.586 --> 00:01:26.297
+Vor dem dritten Check: datacontract breaking lokal. v1 zu v2 fügt ein Feld hinzu: kein Fehler.
+
+12
+00:01:26.347 --> 00:01:37.493
+Umgekehrt fällt quantity weg: ERROR und Exit-Code 1.
+
+13
+00:01:37.543 --> 00:01:44.957
+Bei Pull Requests: Vergleiche jeden Kontrakt mit seiner Version auf dem Base-Branch.
+
+14
+00:01:45.007 --> 00:01:49.959
+Ein Breaking Change lässt den Job fehlschlagen.
+
+15
+00:01:50.009 --> 00:02:01.592
+Probier es aus: Entferne customer_id auf einem Branch, pushe und öffne einen Pull Request in deinem Fork.
+
+16
+00:02:01.642 --> 00:02:09.594
+Der Check Breaking changes schlägt fehl. Lint and test bleibt grün.
+
+17
+00:02:09.644 --> 00:02:17.596
+Das Log sagt, warum: customer_id wurde entfernt. Das würde Konsumenten brechen.
+
+18
+00:02:17.647 --> 00:02:25.097
+Ändere stattdessen kompatibel oder veröffentliche eine neue Major-Version. Tipp: Mach den Check per Branch Protection verpflichtend.

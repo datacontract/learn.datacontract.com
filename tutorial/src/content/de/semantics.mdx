@@ -228,9 +228,10 @@ Auch die Liste der Datenprodukte zeigt die verknüpften Begriffe:
 </Step>
 
 <Quiz
-  question="Warum verknüpfst du Felder per IRI statt über die URL des Begriffs auf der Plattform?"
-  options={["IRIs sind kürzer zu tippen", "Die IRI ist ein stabiler, globaler Bezeichner, daher funktioniert der Link auf jeder Instanz und in anderen Werkzeugen", "Die Plattform kann per URL verknüpfte Begriffe nicht anzeigen"]}
+  question={"Warum verknüpfst du Felder per IRI statt über die URL des Begriffs auf der Plattform?"}
+  options={["IRIs sind kürzer zu tippen", "Die IRI ist ein stabiler, globaler Bezeichner, der Link funktioniert auf jeder Instanz und in anderen Werkzeugen", "Die Plattform kann per URL verknüpfte Begriffe nicht anzeigen", "Mit IRIs prüft datacontract test auch die Semantik"]}
   answer={1}
+  feedback={["Mit Präfix wirken sie in der Ontologie-Datei kurz, im Kontrakt schreibst du aber die volle IRI. Um Länge geht es nicht.", "", "Die Plattform kann beides auflösen. Der Unterschied zeigt sich, wenn sich Host oder Organisation ändern: Eine URL bricht, eine IRI nicht.", "Die Tests prüfen Struktur und Qualität der Daten. Die CLI löst die IRI auf, um die Definition anzuzeigen, Bedeutung testet sie aber nicht."]}
 >
-Genau. Eine URL enthält Host und Organisation und bricht, wenn sich eins davon ändert. Die IRI benennt den Begriff selbst, und die Plattform löst sie auf, wo auch immer die Ontologie liegt.
+Genau. Eine URL enthält Host und Organisation und bricht, wenn sich eins davon ändert. Die IRI benennt den Begriff selbst, und die Plattform löst sie dort auf, wo die Ontologie liegt.
 </Quiz>

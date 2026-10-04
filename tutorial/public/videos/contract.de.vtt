@@ -1,0 +1,97 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:03.452
+Übung 1: Daten unter Vertrag nehmen.
+
+2
+00:00:03.502 --> 00:00:09.376
+Lege den Kontrakt an und öffne ihn im Data Contract Editor.
+
+3
+00:00:09.427 --> 00:00:14.540
+Der Editor öffnet einen neuen, leeren Kontrakt. Setze die Grunddaten.
+
+4
+00:00:14.591 --> 00:00:19.874
+Version 1.0.0 und Status draft bleiben. Save schreibt die YAML-Datei auf die Platte.
+
+5
+00:00:19.924 --> 00:00:28.212
+Gehe zu Servers und füge die PostgreSQL-Datenbank hinzu.
+
+6
+00:00:28.262 --> 00:00:38.098
+Host localhost, Port 5433, Datenbank workshop, Schema orders_v1.
+
+7
+00:00:38.147 --> 00:00:43.382
+Gehe zu Schemas und füge die Tabelle orders hinzu.
+
+8
+00:00:43.432 --> 00:01:03.319
+Füge die Properties hinzu, jeweils mit logischem Typ und physischem Typ der Datenbank.
+
+9
+00:01:03.369 --> 00:01:05.820
+Die übrigen Properties von orders und line_items gehen genauso.
+
+10
+00:01:05.870 --> 00:01:15.384
+Beide Tabellen, vollständig beschrieben. Die Diagramm-Ansicht gibt einen Überblick.
+
+11
+00:01:15.434 --> 00:01:23.337
+Teste den Kontrakt gegen die echte Datenbank. Alle Checks sind grün.
+
+12
+00:01:23.387 --> 00:01:32.012
+Ändere absichtlich einen physischen Typ: Der Test findet die Abweichung.
+
+13
+00:01:32.062 --> 00:01:39.717
+customer_email_address ist ein personenbezogenes Datum: Klassifiziere es als confidential.
+
+14
+00:01:39.767 --> 00:01:46.962
+Markiere es als required. Der Test prüft dann auf fehlende Werte.
+
+15
+00:01:47.012 --> 00:01:53.582
+Teste erneut: required ergänzt einen Check auf fehlende Werte.
+
+16
+00:01:53.632 --> 00:02:01.504
+Ergänze einen SQL-Quality-Check: Jede E-Mail enthält ein @.
+
+17
+00:02:01.554 --> 00:02:08.545
+Neu in ODCS 3.2: Kontext für KI-Agenten. Öffne Context.
+
+18
+00:02:08.596 --> 00:02:14.722
+Ein Verified Statement: eine Frage mit einer geprüften SQL-Antwort, die Agenten wiederverwenden.
+
+19
+00:02:14.773 --> 00:02:23.037
+Ein Constraint: was Agenten niemals tun dürfen.
+
+20
+00:02:23.088 --> 00:02:29.189
+Ergänze Synonyme und prüfe den Kontrakt mit lint gegen ODCS 3.2.
+
+21
+00:02:29.239 --> 00:02:37.862
+Ergänze Team, Support und SLAs, setze den Status auf active und teste ein letztes Mal.
+
+22
+00:02:37.912 --> 00:02:41.882
+Tipp: Du kannst die Tests auch direkt im Editor ausführen.
+
+23
+00:02:41.933 --> 00:02:45.884
+Alle Checks bestehen: Schema, Typen und Quality-Regeln.
+
+24
+00:02:45.934 --> 00:02:48.884
+Fertig. Als Nächstes: Evolution von Datenkontrakten.

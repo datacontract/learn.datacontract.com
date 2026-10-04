@@ -232,11 +232,12 @@ Alles andere in `orders_v2` darf sich ändern, ohne dich zu brechen.
 Noch besser: Das Orders-Team kann *deinen* Kontrakt in *seiner* CI-Pipeline ausführen und einen Breaking Change abfangen, bevor er live geht. So eine Pipeline baust du in der [nächsten Übung](#/de/ci-cd).
 
 <Quiz
-  question="Das Orders-Team will die Spalte customer_email_address aus orders_v2 entfernen. Bricht das das Datenprodukt SKU Sales?"
-  options={["Ja, jede Änderung an orders_v2 ist breaking", "Nein, sie ist nicht im Consumer-driven Contract, und die Zugriffs-Views selektieren sie nicht", "Nur wenn die View SELECT * nutzt"]}
+  question={"Das Orders-Team will customer_email_address aus orders_v2 entfernen. Bricht das das Datenprodukt SKU Sales?"}
+  options={["Ja, jede Änderung an orders_v2 ist breaking", "Nein, die Spalte steht nicht im Consumer-driven Contract, und die Zugriffs-Views selektieren sie nicht", "Nur wenn die Zugriffs-Views SELECT * nutzen", "Das weiß man erst nach dem Deployment"]}
   answer={1}
+  feedback={["Für Consumer, die die Spalte nutzen, ist es breaking und braucht eine neue Major-Version von orders_v2. Für SKU Sales ändert es nichts.", "", "Grundsätzlich richtig: SELECT * bricht, sobald eine selektierte Spalte verschwindet. Die Zugriffs-Views nennen ihre Spalten aber explizit, der Fall trifft hier nicht zu.", "Genau dafür gibt es Consumer-driven Contracts: Der Producer führt den Kontrakt des Consumers vor dem Deployment aus und weiß es vorher."]}
 >
-Richtig. Der Consumer-driven Contract dokumentiert, dass SKU Sales nur fünf Felder braucht. Läuft er in der Pipeline des Produzenten, ist belegt, dass das Entfernen von `customer_email_address` für diesen Konsumenten sicher ist.
+Richtig. Der Consumer-driven Contract dokumentiert, dass SKU Sales nur fünf Felder braucht. Läuft er in der Pipeline des Producers, ist belegt, dass das Entfernen von `customer_email_address` für diesen Consumer sicher ist.
 </Quiz>
 
 ## Bonus

@@ -1,0 +1,45 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:03.450
+Setup: everything you need for the exercises.
+
+2
+00:00:03.500 --> 00:00:12.101
+Check the prerequisites: git, Docker with Compose, and uv.
+
+3
+00:00:12.152 --> 00:00:17.627
+Open the workshop repository on GitHub and click Fork.
+
+4
+00:00:17.677 --> 00:00:22.127
+Your fork is your own copy. You will push to it in the CI/CD chapter.
+
+5
+00:00:22.177 --> 00:00:29.193
+Clone your fork and change into the folder.
+
+6
+00:00:29.243 --> 00:00:35.518
+The install script installs the Data Contract CLI and the Data Product CLI.
+
+7
+00:00:35.568 --> 00:00:42.762
+Check the versions: 1.2.2 and 0.2.0.
+
+8
+00:00:42.812 --> 00:00:47.419
+Start PostgreSQL. It comes preloaded with the orders data.
+
+9
+00:00:47.468 --> 00:00:54.870
+A quick query shows 5000 orders.
+
+10
+00:00:54.920 --> 00:01:01.623
+The .env file holds the database credentials. The CLIs read it automatically.
+
+11
+00:01:01.673 --> 00:01:04.622
+Done. Next: put your data under contract.

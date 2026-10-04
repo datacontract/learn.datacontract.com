@@ -1,0 +1,97 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:03.452
+Exercise 1: put your data under contract.
+
+2
+00:00:03.502 --> 00:00:09.376
+Create the contract and open it in the Data Contract Editor.
+
+3
+00:00:09.427 --> 00:00:14.540
+The editor opens with a new, empty contract. Set the fundamentals.
+
+4
+00:00:14.591 --> 00:00:19.874
+Version 1.0.0 and status draft stay as they are. Save writes the YAML file to disk.
+
+5
+00:00:19.924 --> 00:00:28.212
+Go to Servers and add the PostgreSQL database.
+
+6
+00:00:28.262 --> 00:00:38.098
+Host localhost, port 5433, database workshop, schema orders_v1.
+
+7
+00:00:38.147 --> 00:00:43.382
+Go to Schemas and add the orders table.
+
+8
+00:00:43.432 --> 00:01:03.319
+Add the properties, each with a logical type and the physical type in the database.
+
+9
+00:01:03.369 --> 00:01:05.820
+The other properties of orders and line_items follow the same way.
+
+10
+00:01:05.870 --> 00:01:15.384
+Both tables, fully described. The Diagram view gives an overview.
+
+11
+00:01:15.434 --> 00:01:23.337
+Test the contract against the real database. All checks pass.
+
+12
+00:01:23.387 --> 00:01:32.012
+Change a physical type on purpose: the test catches the mismatch.
+
+13
+00:01:32.062 --> 00:01:39.717
+customer_email_address is personal data: classify it as confidential.
+
+14
+00:01:39.767 --> 00:01:46.962
+Mark it as required. The test then checks for missing values.
+
+15
+00:01:47.012 --> 00:01:53.582
+Test again: required adds a check for missing values.
+
+16
+00:01:53.632 --> 00:02:01.504
+Add a SQL quality check: every email contains an @.
+
+17
+00:02:01.554 --> 00:02:08.545
+New in ODCS 3.2: context for AI agents. Open Context.
+
+18
+00:02:08.596 --> 00:02:14.722
+A verified statement: a question with a curated SQL answer that agents should reuse.
+
+19
+00:02:14.773 --> 00:02:23.037
+A constraint: what agents must never do.
+
+20
+00:02:23.088 --> 00:02:29.189
+Add synonyms and lint the contract against ODCS 3.2.
+
+21
+00:02:29.239 --> 00:02:37.862
+Add team, support, and SLAs, set the status to active, and test one last time.
+
+22
+00:02:37.912 --> 00:02:41.882
+Tip: you can run the tests right in the editor, too.
+
+23
+00:02:41.933 --> 00:02:45.884
+All checks pass: schema, types, and quality rules.
+
+24
+00:02:45.934 --> 00:02:48.884
+Done. Next: data contract evolution.

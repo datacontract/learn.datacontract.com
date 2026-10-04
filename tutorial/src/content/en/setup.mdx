@@ -279,11 +279,12 @@ The repository ships the official schemas in `schemas/` and maps them in `.vscod
 </Step>
 
 <Quiz
-  question="Why do you work in your own fork instead of just downloading the files?"
-  options={["Forks run faster", "To push changes and run GitHub Actions on your contracts later", "The CLIs only work in forks"]}
+  question={"Why do you work in your own fork instead of just downloading the files?"}
+  options={["Forks run faster", "So you can version your contracts and run GitHub Actions on them in Part C", "The CLIs only work inside a Git repository", "To submit your solutions to the original repository"]}
   answer={1}
+  feedback={["A fork is just a copy of the repository on GitHub. It changes nothing about speed.", "", "The CLIs work on any file on disk, Git or not. Git matters for history, reviews, and CI.", "You don't need to open pull requests to the original repository. Your fork is your own playground, and in Part C you even open pull requests within it."]}
 >
-Contracts belong in Git. In your fork you can commit, open pull requests, and automate tests with GitHub Actions in Part C.
+Contracts belong in Git like code. In your fork you can commit, review changes in pull requests, and automate tests with GitHub Actions in Part C.
 </Quiz>
 
 You're all set. Time to write your first data contract!

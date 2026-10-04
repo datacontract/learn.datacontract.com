@@ -75,11 +75,12 @@ Befehle haben einen Kopieren-Button. Wo sich macOS/Linux und Windows unterscheid
 Du hängst fest? Die meisten Übungen haben einen Button **Lösung anzeigen**. Probier es zuerst selbst.
 
 <Quiz
-  question="Welcher Standard beschreibt die Schnittstelle eines einzelnen Datenbestands, inklusive Schema und Qualitätsregeln?"
-  options={["ODPS: Open Data Product Standard", "ODCS: Open Data Contract Standard", "OpenAPI"]}
+  question={"Dein Team will Consumern sagen, welche Spalten ein Datenbestand hat, welche Qualitätsregeln gelten und wie aktuell er ist. Welcher Standard passt?"}
+  options={["ODPS: Open Data Product Standard", "ODCS: Open Data Contract Standard", "OpenAPI", "Ein JSON-Schema der Tabelle"]}
   answer={1}
+  feedback={["Nah dran, aber ODPS beschreibt das Datenprodukt um die Daten herum: Zweck, Owner und Ports. Schema, Qualitätsregeln und SLAs stehen im Kontrakt, auf den ein Port verweist.", "", "OpenAPI beschreibt REST-APIs (Endpunkte, Requests, Responses). Tabellen, Qualitätsregeln oder Aktualität kennt es nicht.", "Ein JSON-Schema beschreibt die Struktur, aber keine Qualitätsregeln, SLAs, Ownership oder den Server, auf dem die Daten liegen. Genau das ergänzt ODCS."]}
 >
-Richtig. ODCS beschreibt die Schnittstelle (Schema, Qualität, SLAs) eines Datenbestands. ODPS beschreibt das Datenprodukt, das eine oder mehrere dieser Schnittstellen über seine Ports anbietet.
+Richtig. ODCS beschreibt die Schnittstelle eines Datenbestands: Schema, Qualität, SLAs und Support. ODPS beschreibt das Datenprodukt, das eine oder mehrere dieser Schnittstellen über seine Ports anbietet.
 </Quiz>
 
 **Voraussetzungen:** Grundkenntnisse in YAML und SQL. Plane etwa 5–6 Stunden für die Teile A–C ein, plus etwa eine Stunde für den optionalen Teil D.

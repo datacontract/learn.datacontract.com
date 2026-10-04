@@ -1,0 +1,92 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1280px; height: 720px; overflow: hidden; background: linear-gradient(135deg, #eef2ff 0%, #f8fafc 55%, #ecfdf5 100%); font-family: Inter, sans-serif; }
+  .win { position: absolute; left: 60px; top: 40px; width: 1160px; height: 640px; border-radius: 14px; background: #ffffff;
+    box-shadow: 0 30px 60px -20px rgba(30,27,75,.35), 0 0 0 1px rgba(15,23,42,.08); display: flex; flex-direction: column; overflow: hidden; }
+  .bar { flex: none; display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px; background: #f1f5f9; border-bottom: 1px solid #e2e8f0; }
+  .bar i { width: 13px; height: 13px; border-radius: 50%; display: block; }
+  .tab { margin-left: 18px; display: flex; align-items: center; gap: 8px; background: #fff; border: 1px solid #e2e8f0; border-bottom: none; border-radius: 8px 8px 0 0;
+    height: 32px; margin-top: 8px; padding: 0 14px; font-size: 13.5px; font-weight: 500; color: #334155; font-family: 'JetBrains Mono', monospace; }
+  .tab b { width: 8px; height: 8px; border-radius: 50%; background: #6366f1; display: inline-block; }
+  #code { font-variant-ligatures: none; flex: 1; display: flex; padding: 18px 0; font-family: 'JetBrains Mono', monospace; font-size: 15px; line-height: 1.6; overflow: hidden; }
+  #gutter { width: 56px; text-align: right; padding-right: 16px; color: #94a3b8; white-space: pre; user-select: none; }
+  #text { flex: 1; white-space: pre; color: #0f172a; padding-right: 20px; }
+  .kw { color: #7c3aed; font-weight: 500; } .fn { color: #0369a1; } .str { color: #047857; } .com { color: #94a3b8; font-style: italic; }
+  .key { color: #b45309; } .num { color: #be185d; }
+  .cursor { display: inline-block; width: 2px; height: 19px; background: #4f46e5; vertical-align: -4px; animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  /* chat panel for AI agent prompts */
+  #chat { display: none; flex: 1; padding: 36px 48px; flex-direction: column; gap: 18px; background: #f8fafc; }
+  .msg { max-width: 920px; padding: 18px 22px; border-radius: 14px; font-size: 18px; line-height: 1.55; color: #0f172a; }
+  .msg.user { align-self: flex-end; background: #4f46e5; color: #fff; border-bottom-right-radius: 4px; }
+  .msg.agent { align-self: flex-start; background: #fff; border: 1px solid #e2e8f0; border-bottom-left-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 15px; white-space: pre-wrap; color: #334155; }
+  .who { font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: -10px; }
+  .who.r { align-self: flex-end; }
+</style></head><body>
+<div class="win">
+  <div class="bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><div class="tab"><b></b><span id="file">untitled</span></div></div>
+  <div id="code"><div id="gutter"></div><div id="text"></div></div>
+  <div id="chat"></div>
+</div>
+<script>
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
+const textEl = document.getElementById('text')
+const gutter = document.getElementById('gutter')
+let lang = 'sql'
+const SQL_KW = /\b(CREATE|SCHEMA|IF|NOT|EXISTS|OR|REPLACE|VIEW|AS|SELECT|FROM|JOIN|ON|GROUP|BY|ORDER|WHERE|COUNT|SUM|EXTRACT|YEAR|DESC|LIMIT|AND)\b/g
+function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') }
+function highlight(src) {
+  return src.split('\n').map((line) => {
+    if (lang === 'sql') {
+      const ci = line.indexOf('--')
+      const code = ci >= 0 ? line.slice(0, ci) : line
+      let h = esc(code).replace(/'[^']*'/g, (m) => `<span class="str">${m}</span>`).replace(SQL_KW, '<span class="kw">$1</span>').replace(/::(\w+)/g, '::<span class="fn">$1</span>')
+      if (ci >= 0) h += `<span class="com">${esc(line.slice(ci))}</span>`
+      return h
+    }
+    // yaml
+    if (/^\s*#/.test(line)) return `<span class="com">${esc(line)}</span>`
+    return esc(line).replace(/^(\s*-?\s*)([\w$.{}-]+):/, '$1<span class="key">$2</span>:').replace(/: (.+)$/, (m, v) => `: <span class="str">${v}</span>`)
+  }).join('\n')
+}
+function render(src, withCursor = true) {
+  textEl.innerHTML = highlight(src) + (withCursor ? '<span class="cursor"></span>' : '')
+  const n = src.split('\n').length
+  gutter.textContent = Array.from({ length: n }, (_, i) => i + 1).join('\n')
+  // keep the cursor in view: scroll up when the code gets long
+  const lineH = 24, visible = 24
+  const shift = Math.max(0, n - visible) * lineH
+  textEl.style.transform = gutter.style.transform = `translateY(-${shift}px)`
+}
+window.setFile = (name, l) => { document.getElementById('file').textContent = name; lang = l || (name.endsWith('.sql') ? 'sql' : 'yaml') }
+window.setCode = (src) => render(src, false)
+// types code char by char (opts.lineMs > 0 types whole lines instead)
+window.typeCode = async (src, opts = {}) => {
+  let current = opts.prefix ?? ''
+  render(current)
+  if (opts.lineMs) {
+    for (const line of src.split('\n')) { current = current === '' ? line : current + '\n' + line; render(current); await sleep(opts.lineMs) }
+  } else {
+    for (const ch of src) { current += ch; render(current); await sleep(ch === '\n' ? (opts.nlMs ?? 120) : (opts.charMs ?? 22)) }
+  }
+  render(current, false)
+}
+// AI agent chat: a prompt from the user, then optional agent lines
+window.showChat = async (file, prompt, agentLines = []) => {
+  document.getElementById('code').style.display = 'none'
+  const chat = document.getElementById('chat'); chat.style.display = 'flex'; chat.innerHTML = ''
+  document.getElementById('file').textContent = file
+  const who = document.createElement('div'); who.className = 'who r'; who.textContent = 'You'; chat.appendChild(who)
+  const u = document.createElement('div'); u.className = 'msg user'; chat.appendChild(u)
+  for (const ch of prompt) { u.textContent += ch; await sleep(12) }
+  await sleep(900)
+  if (!agentLines.length) return
+  const w2 = document.createElement('div'); w2.className = 'who'; w2.textContent = 'AI coding agent'; chat.appendChild(w2)
+  const a = document.createElement('div'); a.className = 'msg agent'; chat.appendChild(a)
+  for (const l of agentLines) { a.textContent += (a.textContent ? '\n' : '') + l; await sleep(700) }
+}
+</script>
+</body></html>

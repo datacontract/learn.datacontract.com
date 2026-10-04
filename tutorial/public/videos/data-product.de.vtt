@@ -1,0 +1,45 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:03.452
+Übung 3: Datenprodukt beschreiben.
+
+2
+00:00:03.502 --> 00:00:09.953
+Orders ist ein Datenprodukt. Es bietet zwei Kontrakt-Versionen als Output-Ports an.
+
+3
+00:00:10.004 --> 00:00:16.621
+Die Data Product CLI legt eine Startdatei an. Öffne sie in deiner IDE.
+
+4
+00:00:16.671 --> 00:00:26.383
+Ein Datenprodukt, Orders. ODPS 1.1 ergänzt den Typ: sourceAligned.
+
+5
+00:00:26.433 --> 00:00:34.582
+Zweck und Einschränkungen: was Konsumenten zuerst wissen müssen.
+
+6
+00:00:34.632 --> 00:00:48.362
+Ein Output-Port pro Kontrakt-Version. Der alte v1-Port ist deprecated.
+
+7
+00:00:48.412 --> 00:00:53.436
+Tags helfen Konsumenten, das Produkt in einem Katalog zu finden.
+
+8
+00:00:53.486 --> 00:01:04.590
+Team und Support, übernommen aus den Kontrakten.
+
+9
+00:01:04.640 --> 00:01:11.479
+Validiere gegen das offizielle ODPS-JSON-Schema.
+
+10
+00:01:11.529 --> 00:01:21.215
+Ein Tippfehler in kind: Die CLI nennt das falsche Feld und endet mit Exit-Code 1.
+
+11
+00:01:21.265 --> 00:01:25.716
+Als Nächstes: ein consumer-aligned Datenprodukt auf Basis von Orders.

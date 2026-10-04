@@ -524,11 +524,12 @@ Watch what it does:
 </Step>
 
 <Quiz
-  question="An agent gets a question that is close to a verified statement with an answer. What should it do?"
-  options={["Write its own SQL from scratch", "Return the curated answer of the verified statement", "Ignore the contract and ask the user"]}
+  question={"An AI agent is asked \"How many orders were placed in 2023?\". The contract has a verified statement with this question and an SQL answer. What should the agent do?"}
+  options={["Write its own SQL from scratch, it knows the schema", "Reuse the curated answer of the verified statement", "Refuse, because the contract has constraints", "Use the verified statement only if the question matches word for word"]}
   answer={1}
+  feedback={["It could, but it would ignore the one answer the data owner already checked. Hand-written SQL may miss details such as units or filters.", "", "Constraints forbid specific things, here: exposing email addresses or customer IDs. Counting orders is fine.", "Verified statements are meant for semantically close questions too. \"Number of orders in 2023\" should hit the same answer."]}
 >
-Verified statements with an `answer` are trusted, curated answers. Agents should return them when a question is semantically close. Statements without an answer only prime the agent with sample questions.
+Verified statements with an `answer` are curated answers that agents should reuse when a question is semantically close. Statements without an answer only prime the agent with sample questions.
 </Quiz>
 
 ## Ownership and service levels
@@ -608,11 +609,12 @@ Server: Orders (type=postgres, host=localhost, port=5433, database=workshop, sch
 </Step>
 
 <Quiz
-  question="You declared a column as required. What does datacontract test do with that?"
-  options={["Nothing, it's documentation only", "It checks that the column has no missing values", "It adds a NOT NULL constraint to the database"]}
+  question={"You declared customer_email_address as required. What happens when you run datacontract test?"}
+  options={["Nothing, required is documentation only", "It checks that the column has no missing values", "It adds a NOT NULL constraint to the database", "The test fails until the database has a NOT NULL constraint"]}
   answer={1}
+  feedback={["Most fields in a contract are testable. `required: true` becomes a concrete check that runs against the data.", "", "The CLI never changes your database. It only reads data and metadata.", "The check looks at the data, not at the table definition: it counts missing values. A column without a NOT NULL constraint passes as long as it has no NULLs."]}
 >
-`required: true` becomes a "no missing values" check. The CLI never changes your database. It only reads.
+`required: true` becomes a "no missing values" check on the actual data. The CLI never changes your database, it only reads.
 </Quiz>
 
 ## Bonus

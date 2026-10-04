@@ -1,0 +1,66 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1280px; height: 720px; overflow: hidden; background: linear-gradient(135deg, #eef2ff 0%, #f8fafc 55%, #ecfdf5 100%); font-family: Inter, sans-serif; }
+  .win { position: absolute; left: 60px; top: 40px; width: 1160px; height: 640px; border-radius: 14px; background: #ffffff;
+    box-shadow: 0 30px 60px -20px rgba(30,27,75,.35), 0 0 0 1px rgba(15,23,42,.08); display: flex; flex-direction: column; overflow: hidden; }
+  .bar { flex: none; display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px; background: #f1f5f9; border-bottom: 1px solid #e2e8f0; }
+  .bar i { width: 13px; height: 13px; border-radius: 50%; display: block; }
+  .tab { margin-left: 18px; display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px; background: #fff; border-left: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;
+    font-size: 14px; font-weight: 500; color: #334155; }
+  .tab b { width: 8px; height: 8px; border-radius: 50%; background: #6366f1; display: none; }
+  .tab.dirty b { display: block; }
+  #code { flex: 1; overflow: hidden; padding: 16px 0; font-family: 'JetBrains Mono', monospace; font-size: 16px; line-height: 1.55; color: #24292f; }
+  .ln { display: flex; white-space: pre; }
+  .ln .n { width: 56px; flex: none; text-align: right; padding-right: 18px; color: #94a3b8; user-select: none; }
+  .ln.hl { background: #eef2ff; }
+  .k { color: #0550ae; } .s { color: #0a3069; } .c { color: #6e7781; font-style: italic; } .v { color: #953800; } .d { color: #8250df; }
+  .cursor { display: inline-block; width: 2px; height: 20px; background: #24292f; vertical-align: -4px; animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+</style></head><body>
+<div class="win">
+  <div class="bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i>
+    <div class="tab" id="tab"><span id="file">file.yaml</span><b></b></div></div>
+  <div id="code"></div>
+</div>
+<script>
+// A minimal code editor look: types YAML with simple syntax colors (used for files the
+// Data Contract Editor does not edit, e.g. ODPS data products)
+const code = document.getElementById('code')
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
+let text = ''
+const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;')
+function colorize(line) {
+  const m = line.match(/^(\s*-?\s*)([A-Za-z_][\w.-]*)(:)(.*)$/)
+  let html
+  if (/^\s*#/.test(line)) html = `<span class="c">${esc(line)}</span>`
+  else if (m) {
+    let rest = m[4]; let comment = ''
+    const ci = rest.indexOf(' #'); if (ci >= 0) { comment = rest.slice(ci); rest = rest.slice(0, ci) }
+    const val = /^\s*(true|false|\d[\d.]*|v\d[\d.]*)\s*$/.test(rest) ? `<span class="v">${esc(rest)}</span>` : `<span class="s">${esc(rest)}</span>`
+    html = `${esc(m[1])}<span class="k">${esc(m[2])}</span>${m[3]}${val}${comment ? `<span class="c">${esc(comment)}</span>` : ''}`
+  } else html = esc(line).replace(/^(\s*-\s)/, '<span class="d">$1</span>')
+  return html
+}
+function render(showCursor = true) {
+  const lines = text.split('\n')
+  const visible = Math.floor((code.clientHeight - 32) / 24.8)
+  const first = Math.max(0, lines.length - visible)
+  code.innerHTML = lines.slice(first).map((l, i) => {
+    const n = first + i + 1
+    const cur = showCursor && n === lines.length ? '<span class="cursor"></span>' : ''
+    return `<div class="ln"><span class="n">${n}</span><span>${colorize(l)}${cur}</span></div>`
+  }).join('')
+}
+window.setFile = (name) => { document.getElementById('file').textContent = name }
+window.setContent = (t) => { text = t; render() }
+window.typeCode = async (t, opts = {}) => {
+  document.getElementById('tab').classList.add('dirty')
+  for (const ch of t) { text += ch; render(); await sleep(ch === '\n' ? (opts.lineMs ?? 120) : (opts.charMs ?? 22)) }
+}
+window.saved = () => { document.getElementById('tab').classList.remove('dirty'); render(false) }
+render()
+</script>
+</body></html>

@@ -1,0 +1,53 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:03.450
+Übung 4: Contract-first entwerfen.
+
+2
+00:00:03.500 --> 00:00:09.451
+Das Einkaufsteam will SKU-Verkäufe pro Jahr. Du baust das Datenprodukt.
+
+3
+00:00:09.501 --> 00:00:15.139
+Lege den neuen Kontrakt an und öffne ihn im Editor.
+
+4
+00:00:15.189 --> 00:00:21.843
+Contract-first: Entwirf die Schnittstelle, bevor du SQL schreibst.
+
+5
+00:00:21.894 --> 00:00:35.198
+Der Server: das Schema analytics, in dem die View liegen wird.
+
+6
+00:00:35.248 --> 00:00:43.700
+Das Schema: eine View namens sku_sales_per_year.
+
+7
+00:00:43.750 --> 00:01:07.718
+Vier Properties: sku und year sind Dimensionen zum Gruppieren.
+
+8
+00:01:07.768 --> 00:01:40.348
+order_count und total_quantity sind Measures, mit ihrer Aggregation als transformLogic.
+
+9
+00:01:40.398 --> 00:01:51.481
+Der Kontext sagt KI-Agenten, wie sie das Produkt richtig abfragen.
+
+10
+00:01:51.530 --> 00:01:55.999
+Speichern. Der Kontrakt ist die Spezifikation für die Implementierung.
+
+11
+00:01:56.048 --> 00:02:05.091
+Tests ausführen: rot. Die View existiert noch nicht, genau das ist der Punkt.
+
+12
+00:02:05.140 --> 00:02:21.548
+Das Datenprodukt: consumerAligned, mit einem Input-Port auf orders_v2.
+
+13
+00:02:21.599 --> 00:02:28.599
+Gültiges ODPS 1.1. Konsumenten können die Schnittstelle jetzt prüfen. Als Nächstes: implementieren.

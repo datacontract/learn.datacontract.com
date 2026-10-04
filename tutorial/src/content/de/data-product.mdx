@@ -159,11 +159,12 @@ Ob die Daten hinter einem Output-Port ihr Versprechen halten, prüft `datacontra
 </Callout>
 
 <Quiz
-  question="Dein Orders-Produkt veröffentlicht nächstes Jahr orders_v3. Was ändert sich in orders.odps.yaml?"
-  options={["Du legst ein neues Datenprodukt orders_v3 an", "Du ergänzt einen Output-Port, der auf den Kontrakt orders_v3 verweist", "Nichts, das Datenprodukt kennt keine Kontrakte"]}
+  question={"Dein Orders-Produkt veröffentlicht nächstes Jahr orders_v3. Was ändert sich in orders.odps.yaml?"}
+  options={["Du legst ein neues Datenprodukt orders_v3 an", "Du ergänzt einen Output-Port, der auf den Kontrakt orders_v3 verweist", "Nichts, das Datenprodukt verweist nicht auf Kontrakte", "Du ersetzt den Port orders_v2 sofort durch orders_v3"]}
   answer={1}
+  feedback={["Das Datenprodukt ist die stabile Einheit für Ownership. Gleiches Team, gleicher Zweck: Eine neue Kontraktversion macht daraus kein neues Produkt.", "", "Doch: Jeder Output-Port verweist per `contractId` auf einen Kontrakt. So finden Consumer die Schnittstelle.", "Consumer von orders_v2 brauchen den Port während der Migration noch. Markiere ihn zuerst mit `deprecated: true` und entferne ihn, wenn der Kontrakt retired ist."]}
 >
-Das Datenprodukt bleibt dasselbe: Es ist die stabile Einheit der Verantwortung. Eine neue Kontraktversion wird zu einem neuen Output-Port. Alte Ports werden entfernt, sobald ihre Kontrakte stillgelegt sind.
+Das Datenprodukt bleibt dasselbe. Eine neue Kontraktversion wird zu einem neuen Output-Port, alte Ports werden erst deprecated und später entfernt, wenn ihre Kontrakte retired sind.
 </Quiz>
 
 ## Bonus

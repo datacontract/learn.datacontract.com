@@ -1,0 +1,69 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1280px; height: 720px; overflow: hidden; background: linear-gradient(135deg, #eef2ff 0%, #f8fafc 55%, #ecfdf5 100%); font-family: Inter, sans-serif; }
+  .win { position: absolute; left: 60px; top: 40px; width: 1160px; height: 640px; border-radius: 14px; background: #ffffff;
+    box-shadow: 0 30px 60px -20px rgba(30,27,75,.35), 0 0 0 1px rgba(15,23,42,.08); display: flex; flex-direction: column; overflow: hidden; }
+  .bar { flex: none; display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px; background: #f1f5f9; border-bottom: 1px solid #e2e8f0; }
+  .bar i { width: 13px; height: 13px; border-radius: 50%; display: block; }
+  .bar span { margin-left: 14px; font-size: 14px; font-weight: 600; color: #334155; background: #fff; padding: 4px 12px; border-radius: 6px; border: 1px solid #e2e8f0; }
+  #code { flex: 1; padding: 16px 0; font-family: 'JetBrains Mono', monospace; font-size: 15px; line-height: 1.5; color: #1f2937; overflow: hidden; display: flex; flex-direction: column; }
+  #code .ln { display: flex; white-space: pre; }
+  #code .no { width: 52px; flex: none; text-align: right; padding-right: 16px; color: #94a3b8; user-select: none; }
+  .k { color: #0550ae; } .v { color: #0a3069; } .c { color: #6e7781; font-style: italic; } .d { color: #cf222e; }
+  .cursor { display: inline-block; width: 2px; height: 18px; background: #4f46e5; vertical-align: -3px; animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .hl { background: #fef9c3; }
+</style></head><body>
+<div class="win">
+  <div class="bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><span id="file">file.yaml</span></div>
+  <div id="code"></div>
+</div>
+<script>
+const code = document.getElementById('code')
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
+const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;')
+// minimal YAML highlighting: comments, keys, list dashes, values
+function highlight(line) {
+  const m = line.match(/^(\s*)(- )?([A-Za-z_][\w.-]*)(:)(.*)$/)
+  if (/^\s*#/.test(line)) return `<span class="c">${esc(line)}</span>`
+  if (!m) {
+    const d = line.match(/^(\s*)(- )(.*)$/)
+    return d ? `${d[1]}<span class="d">- </span><span class="v">${esc(d[3])}</span>` : `<span class="v">${esc(line)}</span>`
+  }
+  return `${m[1]}${m[2] ? '<span class="d">- </span>' : ''}<span class="k">${esc(m[3])}</span>${m[4]}<span class="v">${esc(m[5])}</span>`
+}
+let lines = []
+function render(cursorAtEnd) {
+  const visible = Math.floor((code.clientHeight - 32) / 22.5)
+  const first = Math.max(0, lines.length - visible)
+  code.innerHTML = lines.slice(first).map((l, i) => {
+    const last = first + i === lines.length - 1
+    return `<div class="ln"><span class="no">${first + i + 1}</span><span>${highlight(l)}${last && cursorAtEnd ? '<span class="cursor"></span>' : ''}</span></div>`
+  }).join('')
+}
+window.setFile = (name) => { document.getElementById('file').textContent = name }
+// types text character by character (newlines start a new line)
+window.typeText = async (text, ms = 26) => {
+  if (lines.length === 0) lines.push('')
+  for (const ch of text) {
+    if (ch === '\n') lines.push('')
+    else lines[lines.length - 1] += ch
+    render(true)
+    await sleep(ch === '\n' ? ms * 3 : ms)
+  }
+}
+// adds whole lines quickly, like a paste that scrolls in
+window.addLines = async (text, ms = 60) => {
+  for (const l of text.split('\n')) {
+    if (lines.length && lines[lines.length - 1] === '') lines[lines.length - 1] = l
+    else lines.push(l)
+    render(true)
+    await sleep(ms)
+  }
+}
+window.clearCode = () => { lines = []; render(false) }
+</script>
+</body></html>

@@ -436,11 +436,12 @@ Testing orders_v2.odcs.yaml
 </Step>
 
 <Quiz
-  question="Which change to an active contract is breaking for consumers?"
-  options={["Adding a new optional column", "Changing a column's physical type from BIGINT to TEXT", "Adding a description to a column"]}
+  question={"Which change to the active orders_v2 contract is a breaking change for consumers?"}
+  options={["Adding a new column", "Changing a column's physical type from BIGINT to TEXT", "Adding a description to a column", "Marking a column as deprecated: true"]}
   answer={1}
+  feedback={["True for consumers that use SELECT * or access columns by position: their output or code can change. Still, it is typically not considered breaking, because data contract policies treat additive changes as compatible and expect consumers to tolerate new columns. `datacontract breaking` reports it as INFO.", "", "Descriptions are documentation. No query or pipeline breaks because of better documentation.", "Deprecation only announces a future removal. The column stays, so nothing breaks today. The later removal is the breaking change, and it needs a new major version."]}
 >
-A type change breaks every consumer that relies on the old type; `datacontract breaking` reports it as ERROR. Optional columns and descriptions are schema-compatible (though your consumers might still disagree).
+A type change breaks every consumer that relies on the old type, from SQL comparisons to downstream schemas. `datacontract breaking` reports it as ERROR, so it belongs in a new major version.
 </Quiz>
 
 ## Bonus

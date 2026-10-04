@@ -15,6 +15,8 @@ export type Chapter = {
   minutes: number
   title: Localized
   summary: Localized
+  /** walkthrough video in public/videos/<slug>.mp4 (with captions <slug>.<lang>.vtt and poster <slug>.webp) */
+  video?: boolean
 }
 
 export const parts: Part[] = [
@@ -41,6 +43,7 @@ export const chapters: Chapter[] = [
   {
     slug: 'setup',
     part: 'start',
+    video: true,
     exercise: false,
     minutes: 20,
     title: { en: 'Setup', de: 'Setup' },
@@ -52,6 +55,7 @@ export const chapters: Chapter[] = [
   {
     slug: 'contract',
     part: 'a',
+    video: true,
     exercise: true,
     minutes: 60,
     title: { en: 'Put Your Data Under Contract', de: 'Daten unter Vertrag nehmen' },
@@ -63,6 +67,7 @@ export const chapters: Chapter[] = [
   {
     slug: 'evolution',
     part: 'a',
+    video: true,
     exercise: true,
     minutes: 30,
     title: { en: 'Data Contract Evolution', de: 'Evolution von Datenkontrakten' },
@@ -74,6 +79,7 @@ export const chapters: Chapter[] = [
   {
     slug: 'data-product',
     part: 'a',
+    video: true,
     exercise: true,
     minutes: 20,
     title: { en: 'Describe Your Data Product', de: 'Datenprodukt beschreiben' },
@@ -85,6 +91,7 @@ export const chapters: Chapter[] = [
   {
     slug: 'contract-first',
     part: 'b',
+    video: true,
     exercise: true,
     minutes: 30,
     title: { en: 'Design Contract-First', de: 'Contract-first entwerfen' },
@@ -96,6 +103,7 @@ export const chapters: Chapter[] = [
   {
     slug: 'implement',
     part: 'b',
+    video: true,
     exercise: true,
     minutes: 25,
     title: { en: 'Implement Your Data Product', de: 'Datenprodukt implementieren' },
@@ -107,6 +115,7 @@ export const chapters: Chapter[] = [
   {
     slug: 'consumer-driven',
     part: 'b',
+    video: true,
     exercise: true,
     minutes: 30,
     title: { en: 'Consumer-Driven Contracts', de: 'Consumer-driven Contracts' },
@@ -118,6 +127,7 @@ export const chapters: Chapter[] = [
   {
     slug: 'ci-cd',
     part: 'c',
+    video: true,
     exercise: true,
     minutes: 45,
     title: { en: 'CI/CD with GitHub Actions', de: 'CI/CD mit GitHub Actions' },
@@ -129,6 +139,7 @@ export const chapters: Chapter[] = [
   {
     slug: 'publish',
     part: 'd',
+    video: true,
     exercise: true,
     minutes: 40,
     title: { en: 'Publish to Entropy Data', de: 'Auf Entropy Data veröffentlichen' },
@@ -140,6 +151,7 @@ export const chapters: Chapter[] = [
   {
     slug: 'semantics',
     part: 'd',
+    video: true,
     exercise: true,
     minutes: 25,
     title: { en: 'Semantics', de: 'Semantik' },

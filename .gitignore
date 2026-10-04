@@ -8,6 +8,10 @@ tutorial/node_modules
 tutorial/dist
 tutorial/*.tsbuildinfo
 
+# video recording
+video/node_modules
+video/out
+
 # files created during the exercises
 orders_v1.odcs.*
 orders_v2.odcs.*

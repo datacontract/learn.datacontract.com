@@ -1,0 +1,50 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1280px; height: 720px; overflow: hidden; background: linear-gradient(135deg, #eef2ff 0%, #f8fafc 55%, #ecfdf5 100%); font-family: Inter, sans-serif; }
+  .win { position: absolute; left: 60px; top: 40px; width: 1160px; height: 640px; border-radius: 14px; background: #0d1117;
+    box-shadow: 0 30px 60px -20px rgba(30,27,75,.45), 0 0 0 1px rgba(255,255,255,.06); display: flex; flex-direction: column; overflow: hidden; }
+  .bar { flex: none; display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px; border-bottom: 1px solid rgba(255,255,255,.08); }
+  .bar i { width: 13px; height: 13px; border-radius: 50%; display: block; }
+  .bar span { margin: 0 auto; color: #8b949e; font-size: 14px; font-weight: 500; transform: translateX(-30px); }
+  #screen { flex: 1; padding: 18px 22px; font-family: 'JetBrains Mono', monospace; font-size: 14.5px; line-height: 1.45; color: #e6edf3; white-space: pre; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; }
+  .p { color: #34d399; } .cmd { color: #e6edf3; } .out { color: #c9d1d9; }
+  .cursor { display: inline-block; width: 10px; height: 20px; background: #e6edf3; vertical-align: -4px; animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+</style></head><body>
+<div class="win">
+  <div class="bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><span id="title">learn.datacontract.com</span></div>
+  <div id="screen"></div>
+</div>
+<script>
+const screen = document.getElementById('screen')
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
+let line
+function newLine(cls) { line = document.createElement('div'); if (cls) line.className = cls; screen.appendChild(line); trim(); return line }
+function trim() { while (screen.children.length > 31) screen.removeChild(screen.firstChild) }
+function prompt() {
+  newLine(); const p = document.createElement('span'); p.className = 'p'; p.textContent = window.PROMPT || '$ '; line.appendChild(p)
+  const c = document.createElement('span'); c.className = 'cursor'; line.appendChild(c); return c
+}
+// types a command, then prints its output line by line
+window.runCommand = async (cmd, out = '', opts = {}) => {
+  let cursor = prompt()
+  const t = document.createElement('span'); t.className = 'cmd'; line.insertBefore(t, cursor)
+  const lines = cmd.split('\n')
+  for (let li = 0; li < lines.length; li++) {
+    if (li > 0) { cursor.remove(); newLine(); const t2 = document.createElement('span'); t2.className = 'cmd'; line.appendChild(t2); cursor = document.createElement('span'); cursor.className = 'cursor'; line.appendChild(cursor); t.__cur = t2 }
+    const target = li === 0 ? t : t.__cur
+    for (const ch of lines[li]) { target.textContent += ch; await sleep(opts.typeMs ?? 28) }
+  }
+  await sleep(350); cursor.remove()
+  for (const l of (out || '').split('\n').filter((x, i, a) => !(i === a.length - 1 && x === ''))) {
+    newLine('out').textContent = l; await sleep(opts.lineMs ?? 35)
+  }
+}
+window.idle = () => { prompt() }
+window.setTitle = (t) => { document.getElementById('title').textContent = t }
+window.clearScreen = () => { screen.innerHTML = '' }
+</script>
+</body></html>

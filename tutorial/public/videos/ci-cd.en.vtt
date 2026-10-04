@@ -1,0 +1,73 @@
+WEBVTT
+
+1
+00:00:00.001 --> 00:00:03.452
+Exercise 7: CI/CD with GitHub Actions in your own fork.
+
+2
+00:00:03.502 --> 00:00:09.453
+The pipeline runs three checks: syntax, reality, and compatibility.
+
+3
+00:00:09.504 --> 00:00:21.499
+Remove the exercise files from .gitignore, then commit and push them to your fork.
+
+4
+00:00:21.551 --> 00:00:29.572
+Create the workflow. First: install the pinned CLIs and lint all files.
+
+5
+00:00:29.622 --> 00:00:34.074
+Lint checks the syntax against the ODCS and ODPS standards.
+
+6
+00:00:34.123 --> 00:00:43.066
+Then test against reality: start the database, create the views, run datacontract ci.
+
+7
+00:00:43.116 --> 00:00:50.976
+Break the lint on purpose: logicalType text is not ODCS. This is what the run reports.
+
+8
+00:00:51.025 --> 00:01:00.528
+Break a type: the test against the database finds bigint, not integer.
+
+9
+00:01:00.578 --> 00:01:08.033
+Push: GitHub Actions runs the workflow on every change to main.
+
+10
+00:01:08.083 --> 00:01:16.536
+datacontract ci writes a step summary: every contract, every check.
+
+11
+00:01:16.586 --> 00:01:26.297
+Before the third check, try datacontract breaking locally. v1 to v2 adds a field: no error.
+
+12
+00:01:26.347 --> 00:01:37.493
+The other way round removes quantity: ERROR and exit code 1.
+
+13
+00:01:37.543 --> 00:01:44.957
+On pull requests, compare every contract with its version on the base branch.
+
+14
+00:01:45.007 --> 00:01:49.959
+A breaking change makes the job fail.
+
+15
+00:01:50.009 --> 00:02:01.592
+Try it: remove customer_id on a branch, push it, and open a pull request in your fork.
+
+16
+00:02:01.642 --> 00:02:09.594
+The Breaking changes check fails. Lint and test still pass.
+
+17
+00:02:09.644 --> 00:02:17.596
+The log says why: customer_id was removed. That would break consumers.
+
+18
+00:02:17.647 --> 00:02:25.097
+Make a compatible change instead, or release a new major version. Tip: require the check with branch protection.

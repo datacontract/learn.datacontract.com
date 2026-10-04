@@ -358,11 +358,12 @@ Eine Änderung, an die sich Konsumenten anpassen müssen, braucht eine neue Majo
 </Step>
 
 <Quiz
-  question="Ein Pull Request entfernt eine Spalte aus einem aktiven Kontrakt. Welcher Befehl lässt die Pipeline fehlschlagen?"
-  options={["datacontract lint", "datacontract ci", "datacontract breaking"]}
+  question={"Ein Pull Request entfernt customer_id aus orders_v2, die Spalte existiert in der Datenbank aber weiterhin. Welcher Check lässt die Pipeline fehlschlagen?"}
+  options={["datacontract lint", "datacontract ci", "datacontract breaking gegen den Base-Branch", "Keiner, der Kontrakt ist ja weiterhin gültig"]}
   answer={2}
+  feedback={["Die geänderte Datei ist weiterhin gültiges ODCS. Lint prüft die Syntax, nicht die Kompatibilität.", "Die Tests prüfen den Kontrakt gegen die Daten. Ein Kontrakt mit weniger Spalten als die Tabelle besteht trotzdem, `ci` bleibt grün.", "", "Gültig ja, aber nicht kompatibel. Consumer, die sich auf customer_id verlassen, würden brechen. Genau dafür gibt es den Kompatibilitäts-Check."]}
 >
-`lint` prüft nur die Syntax, und `ci` prüft den Kontrakt gegen die Daten. Nur `breaking` vergleicht die neue mit der alten Version und schlägt bei inkompatiblen Änderungen fehl.
+`lint` prüft die Syntax, `ci` prüft den Kontrakt gegen die Daten. Nur `breaking` vergleicht die neue Version mit dem Base-Branch und schlägt bei der entfernten Spalte fehl (ERROR).
 </Quiz>
 
 ## Bonus

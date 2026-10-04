@@ -275,9 +275,10 @@ dataproduct lint sku_sales_per_year.odps.yaml
 </Step>
 
 <Quiz
-  question="You just designed the contract and the tests fail. What does that tell you?"
-  options={["The contract is wrong and needs to be fixed", "Nothing is implemented yet: the failing tests are the to-do list", "The database is not running"]}
+  question={"You just designed the sku_sales_per_year contract and datacontract test fails. What does that tell you?"}
+  options={["The contract is wrong and needs to be fixed", "Nothing is implemented yet: the failing tests are your to-do list", "The database is not running", "You should loosen the quality checks until the tests pass"]}
   answer={1}
+  feedback={["Not necessarily. The contract is the specification; the view it describes doesn't exist yet. Fix the contract only if the design itself is wrong.", "", "If the database were down, every check would fail with a connection error. Here the checks fail because the view `analytics.sku_sales_per_year` is missing.", "That would weaken the promise to your consumers. Implement the view until it meets the contract, not the other way round."]}
 >
 Exactly. In contract-first, red tests are the expected starting point. They turn green once the implementation fulfills the specification.
 </Quiz>

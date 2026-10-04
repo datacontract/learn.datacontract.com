@@ -524,11 +524,12 @@ Beobachte, was er tut:
 </Step>
 
 <Quiz
-  question="Ein Agent bekommt eine Frage, die einem verifizierten Statement mit Antwort ähnelt. Was sollte er tun?"
-  options={["Eigenes SQL von Grund auf schreiben", "Die kuratierte Antwort des verifizierten Statements liefern", "Den Kontrakt ignorieren und nachfragen"]}
+  question={"Ein KI-Agent wird gefragt: „Wie viele Bestellungen gab es 2023?“ Der Kontrakt hat ein verifiziertes Statement mit dieser Frage und einer SQL-Antwort. Was sollte der Agent tun?"}
+  options={["Eigenes SQL schreiben, er kennt ja das Schema", "Die kuratierte Antwort des verifizierten Statements wiederverwenden", "Ablehnen, weil der Kontrakt Constraints hat", "Das Statement nur nutzen, wenn die Frage wortgleich ist"]}
   answer={1}
+  feedback={["Könnte er, aber dann ignoriert er genau die Antwort, die der Data Owner schon geprüft hat. Selbst geschriebenes SQL übersieht leicht Details wie Einheiten oder Filter.", "", "Constraints verbieten bestimmte Dinge, hier: E-Mail-Adressen oder Kunden-IDs ausgeben. Bestellungen zählen ist erlaubt.", "Verifizierte Statements gelten auch für sinngemäß gleiche Fragen. „Anzahl Bestellungen 2023“ sollte dieselbe Antwort treffen."]}
 >
-Verifizierte Statements mit `answer` sind geprüfte, kuratierte Antworten. Agenten sollen sie liefern, wenn eine Frage inhaltlich nah dran ist. Statements ohne Antwort bereiten den Agenten nur mit Beispielfragen vor.
+Verifizierte Statements mit `answer` sind kuratierte Antworten, die Agenten bei sinngemäß ähnlichen Fragen wiederverwenden sollen. Statements ohne Antwort dienen nur als Beispielfragen.
 </Quiz>
 
 ## Ownership und Service Levels
@@ -608,11 +609,12 @@ Server: Orders (type=postgres, host=localhost, port=5433, database=workshop, sch
 </Step>
 
 <Quiz
-  question="Du hast eine Spalte als required markiert. Was macht datacontract test damit?"
-  options={["Nichts, das ist nur Dokumentation", "Es prüft, dass die Spalte keine fehlenden Werte enthält", "Es legt einen NOT-NULL-Constraint in der Datenbank an"]}
+  question={"Du hast customer_email_address als required markiert. Was passiert bei datacontract test?"}
+  options={["Nichts, required ist nur Dokumentation", "Es prüft, dass die Spalte keine fehlenden Werte hat", "Es legt einen NOT-NULL-Constraint in der Datenbank an", "Der Test schlägt fehl, bis die Datenbank einen NOT-NULL-Constraint hat"]}
   answer={1}
+  feedback={["Die meisten Felder im Kontrakt sind testbar. `required: true` wird zu einem konkreten Check gegen die Daten.", "", "Die CLI ändert deine Datenbank nie. Sie liest nur Daten und Metadaten.", "Der Check schaut auf die Daten, nicht auf die Tabellendefinition: Er zählt fehlende Werte. Eine Spalte ohne NOT-NULL-Constraint besteht, solange sie keine NULLs enthält."]}
 >
-Aus `required: true` wird ein Check auf fehlende Werte. Die CLI verändert deine Datenbank nie. Sie liest nur.
+`required: true` wird zu einem Check „keine fehlenden Werte“ auf den echten Daten. Die CLI ändert deine Datenbank nie, sie liest nur.
 </Quiz>
 
 ## Bonus

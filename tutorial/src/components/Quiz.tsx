@@ -2,8 +2,26 @@ import { useState, type ReactNode } from 'react'
 import { t } from '../i18n'
 import { useChapter } from './ChapterContext'
 
-// A single-choice knowledge check. The explanation is shown once the right answer is picked.
-export function Quiz({ question, options, answer, children }: { question: string; options: string[]; answer: number; children?: ReactNode }) {
+// feedback strings are plain text: render `backticks` as inline code
+function inlineCode(text: string) {
+  return text.split(/(`[^`]+`)/).map((part, i) =>
+    part.startsWith('`') && part.endsWith('`') ? (
+      <code key={i} className="rounded bg-slate-100 px-1 py-0.5 font-mono text-[0.85em] dark:bg-slate-800">{part.slice(1, -1)}</code>
+    ) : (
+      part
+    ),
+  )
+}
+
+// A single-choice knowledge check. The explanation (children) is shown once the right answer
+// is picked; `feedback` holds one explanation per option, shown when that wrong option is checked.
+export function Quiz({ question, options, answer, feedback, children }: {
+  question: string
+  options: string[]
+  answer: number
+  feedback?: string[]
+  children?: ReactNode
+}) {
   const { lang } = useChapter()
   const ui = t(lang)
   const [selected, setSelected] = useState<number | null>(null)
@@ -54,6 +72,11 @@ export function Quiz({ question, options, answer, children }: { question: string
           </span>
         )}
       </div>
+      {checked && !correct && selected !== null && feedback?.[selected] && (
+        <div className="mt-3 rounded-lg border border-rose-200 bg-white px-3 py-2 text-sm text-slate-700 dark:border-rose-900/60 dark:bg-slate-900 dark:text-slate-300">
+          {inlineCode(feedback[selected])}
+        </div>
+      )}
       {correct && children && <div className="prose prose-sm mt-3 max-w-none dark:prose-invert">{children}</div>}
     </div>
   )
