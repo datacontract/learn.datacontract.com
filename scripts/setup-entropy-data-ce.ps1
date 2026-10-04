@@ -19,7 +19,7 @@ if (Test-Path .env) {
 $BaseUrl      = if ($env:ENTROPY_DATA_CE_HOST)         { $env:ENTROPY_DATA_CE_HOST }         else { 'http://localhost:8081' }
 $Email        = if ($env:ENTROPY_DATA_CE_EMAIL)        { $env:ENTROPY_DATA_CE_EMAIL }        else { 'workshop@example.com' }
 $Password     = if ($env:ENTROPY_DATA_CE_PASSWORD)     { $env:ENTROPY_DATA_CE_PASSWORD }     else { 'workshop' }
-$Organization = if ($env:ENTROPY_DATA_CE_ORGANIZATION) { $env:ENTROPY_DATA_CE_ORGANIZATION } else { 'datameshlive2026' }
+$Organization = if ($env:ENTROPY_DATA_CE_ORGANIZATION) { $env:ENTROPY_DATA_CE_ORGANIZATION } else { 'workshop' }
 
 $Session = New-Object Microsoft.PowerShell.Commands.WebRequestSession
 

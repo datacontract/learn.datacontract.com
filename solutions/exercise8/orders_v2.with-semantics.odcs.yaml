@@ -25,7 +25,7 @@ schema:
   physicalName: orders
   authoritativeDefinitions:
   - type: semantics
-    url: /datameshlive2026/semantics/main/order
+    url: /workshop/semantics/main/order
   properties:
   - name: order_id
     physicalType: text
@@ -34,7 +34,7 @@ schema:
     primaryKey: true
     authoritativeDefinitions:
     - type: semantics
-      url: /datameshlive2026/semantics/main/order.order_id
+      url: /workshop/semantics/main/order.order_id
     quality:
     - type: sql
       description: Ensure order_id is unique
@@ -55,7 +55,7 @@ schema:
     logicalType: integer
     authoritativeDefinitions:
     - type: semantics
-      url: /datameshlive2026/semantics/main/order.order_total
+      url: /workshop/semantics/main/order.order_total
     quality:
     - type: sql
       description: Ensure order_total is non-negative
@@ -118,7 +118,7 @@ schema:
     required: true
     authoritativeDefinitions:
     - type: semantics
-      url: /datameshlive2026/semantics/main/order.order_id
+      url: /workshop/semantics/main/order.order_id
     relationships:
     - type: foreignKey
       to: orders.order_id
@@ -127,7 +127,7 @@ schema:
     logicalType: string
     authoritativeDefinitions:
     - type: semantics
-      url: /datameshlive2026/semantics/main/article.sku
+      url: /workshop/semantics/main/article.sku
     quality:
     - type: sql
       description: Ensure sku is not empty

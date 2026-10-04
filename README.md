@@ -1,6 +1,6 @@
-# ODCS + ODPS Workshop – Data Mesh Live 2026
+# Data Contracts in Practice: ODCS + ODPS Workshop
 
-Workshop repository for [Getting Started with Data Contracts Using Open-Source Tools](https://2026.datameshlive.com/program/getting-started-with-data-contracts-using-open-source-tools/) at [Data Mesh Live 2026](https://2026.datameshlive.com/).
+Hands-on workshop repository. Prefer a guided, self-paced version? Follow the online tutorial at **[learn.datacontract.com](https://learn.datacontract.com)** (English and German).
 
 Hands-on: put a PostgreSQL dataset under contract with [ODCS](https://bitol-io.github.io/open-data-contract-standard/), describe it as a data product with [ODPS](https://bitol-io.github.io/open-data-product-standard/), and build a derived data product on top using plain SQL.
 
@@ -75,7 +75,7 @@ Builds on Parts A and B only (Part C is not required). Needs a GitHub account.
 
 - [ODCS Docs](https://bitol-io.github.io/open-data-contract-standard/) · [Source (GitHub)](https://github.com/bitol-io/open-data-contract-standard)
 - [ODPS Docs](https://bitol-io.github.io/open-data-product-standard/) · [Source (GitHub)](https://github.com/bitol-io/open-data-product-standard)
-- [Data Contract CLI (GitHub)](https://github.com/datacontract/datacontract-cli)
+- [Data Contract CLI (GitHub)](https://github.com/datacontract/datacontract-cli) · [Data Contract Editor](https://editor.datacontract.com) · [Data Product CLI (GitHub)](https://github.com/entropy-data/dataproduct-cli)
 - [Entropy Data Docs](https://docs.entropy-data.com) · [Entropy Data CLI (GitHub)](https://github.com/entropy-data/entropy-data-cli)
 
 

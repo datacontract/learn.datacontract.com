@@ -69,17 +69,17 @@ Right now, the meaning of `order_id`, `order_total`, and `sku` is duplicated acr
      - name: orders
        authoritativeDefinitions:
          - type: semantics
-           url: /datameshlive2026/semantics/main/order
+           url: /workshop/semantics/main/order
        properties:
          - name: order_id
            authoritativeDefinitions:
              - type: semantics
-               url: /datameshlive2026/semantics/main/order.order_id
+               url: /workshop/semantics/main/order.order_id
    ```
 
    Do the same for `order_total` (`order.order_total`, in all contracts that have it) and `sku` (`article.sku`).
 
-   > The URLs are host-relative on purpose — they resolve on whatever instance the contract lives on, cloud or local Community Edition. Replace `datameshlive2026` with your organization name.
+   > The URLs are host-relative on purpose: they resolve on whatever instance the contract lives on, cloud or local Community Edition. Replace `workshop` with your organization name.
 
 4. Re-publish the changed contracts:
 

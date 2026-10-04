@@ -30,7 +30,7 @@ schema:
     required: true
     authoritativeDefinitions:
     - type: semantics
-      url: /datameshlive2026/semantics/main/article.sku
+      url: /workshop/semantics/main/article.sku
     quality:
     - type: sql
       description: Ensure sku and year combination is unique
