@@ -19,7 +19,7 @@ concurrency:
 
 jobs:
   deploy:
-    if: github.repository == 'datacontract/odcs-odps-workshop'
+    if: github.repository == 'datacontract/learn.datacontract.com'
     runs-on: ubuntu-latest
     environment:
       name: github-pages

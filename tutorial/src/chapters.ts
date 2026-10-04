@@ -1,7 +1,7 @@
 import { lazy, type ComponentType, type LazyExoticComponent } from 'react'
 import type { Lang } from './i18n'
 
-export const REPO_URL = 'https://github.com/datacontract/odcs-odps-workshop'
+export const REPO_URL = 'https://github.com/datacontract/learn.datacontract.com'
 
 type Localized = Record<Lang, string>
 

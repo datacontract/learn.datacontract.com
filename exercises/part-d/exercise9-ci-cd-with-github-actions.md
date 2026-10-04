@@ -8,12 +8,12 @@ Builds on Parts A and B only. You need a [GitHub](https://github.com) account.
 
 ## Push Your Work to Your Own Fork
 
-1. Fork the workshop repository on GitHub: open [github.com/datacontract/odcs-odps-workshop](https://github.com/datacontract/odcs-odps-workshop) and click **Fork**.
+1. Fork the workshop repository on GitHub: open [github.com/datacontract/learn.datacontract.com](https://github.com/datacontract/learn.datacontract.com) and click **Fork**.
    Then point your local clone to your fork (with the [GitHub CLI](https://cli.github.com), `gh repo fork --remote` does both steps in one go):
 
    ```bash
    git remote rename origin upstream
-   git remote add origin https://github.com/<your-username>/odcs-odps-workshop.git
+   git remote add origin https://github.com/<your-username>/learn.datacontract.com.git
    ```
 
 2. The workshop repository ignores the files you created in the exercises. In your fork, they are your source code. Open [`.gitignore`](/.gitignore) and **delete the last block** (the comment `# files created during the exercises` and the five lines below it).
@@ -175,7 +175,7 @@ A breaking change in a contract breaks consumers. The pipeline catches it *befor
 15. Open a pull request **in your fork**.
 
     > [!IMPORTANT]
-    > GitHub proposes the original workshop repository as the base of a pull request from a fork. Change the **base repository** to `<your-username>/odcs-odps-workshop`, base `main`.
+    > GitHub proposes the original workshop repository as the base of a pull request from a fork. Change the **base repository** to `<your-username>/learn.datacontract.com`, base `main`.
 
     The **Breaking changes** check fails, and the annotation points at `orders_v2.odcs.yaml`.
 
