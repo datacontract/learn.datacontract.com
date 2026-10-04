@@ -1,11 +1,12 @@
 Jeder deiner Kontrakte hat eine eigene Kopie der Beschreibungen von `order_id`, `order_total` und `sku`.
 Und eine Beschreibung sagt, was ein Feld *enthält*, nicht welcher fachliche Begriff es *ist*.
-Hier definierst du jeden Begriff **einmal** in **Semantics**, einer schlanken fachlichen Ontologie auf der Plattform, und verknüpfst die Kontrakte aus [der vorigen Übung](#/de/publish) damit.
+Hier definierst du jeden Begriff **einmal**, in einer Ontologie-Datei mit stabilen **IRIs**, lädst sie in einem Rutsch hoch und verknüpfst die Kontrakte aus [der letzten Übung](#/de/publish) damit.
 
 <Goals>
-- Fachliche Entitäten, ihre Eigenschaften und ihre Beziehungen modellieren
-- Felder von Datenkontrakten mit `authoritativeDefinitions` an fachliche Begriffe binden
-- Die Frage „Welche Datensätze enthalten X?“ per Rückwärtssuche beantworten
+- Eine fachliche Ontologie als eine Datei schreiben: Entitäten, Properties, Beziehungen
+- Begriffe mit IRIs identifizieren, die auf jeder Plattform-Instanz funktionieren
+- Felder im Kontrakt per `authoritativeDefinitions` mit Begriffen verknüpfen
+- „Welche Datenprodukte enthalten X?“ per Rückwärtssuche beantworten
 </Goals>
 
 <Callout type="note" title="Voraussetzung">
@@ -13,160 +14,126 @@ Baut auf [Auf Entropy Data veröffentlichen](#/de/publish) auf: Deine Kontrakte 
 </Callout>
 
 <Callout type="concept" title="Kontrakt vs. Ontologie">
-Ein Datenkontrakt beschreibt **einen Datensatz**. Eine Ontologie beschreibt die **Fachsprache**, die alle Datensätze teilen: *Eine Order hat einen Order Total, eine Order enthält Articles.*
-Zeigen Felder auf Begriffe, steht die Bedeutung an einer Stelle, und du suchst in allen Datensätzen nach Bedeutung statt nach Spaltennamen.
+Ein Datenkontrakt beschreibt **einen Datensatz**. Eine Ontologie beschreibt die **Fachsprache**, die alle Datensätze teilen: *Eine Bestellung hat eine Bestellsumme, eine Bestellung enthält Artikel.*
+Wenn Felder auf Begriffe zeigen, steht die Bedeutung an einer Stelle, und du kannst alle Datensätze nach Bedeutung statt nach Spaltennamen durchsuchen.
 </Callout>
 
-## Fachliche Begriffe modellieren
+<Callout type="concept" title="Warum IRIs?">
+Eine IRI (Internationalized Resource Identifier) ist ein weltweit eindeutiger, stabiler Name für einen Begriff, z. B. `https://learn.datacontract.com/ontology/ecommerce#sku`.
+Sie hängt weder vom Host der Plattform noch vom Namen deiner Organisation ab. Derselbe Kontrakt verlinkt damit richtig in der Cloud, in einer lokalen Community Edition und in jedem Werkzeug, das die Ontologie kennt.
+Die IRI muss keine erreichbare Webseite sein. Die Plattform löst sie zu dem Begriff auf, der sie trägt.
+</Callout>
 
-<Step id="concepts" title="Entitäten anlegen">
+## Die Ontologie schreiben
 
-Leg einen Namespace an und zwei Entitäten mit ihren Eigenschaften:
+<Step id="ontology-file" title="Ontologie-Datei schreiben">
 
-```bash
-printf 'name: Main\n' | entropy-data semantics namespaces put main --file -
+Lege `semantics.yaml` im Wurzelverzeichnis des Repositorys an. Sie enthält den kompletten Namespace `ecommerce`:
 
-cat <<EOF | entropy-data semantics concepts put main order --file -
-name: Order
-kind: entity
-description: A customer order in the e-commerce platform
-properties:
-- id: order_id
-  name: Order ID
-  kind: property
-  description: Unique identifier of an order (UUID)
-  data_type: string
-  required: true
-  unique: true
-- id: order_total
-  name: Order Total
-  kind: property
-  description: Total amount of an order in cents, never negative
-  data_type: integer
-EOF
+- `prefixes` deklariert `ecom:` als Kurzform der IRI-Basis, sodass jeder Begriff `iri: ecom:Order` schreiben kann.
+- Begriffe vom Typ `EntityType` sind die Geschäftsobjekte (Order, Article). Begriffe vom Typ `ValueType` sind ihre Properties (Order ID, Order Total, SKU).
+- Beziehungen vom Typ `hasProperty` hängen Properties an Entitäten. Beziehungen vom Typ `relatedTo` verbinden Entitäten: Eine Bestellung enthält Artikel.
 
-cat <<EOF | entropy-data semantics concepts put main article --file -
-name: Article
-kind: entity
-description: A product that can be bought in the e-commerce platform
-properties:
-- id: sku
-  name: SKU
-  kind: property
-  description: Stock keeping unit, the unique identifier of an article
-  data_type: string
-  required: true
-  unique: true
-EOF
-```
-
-```powershell
-"name: Main" | entropy-data semantics namespaces put main --file -
-
-@'
-name: Order
-kind: entity
-description: A customer order in the e-commerce platform
-properties:
-- id: order_id
-  name: Order ID
-  kind: property
-  description: Unique identifier of an order (UUID)
-  data_type: string
-  required: true
-  unique: true
-- id: order_total
-  name: Order Total
-  kind: property
-  description: Total amount of an order in cents, never negative
-  data_type: integer
-'@ | entropy-data semantics concepts put main order --file -
-
-@'
-name: Article
-kind: entity
-description: A product that can be bought in the e-commerce platform
-properties:
-- id: sku
-  name: SKU
-  kind: property
-  description: Stock keeping unit, the unique identifier of an article
-  data_type: string
-  required: true
-  unique: true
-'@ | entropy-data semantics concepts put main article --file -
-```
-
-```output
-Semantic namespace 'main' saved.
-Concept 'order' saved in namespace 'main'.
-Concept 'article' saved in namespace 'main'.
+```yaml file=../../../../solutions/exercise8/semantics.yaml
 ```
 
 </Step>
 
-<Step id="relationship" title="Entitäten verbinden">
+<Step id="upload" title="In einem Rutsch hochladen">
 
-Eine Order enthält Articles:
+Ein einziges `PUT` ersetzt den ganzen Namespace durch die Datei: Es legt den Namespace, alle Begriffe und alle Beziehungen in der richtigen Reihenfolge an.
+Die Entropy Data CLI hat dafür noch keinen Befehl, deshalb rufst du die API direkt auf. Sie nutzt denselben API Key und Host wie die CLI:
 
 ```bash
-cat <<EOF | entropy-data semantics relationships put main order-contains-article --file -
-type: relatedTo
-name: contains
-description: An order contains one or more articles
-roles:
-- concept: order
-- concept: article
-verbalizes:
-- "{Order} contains {Article}"
-EOF
+curl -sS -f -X PUT "$ENTROPY_DATA_HOST/api/semantics/experimental/namespaces/ecommerce/ontology.yaml" \
+  -H "x-api-key: $ENTROPY_DATA_API_KEY" \
+  -H "Content-Type: application/yaml" \
+  --data-binary @semantics.yaml -w "HTTP %{http_code}\n"
 ```
 
 ```powershell
-@'
-type: relatedTo
-name: contains
-description: An order contains one or more articles
-roles:
-- concept: order
-- concept: article
-verbalizes:
-- "{Order} contains {Article}"
-'@ | entropy-data semantics relationships put main order-contains-article --file -
+Invoke-RestMethod -Method Put `
+  -Uri "$env:ENTROPY_DATA_HOST/api/semantics/experimental/namespaces/ecommerce/ontology.yaml" `
+  -Headers @{ "x-api-key" = $env:ENTROPY_DATA_API_KEY } `
+  -ContentType "application/yaml" `
+  -InFile semantics.yaml
 ```
 
 ```output
-Relationship 'order-contains-article' saved in namespace 'main'.
+HTTP 200
 ```
+
+Unter Windows gibt ein erfolgreicher Aufruf nichts aus.
+
+<Callout type="note" title="Community Edition">
+Das Setup-Skript hat `ENTROPY_DATA_API_KEY` und `ENTROPY_DATA_HOST` in die `.env` geschrieben, aber `curl` und `Invoke-RestMethod` lesen diese Datei nicht. Lade die beiden Werte zuerst in deine Shell:
+
+```bash
+set -a; source .env; set +a
+```
+
+```powershell
+Get-Content .env | Where-Object { $_ -match '^ENTROPY_DATA_(HOST|API_KEY)=' } | ForEach-Object { $k, $v = $_ -split '=', 2; Set-Item "env:$k" $v }
+```
+
+</Callout>
+
+Prüfe, was angekommen ist:
+
+```bash
+entropy-data semantics concepts list ecommerce
+```
+
+```powershell
+entropy-data semantics concepts list ecommerce
+```
+
+```output
+               semantic-concepts (page 0)
+┏━━━━━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━┳━━━━━━━━┓
+┃ ID          ┃ Name        ┃ Kind     ┃ Group ┃ Status ┃
+┡━━━━━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━╇━━━━━━━━┩
+│ article     │ Article     │ entity   │       │        │
+│ order       │ Order       │ entity   │       │        │
+│ order_id    │ Order ID    │ property │       │        │
+│ order_total │ Order Total │ property │       │        │
+│ sku         │ SKU         │ property │       │        │
+└─────────────┴─────────────┴──────────┴───────┴────────┘
+```
+
+Später etwas ändern? Bearbeite `semantics.yaml` und lade sie erneut hoch. Begriffe, die du aus der Datei entfernst, verschwinden auch aus dem Namespace.
 
 </Step>
 
-## Datenkontrakte verknüpfen
+## Deine Datenkontrakte verknüpfen
 
-<Step id="link" title="Felder der Kontrakte verknüpfen">
+<Step id="link" title="Felder per IRI verknüpfen">
 
-Verknüpfe Schemas und Felder über `authoritativeDefinitions` mit den Begriffen. Eine Eigenschaft einer Entität sprichst du als `<entität>.<eigenschaft>` an:
+Verknüpfe Schemas und Felder über `authoritativeDefinitions` vom Typ `semantics` mit den Begriffen und nutze die volle IRI als `url`:
 
 ```yaml
 schema:
   - name: orders
     authoritativeDefinitions:
       - type: semantics
-        url: /tutorial-<deinname>/semantics/main/order
+        url: https://learn.datacontract.com/ontology/ecommerce#Order
     properties:
       - name: order_id
         authoritativeDefinitions:
           - type: semantics
-            url: /tutorial-<deinname>/semantics/main/order.order_id
+            url: https://learn.datacontract.com/ontology/ecommerce#orderId
 ```
 
-Mach dasselbe für `order_total` (`order.order_total`, in jedem Kontrakt, der es enthält) und `sku` (`article.sku`).
-**Entferne danach die kopierten Beschreibungen** aus diesen Feldern. Die Definition steht jetzt im Begriff.
+Mach das für jedes Feld, zu dem es einen Begriff gibt:
 
-Ersetze `tutorial-<deinname>` durch den Namen deiner Organisation (in der Community Edition `acme`).
-Die URLs sind bewusst relativ zum Host, damit sie auf jeder Instanz funktionieren, in der Cloud wie lokal.
+| Feld | IRI |
+|---|---|
+| `order_total` | `https://learn.datacontract.com/ontology/ecommerce#orderTotal` |
+| `sku` | `https://learn.datacontract.com/ontology/ecommerce#sku` |
 
-Prüfe, ob die Kontrakte noch gültig sind:
+Verknüpfe sie in `orders_v1`, `orders_v2` und `sku_sales_per_year`. **Entferne dann die kopierten Beschreibungen** aus diesen Feldern. Die Definition steht jetzt im Begriff.
+
+Prüfe, ob die Kontrakte gültig bleiben:
 
 ```bash
 datacontract lint orders_v1.odcs.yaml
@@ -186,12 +153,16 @@ datacontract lint sku_sales_per_year.odcs.yaml
 ├────────┼────────────────────────────────────────────┼───────┼─────────┤
 │ passed │ Data contract is valid against ODCS v3.2.0 │       │         │
 ╰────────┴────────────────────────────────────────────┴───────┴─────────╯
-🟢 data contract is valid. Run 1 checks. Took 0.18 seconds.
+🟢 data contract is valid. Run 1 checks. Took 0.17 seconds.
+…
+🟢 data contract is valid. Run 1 checks. Took 0.17 seconds.
 …
 🟢 data contract is valid. Run 1 checks. Took 0.14 seconds.
-…
-🟢 data contract is valid. Run 1 checks. Took 0.15 seconds.
 ```
+
+<Callout type="tip" title="Auch die CLI löst IRIs auf">
+`datacontract test` schlägt jede IRI über `ENTROPY_DATA_HOST` nach (`/api/semantics?iri=...`) und übernimmt die Beschreibung des Begriffs, wo das Feld keine hat. Dafür braucht es `ENTROPY_DATA_API_KEY`.
+</Callout>
 
 </Step>
 
@@ -219,14 +190,14 @@ Open https://app.entropy-data.com/tutorial-simon/datacontracts/sku_sales_per_yea
 ```
 
 <Callout type="warning" title="Deine CI-Pipeline braucht jetzt die Plattform">
-`datacontract test` und `datacontract ci` lösen verknüpfte Definitionen standardmäßig über `ENTROPY_DATA_HOST` auf. Ist der Host nicht erreichbar, schlägt der Lauf mit „Could not resolve business definition“ fehl.
-Für deinen Workflow aus [CI/CD mit GitHub Actions](#/de/ci-cd) hast du zwei Möglichkeiten:
+`datacontract test` und `datacontract ci` lösen die IRIs über die Plattform auf. Ohne `ENTROPY_DATA_API_KEY` oder wenn der Host nicht erreichbar ist, scheitert der Lauf mit „Could not resolve business definition“.
+In deinem Workflow aus [CI/CD mit GitHub Actions](#/de/ci-cd) hast du zwei Möglichkeiten:
 
-- **Cloud:** Gib das Secret `ENTROPY_DATA_API_KEY` und `ENTROPY_DATA_HOST` an den Schritt weiter (siehe Bonus der vorigen Übung).
+- **Cloud:** Gib dem Step das Secret `ENTROPY_DATA_API_KEY` und `ENTROPY_DATA_HOST` mit (siehe Bonus der letzten Übung).
 - **Community Edition** (von GitHub aus nicht erreichbar): Ergänze `--no-inline-references` am Befehl `datacontract ci`.
 </Callout>
 
-<Solution title="Kontrakte mit semantischen Links">
+<Solution title="Kontrakte mit semantischen Verknüpfungen">
 
 ```yaml file=../../../../solutions/exercise8/orders_v1.with-semantics.odcs.yaml
 ```
@@ -242,17 +213,24 @@ Für deinen Workflow aus [CI/CD mit GitHub Actions](#/de/ci-cd) hast du zwei Mö
 
 <Step id="explore" title="Ontologie erkunden">
 
-Öffne in der Weboberfläche die Seite eines Begriffs unter **Studio → Semantics**:
+Geh in der Weboberfläche auf **Semantics → E-Commerce** und öffne **Article → SKU**:
 
-- Die Rückwärtssuche zeigt jeden Datenkontrakt, der auf den Begriff verweist. *„Welche Datensätze enthalten Bestellsummen?“* ist jetzt ein Klick.
-- Wechsle in die Ansicht **Diagram**, um die Ontologie als Graph zu sehen.
+- Das Diagramm zeigt die Ontologie: Order mit ihren Properties, contains, Article mit SKU.
+- **Metadata** zeigt die IRI des Begriffs, als `ecom:sku` und ausgeschrieben.
+- **Data Products** ist die Rückwärtssuche: alle Datenprodukte, deren Kontrakte auf den Begriff verweisen. *„Welche Datenprodukte enthalten SKUs?“* ist jetzt ein Klick.
+
+![Der Begriff SKU: Ontologie-Diagramm, IRI und die Datenprodukte, die ihn nutzen](screenshots/semantics-concept-sku.webp)
+
+Auch die Liste der Datenprodukte zeigt die verknüpften Begriffe:
+
+![Datenprodukte mit ihren verknüpften Begriffen in der Spalte Semantics](screenshots/semantics-data-products.webp)
 
 </Step>
 
 <Quiz
-  question="Warum entfernst du die Feldbeschreibungen aus den Kontrakten, nachdem du sie mit Begriffen verknüpft hast?"
-  options={["Das ODCS-Schema erlaubt nicht beides", "Damit die Bedeutung an einer Stelle definiert ist und zwischen Kontrakten nicht auseinanderläuft", "Damit die Kontrakte kleiner sind und die Tests schneller laufen"]}
+  question="Warum verknüpfst du Felder per IRI statt über die URL des Begriffs auf der Plattform?"
+  options={["IRIs sind kürzer zu tippen", "Die IRI ist ein stabiler, globaler Bezeichner, daher funktioniert der Link auf jeder Instanz und in anderen Werkzeugen", "Die Plattform kann per URL verknüpfte Begriffe nicht anzeigen"]}
   answer={1}
 >
-Genau. Kopien laufen auseinander. Eine einzige Definition bleibt konsistent, und jeder verknüpfte Kontrakt profitiert, wenn sie besser wird.
+Genau. Eine URL enthält Host und Organisation und bricht, wenn sich eins davon ändert. Die IRI benennt den Begriff selbst, und die Plattform löst sie auf, wo auch immer die Ontologie liegt.
 </Quiz>

@@ -43,6 +43,9 @@ const ui = {
     concept: 'Concept',
     createdBy: 'Created by',
     tscMember: 'TSC Member at',
+    maintainedBy: 'Maintained by',
+    markChapterDone: 'Mark chapter as completed',
+    markChapterUndone: 'Mark chapter as not completed',
   },
   de: {
     title: 'Datenkontrakte in der Praxis',
@@ -85,6 +88,9 @@ const ui = {
     concept: 'Konzept',
     createdBy: 'Erstellt von',
     tscMember: 'TSC-Mitglied bei',
+    maintainedBy: 'Gepflegt von',
+    markChapterDone: 'Kapitel als abgeschlossen markieren',
+    markChapterUndone: 'Kapitel als nicht abgeschlossen markieren',
   },
 } satisfies Record<Lang, Record<string, unknown>>
 

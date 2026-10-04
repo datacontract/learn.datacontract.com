@@ -1,0 +1,58 @@
+version: 0.2.0.dev0
+name: ecommerce
+description: Business concepts of the e-commerce platform.
+custom_properties:
+  display_name: E-Commerce
+prefixes:
+  ecom: https://learn.datacontract.com/ontology/ecommerce#
+ontology:
+  - concept: Order
+    id: order
+    type: EntityType
+    description: A customer order in the e-commerce platform.
+    iri: ecom:Order
+    relationships:
+      - id: order_has_order_id
+        name: order_id
+        type: hasProperty
+        roles:
+          - concept: Order ID
+      - id: order_has_order_total
+        name: order_total
+        type: hasProperty
+        roles:
+          - concept: Order Total
+      - id: order_contains_article
+        name: contains
+        type: relatedTo
+        description: An order contains one or more articles.
+        roles:
+          - concept: Article
+        verbalizes:
+          - "{Order} contains {Article}"
+  - concept: Article
+    id: article
+    type: EntityType
+    description: A product that can be bought in the e-commerce platform.
+    iri: ecom:Article
+    relationships:
+      - id: article_has_sku
+        name: sku
+        type: hasProperty
+        roles:
+          - concept: SKU
+  - concept: Order ID
+    id: order_id
+    type: ValueType
+    description: Unique identifier of an order (UUID).
+    iri: ecom:orderId
+  - concept: Order Total
+    id: order_total
+    type: ValueType
+    description: Total amount of an order in cents, never negative.
+    iri: ecom:orderTotal
+  - concept: SKU
+    id: sku
+    type: ValueType
+    description: Stock keeping unit, the unique identifier of an article.
+    iri: ecom:sku

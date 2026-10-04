@@ -96,7 +96,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: astral-sh/setup-uv@v10
+      - uses: astral-sh/setup-uv@v10.2.0
 
       - name: Install the CLIs
         run: |
@@ -154,6 +154,9 @@ Ergänze diese Schritte am Ende des Jobs `test`:
 Die Datenbank-Zugangsdaten kommen aus der Datei `.env` in deinem Repository.
 
 Pushe, öffne den Run und scrolle nach unten zur **Summary**.
+
+![Der Workflow-Lauf im Actions-Tab: beide Jobs, ausgelöst durch einen Push auf main](screenshots/ci-run-overview.webp)
+![Die Step Summary von datacontract ci: alle vier Kontrakte bestanden, darunter jeder einzelne Check](screenshots/ci-step-summary.webp)
 
 </Step>
 
@@ -257,7 +260,7 @@ Ergänze einen zweiten Job im Workflow. Er läuft nur für Pull Requests:
         with:
           fetch-depth: 0 # the base branch is needed for the comparison
 
-      - uses: astral-sh/setup-uv@v10
+      - uses: astral-sh/setup-uv@v10.2.0
 
       - name: Install the CLI
         run: uv tool install --python 3.11 'datacontract-cli[postgres]==1.2.2'
@@ -332,6 +335,9 @@ Bei einem Fork schlägt GitHub das ursprüngliche Workshop-Repository als Base v
 </Callout>
 
 Der Check **Breaking changes** schlägt fehl, mit einer Annotation an `orders_v2.odcs.yaml`.
+
+![Der Pull Request: Der Check Breaking changes schlägt fehl, Lint and test bleibt grün](screenshots/ci-pr-checks.webp)
+![Das Job-Log: datacontract breaking meldet das entfernte customer_id als ERROR](screenshots/ci-breaking-log.webp)
 
 </Step>
 

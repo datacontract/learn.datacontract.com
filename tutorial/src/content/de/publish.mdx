@@ -35,6 +35,18 @@ docker compose -f entropy-data-ce/docker-compose.yaml up -d
 powershell -ExecutionPolicy Bypass -File scripts\setup-entropy-data-ce.ps1
 ```
 
+```output
+…
+Creating account workshop@example.com ...
+Logging in ...
+Creating organization acme ...
+Creating organization API key ...
+Writing ENTROPY_DATA_API_KEY and ENTROPY_DATA_HOST to .env ...
+
+Done. Log in at http://localhost:8081 with workshop@example.com / workshop (organization: acme)
+Verify the CLI connection with: entropy-data connection test
+```
+
 Melde dich unter [http://localhost:8081](http://localhost:8081) mit `workshop@example.com` / `workshop` an.
 Wo unten `tutorial-<deinname>` steht, nimmst du `acme`.
 
@@ -312,6 +324,10 @@ So kennt der Owner von Orders alle Konsumenten und kann sie vor Änderungen warn
 - Folge dem Access Agreement von SKU Sales zu Orders. Die Abhängigkeit aus [Contract-first entwerfen](#/de/contract-first) ist jetzt ein Link in der Datenproduktkarte.
 - Wie würde jemand ein Datenprodukt über SKUs finden, ohne zu wissen, dass es existiert?
 
+![Die Liste der Datenprodukte: Orders mit zwei Output-Ports, SKU Sales mit einem](screenshots/publish-data-products.webp)
+
+![SKU Sales konsumiert Orders: das Access Agreement als Link in der Datenproduktkarte](screenshots/publish-sku-sales-product.webp)
+
 </Step>
 
 <Step id="test-results" title="Testergebnisse veröffentlichen">
@@ -355,6 +371,8 @@ datacontract test sku_sales_per_year.odcs.yaml --publish http://localhost:8081/a
 ```
 
 Die CLI schickt deinen API Key nur mit, wenn die URL zum Host in `ENTROPY_DATA_HOST` gehört. Die Ergebnisse findest du auf der Seite des Kontrakts.
+
+![Die Seite des Kontrakts mit den veröffentlichten Testergebnissen unter Data Quality](screenshots/publish-contract-test-results.webp)
 
 <Solution title="publish.sh">
 

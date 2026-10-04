@@ -37,7 +37,7 @@ schema:
     required: true
     authoritativeDefinitions:
     - type: semantics
-      url: /acme/semantics/main/article.sku
+      url: https://learn.datacontract.com/ontology/ecommerce#sku
     quality:
     - type: sql
       description: Ensure sku and year combination is unique

@@ -61,7 +61,7 @@ Builds on Parts A and B only. You need a [GitHub](https://github.com) account.
        steps:
          - uses: actions/checkout@v7
 
-         - uses: astral-sh/setup-uv@v10
+         - uses: astral-sh/setup-uv@v10.2.0
 
          - name: Install the CLIs
            run: |
@@ -133,7 +133,7 @@ A breaking change in a contract breaks consumers. The pipeline catches it *befor
             with:
               fetch-depth: 0 # the base branch is needed for the comparison
 
-          - uses: astral-sh/setup-uv@v10
+          - uses: astral-sh/setup-uv@v10.2.0
 
           - name: Install the CLI
             run: uv tool install --python 3.11 'datacontract-cli[postgres]==1.2.2'

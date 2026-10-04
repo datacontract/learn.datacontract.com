@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: astral-sh/setup-uv@v10
+      - uses: astral-sh/setup-uv@v10.2.0
 
       - name: Install the CLIs
         run: |
@@ -68,7 +68,7 @@ jobs:
         with:
           fetch-depth: 0 # the base branch is needed for the comparison
 
-      - uses: astral-sh/setup-uv@v10
+      - uses: astral-sh/setup-uv@v10.2.0
 
       - name: Install the CLI
         run: uv tool install --python 3.11 'datacontract-cli[postgres]==1.2.2'

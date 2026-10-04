@@ -35,6 +35,18 @@ docker compose -f entropy-data-ce/docker-compose.yaml up -d
 powershell -ExecutionPolicy Bypass -File scripts\setup-entropy-data-ce.ps1
 ```
 
+```output
+…
+Creating account workshop@example.com ...
+Logging in ...
+Creating organization acme ...
+Creating organization API key ...
+Writing ENTROPY_DATA_API_KEY and ENTROPY_DATA_HOST to .env ...
+
+Done. Log in at http://localhost:8081 with workshop@example.com / workshop (organization: acme)
+Verify the CLI connection with: entropy-data connection test
+```
+
 Log in at [http://localhost:8081](http://localhost:8081) with `workshop@example.com` / `workshop`.
 Below, use `acme` wherever it says `tutorial-<yourname>`.
 
@@ -312,6 +324,10 @@ Open the web UI ([app.entropy-data.com](https://app.entropy-data.com) or [localh
 - Follow the access agreement from SKU Sales to Orders. The dependency from [Design Contract-First](#/en/contract-first) is now a link in the data product map.
 - How would someone find a data product about SKUs without knowing it exists?
 
+![The data product list: Orders with two output ports, SKU Sales with one](screenshots/publish-data-products.webp)
+
+![SKU Sales consumes Orders: the access agreement as a link in the data product map](screenshots/publish-sku-sales-product.webp)
+
 </Step>
 
 <Step id="test-results" title="Publish test results">
@@ -355,6 +371,8 @@ datacontract test sku_sales_per_year.odcs.yaml --publish http://localhost:8081/a
 ```
 
 The CLI sends your API key only if the URL belongs to the host in `ENTROPY_DATA_HOST`. Find the results on the contract page in the UI.
+
+![The contract page with the published test results under Data Quality](screenshots/publish-contract-test-results.webp)
 
 <Solution title="publish.sh">
 

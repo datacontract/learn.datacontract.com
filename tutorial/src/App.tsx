@@ -1,7 +1,7 @@
 import { Suspense, useEffect, useRef, useState } from 'react'
 import { chapters, content, exerciseNumber, parts, REPO_URL, stepsOf } from './chapters'
 import { ChapterContext } from './components/ChapterContext'
-import { ArrowLeftIcon, ArrowRightIcon, ClockIcon, GitHubIcon, MenuIcon, MoonIcon, SunIcon, XIcon } from './components/icons'
+import { ArrowLeftIcon, ArrowRightIcon, CheckIcon, ClockIcon, GitHubIcon, MenuIcon, MoonIcon, SunIcon, XIcon } from './components/icons'
 import { mdxComponents } from './components/mdx'
 import { Sidebar } from './components/Sidebar'
 import { StepRail } from './components/StepRail'
@@ -118,7 +118,7 @@ function Header({ lang, slug, onMenu }: { lang: Lang; slug: string; onMenu: () =
 
 function ChapterPage({ lang, slug }: { lang: Lang; slug: string }) {
   const ui = t(lang)
-  const { doneSteps } = useProgress()
+  const { doneSteps, setChapter } = useProgress()
   const index = chapters.findIndex((c) => c.slug === slug)
   const chapter = chapters[index]
   const Content = content(lang, slug)
@@ -161,6 +161,23 @@ function ChapterPage({ lang, slug }: { lang: Lang; slug: string }) {
         </Suspense>
       </div>
 
+      {steps.length > 0 && (
+        <div className="mt-10 flex justify-center">
+          <button
+            type="button"
+            onClick={() => setChapter(slug, done === steps.length ? [] : steps)}
+            className={`inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 ${
+              done === steps.length
+                ? 'border border-slate-200 text-slate-500 hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-900'
+                : 'bg-emerald-600 text-white shadow-sm hover:bg-emerald-700'
+            }`}
+          >
+            <CheckIcon width={16} height={16} />
+            {done === steps.length ? ui.markChapterUndone : ui.markChapterDone}
+          </button>
+        </div>
+      )}
+
       {steps.length > 0 && done === steps.length && (
         <div className="mt-10 rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-center font-semibold text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200">
           🎉 {ui.chapterComplete}
@@ -190,6 +207,16 @@ function ChapterPage({ lang, slug }: { lang: Lang; slug: string }) {
         {' · '}
         {ui.tscMember}{' '}
         <a href="https://bitol.io" target="_blank" rel="noreferrer" className="hover:text-brand-600 dark:hover:text-brand-300">Bitol</a>
+        <a
+          href="https://www.entropy-data.com"
+          target="_blank"
+          rel="noreferrer"
+          className="mt-4 flex w-fit items-center gap-2.5 rounded-lg py-1 text-slate-500 transition hover:text-slate-900 dark:hover:text-white"
+        >
+          <span className="text-xs uppercase tracking-wider">{ui.maintainedBy}</span>
+          <img src="./entropy-data-logo.svg" alt="" className="h-6 w-6" />
+          <span className="font-semibold text-slate-800 dark:text-slate-100">Entropy Data</span>
+        </a>
       </footer>
     </article>
   )

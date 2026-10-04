@@ -125,6 +125,8 @@ properties:
     transformLogic: SUM(line_items.quantity)
 ```
 
+![Semantic Type in the property editor (Diagram view, click a property)](screenshots/editor-semantic-type.webp)
+
 <Callout type="concept" title="Measures and dimensions">
 A **dimension** is an attribute to group and filter by (`sku`, `year`).
 A **measure** is an aggregated value (`order_count`, `total_quantity`); `transformLogic` says how it is computed.
@@ -146,6 +148,8 @@ context:
     - question: Which three SKUs sold the most units in 2024?
       answer: SELECT sku, total_quantity FROM analytics.sku_sales_per_year WHERE year = 2024 ORDER BY total_quantity DESC LIMIT 3;
 ```
+
+![Context of the SKU Sales contract](screenshots/editor-sku-context.webp)
 
 The verified statement is a question with a known-good answer. You will check it once the view exists.
 

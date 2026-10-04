@@ -1,11 +1,12 @@
 Each of your contracts has its own copy of the descriptions of `order_id`, `order_total`, and `sku`.
 And a description says what a field *contains*, not which business concept it *is*.
-Here you define each concept **once** in **Semantics**, a lightweight business ontology on the platform, and link the contracts from [the previous exercise](#/en/publish) to it.
+Here you define each concept **once**, in one ontology file with stable **IRIs**, upload it in one go, and link the contracts from [the previous exercise](#/en/publish) to it.
 
 <Goals>
-- Model business entities, their properties, and the relationships between them
-- Link data contract fields to business concepts with `authoritativeDefinitions`
-- Answer "which datasets contain X?" with a reverse lookup
+- Write a business ontology as one file: entities, properties, relationships
+- Identify concepts with IRIs that work on any platform instance
+- Link data contract fields to concepts with `authoritativeDefinitions`
+- Answer "which data products contain X?" with a reverse lookup
 </Goals>
 
 <Callout type="note" title="Prerequisite">
@@ -17,154 +18,120 @@ A data contract describes **one dataset**. An ontology describes the **business 
 When fields point to concepts, the meaning lives in one place, and you can search all datasets by meaning instead of column name.
 </Callout>
 
-## Model the business concepts
+<Callout type="concept" title="Why IRIs?">
+An IRI (Internationalized Resource Identifier) is a globally unique, stable name for a concept, e.g. `https://learn.datacontract.com/ontology/ecommerce#sku`.
+It does not depend on the platform's host or your organization name, so the same contract links correctly on the cloud, on a local Community Edition, and in any tool that understands the ontology.
+The IRI does not need to be a reachable web page. The platform resolves it to the concept that carries it.
+</Callout>
 
-<Step id="concepts" title="Create the entities">
+## Write the ontology
 
-Create a namespace, and two entities with their properties:
+<Step id="ontology-file" title="Write the ontology file">
 
-```bash
-printf 'name: Main\n' | entropy-data semantics namespaces put main --file -
+Create `semantics.yaml` in the repository root. It holds the complete namespace `ecommerce`:
 
-cat <<EOF | entropy-data semantics concepts put main order --file -
-name: Order
-kind: entity
-description: A customer order in the e-commerce platform
-properties:
-- id: order_id
-  name: Order ID
-  kind: property
-  description: Unique identifier of an order (UUID)
-  data_type: string
-  required: true
-  unique: true
-- id: order_total
-  name: Order Total
-  kind: property
-  description: Total amount of an order in cents, never negative
-  data_type: integer
-EOF
+- `prefixes` declares `ecom:` as a short form of the IRI base, so every concept can write `iri: ecom:Order`.
+- `EntityType` concepts are the business objects (Order, Article). `ValueType` concepts are their properties (Order ID, Order Total, SKU).
+- `hasProperty` relationships attach properties to entities. `relatedTo` relationships connect entities: an order contains articles.
 
-cat <<EOF | entropy-data semantics concepts put main article --file -
-name: Article
-kind: entity
-description: A product that can be bought in the e-commerce platform
-properties:
-- id: sku
-  name: SKU
-  kind: property
-  description: Stock keeping unit, the unique identifier of an article
-  data_type: string
-  required: true
-  unique: true
-EOF
-```
-
-```powershell
-"name: Main" | entropy-data semantics namespaces put main --file -
-
-@'
-name: Order
-kind: entity
-description: A customer order in the e-commerce platform
-properties:
-- id: order_id
-  name: Order ID
-  kind: property
-  description: Unique identifier of an order (UUID)
-  data_type: string
-  required: true
-  unique: true
-- id: order_total
-  name: Order Total
-  kind: property
-  description: Total amount of an order in cents, never negative
-  data_type: integer
-'@ | entropy-data semantics concepts put main order --file -
-
-@'
-name: Article
-kind: entity
-description: A product that can be bought in the e-commerce platform
-properties:
-- id: sku
-  name: SKU
-  kind: property
-  description: Stock keeping unit, the unique identifier of an article
-  data_type: string
-  required: true
-  unique: true
-'@ | entropy-data semantics concepts put main article --file -
-```
-
-```output
-Semantic namespace 'main' saved.
-Concept 'order' saved in namespace 'main'.
-Concept 'article' saved in namespace 'main'.
+```yaml file=../../../../solutions/exercise8/semantics.yaml
 ```
 
 </Step>
 
-<Step id="relationship" title="Relate the entities">
+<Step id="upload" title="Upload it in one go">
 
-An order contains articles:
+One `PUT` replaces the whole namespace with the file: it creates the namespace, all concepts, and all relationships in the right order.
+The Entropy Data CLI has no command for this yet, so call the API directly. It uses the same API key and host as the CLI:
 
 ```bash
-cat <<EOF | entropy-data semantics relationships put main order-contains-article --file -
-type: relatedTo
-name: contains
-description: An order contains one or more articles
-roles:
-- concept: order
-- concept: article
-verbalizes:
-- "{Order} contains {Article}"
-EOF
+curl -sS -f -X PUT "$ENTROPY_DATA_HOST/api/semantics/experimental/namespaces/ecommerce/ontology.yaml" \
+  -H "x-api-key: $ENTROPY_DATA_API_KEY" \
+  -H "Content-Type: application/yaml" \
+  --data-binary @semantics.yaml -w "HTTP %{http_code}\n"
 ```
 
 ```powershell
-@'
-type: relatedTo
-name: contains
-description: An order contains one or more articles
-roles:
-- concept: order
-- concept: article
-verbalizes:
-- "{Order} contains {Article}"
-'@ | entropy-data semantics relationships put main order-contains-article --file -
+Invoke-RestMethod -Method Put `
+  -Uri "$env:ENTROPY_DATA_HOST/api/semantics/experimental/namespaces/ecommerce/ontology.yaml" `
+  -Headers @{ "x-api-key" = $env:ENTROPY_DATA_API_KEY } `
+  -ContentType "application/yaml" `
+  -InFile semantics.yaml
 ```
 
 ```output
-Relationship 'order-contains-article' saved in namespace 'main'.
+HTTP 200
 ```
+
+On Windows, a successful call prints nothing.
+
+<Callout type="note" title="Community Edition">
+The setup script wrote `ENTROPY_DATA_API_KEY` and `ENTROPY_DATA_HOST` into `.env`, but `curl` and `Invoke-RestMethod` don't read that file. Load the two values into your shell first:
+
+```bash
+set -a; source .env; set +a
+```
+
+```powershell
+Get-Content .env | Where-Object { $_ -match '^ENTROPY_DATA_(HOST|API_KEY)=' } | ForEach-Object { $k, $v = $_ -split '=', 2; Set-Item "env:$k" $v }
+```
+
+</Callout>
+
+Check what arrived:
+
+```bash
+entropy-data semantics concepts list ecommerce
+```
+
+```powershell
+entropy-data semantics concepts list ecommerce
+```
+
+```output
+               semantic-concepts (page 0)
+┏━━━━━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━┳━━━━━━━━┓
+┃ ID          ┃ Name        ┃ Kind     ┃ Group ┃ Status ┃
+┡━━━━━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━╇━━━━━━━━┩
+│ article     │ Article     │ entity   │       │        │
+│ order       │ Order       │ entity   │       │        │
+│ order_id    │ Order ID    │ property │       │        │
+│ order_total │ Order Total │ property │       │        │
+│ sku         │ SKU         │ property │       │        │
+└─────────────┴─────────────┴──────────┴───────┴────────┘
+```
+
+Want to change something later? Edit `semantics.yaml` and upload it again. Concepts you removed from the file are removed from the namespace, too.
 
 </Step>
 
 ## Link your data contracts
 
-<Step id="link" title="Link the contract fields">
+<Step id="link" title="Link the contract fields by IRI">
 
-Link schemas and fields to the concepts with `authoritativeDefinitions`. Address a property of an entity as `<entity>.<property>`:
+Link schemas and fields to the concepts with `authoritativeDefinitions` of type `semantics`, using the full IRI as `url`:
 
 ```yaml
 schema:
   - name: orders
     authoritativeDefinitions:
       - type: semantics
-        url: /tutorial-<yourname>/semantics/main/order
+        url: https://learn.datacontract.com/ontology/ecommerce#Order
     properties:
       - name: order_id
         authoritativeDefinitions:
           - type: semantics
-            url: /tutorial-<yourname>/semantics/main/order.order_id
+            url: https://learn.datacontract.com/ontology/ecommerce#orderId
 ```
 
-Do the same for `order_total` (`order.order_total`, in every contract that has it) and `sku` (`article.sku`).
-Then **remove the copied descriptions** from these fields. The definition now lives in the concept.
+Do the same for every field that has a concept:
 
-Replace `tutorial-<yourname>` with your organization name (`acme` on the Community Edition).
-The URLs are host-relative on purpose, so they work on any instance, cloud or local.
+| Field | IRI |
+|---|---|
+| `order_total` | `https://learn.datacontract.com/ontology/ecommerce#orderTotal` |
+| `sku` | `https://learn.datacontract.com/ontology/ecommerce#sku` |
+
+Link them in `orders_v1`, `orders_v2`, and `sku_sales_per_year`. Then **remove the copied descriptions** from these fields. The definition now lives in the concept.
 
 Check that the contracts are still valid:
 
@@ -186,12 +153,16 @@ datacontract lint sku_sales_per_year.odcs.yaml
 ├────────┼────────────────────────────────────────────┼───────┼─────────┤
 │ passed │ Data contract is valid against ODCS v3.2.0 │       │         │
 ╰────────┴────────────────────────────────────────────┴───────┴─────────╯
-🟢 data contract is valid. Run 1 checks. Took 0.18 seconds.
+🟢 data contract is valid. Run 1 checks. Took 0.17 seconds.
+…
+🟢 data contract is valid. Run 1 checks. Took 0.17 seconds.
 …
 🟢 data contract is valid. Run 1 checks. Took 0.14 seconds.
-…
-🟢 data contract is valid. Run 1 checks. Took 0.15 seconds.
 ```
+
+<Callout type="tip" title="The CLI resolves IRIs, too">
+`datacontract test` looks up each IRI through `ENTROPY_DATA_HOST` (`/api/semantics?iri=...`) and uses the concept's description where the field has none. This needs `ENTROPY_DATA_API_KEY`.
+</Callout>
 
 </Step>
 
@@ -219,7 +190,7 @@ Open https://app.entropy-data.com/tutorial-simon/datacontracts/sku_sales_per_yea
 ```
 
 <Callout type="warning" title="Your CI pipeline now needs the platform">
-`datacontract test` and `datacontract ci` resolve linked definitions from `ENTROPY_DATA_HOST` by default. If the host is unreachable, the run fails with "Could not resolve business definition".
+`datacontract test` and `datacontract ci` resolve the IRIs through the platform. Without `ENTROPY_DATA_API_KEY`, or if the host is unreachable, the run fails with "Could not resolve business definition".
 In your workflow from [CI/CD with GitHub Actions](#/en/ci-cd), you have two options:
 
 - **Cloud:** pass the `ENTROPY_DATA_API_KEY` secret and `ENTROPY_DATA_HOST` to the step (see the bonus of the previous exercise).
@@ -242,17 +213,24 @@ In your workflow from [CI/CD with GitHub Actions](#/en/ci-cd), you have two opti
 
 <Step id="explore" title="Explore the ontology">
 
-In the web UI, open a concept's page in **Studio → Semantics**:
+In the web UI, go to **Semantics → E-Commerce** and open **Article → SKU**:
 
-- The reverse lookup lists every data contract that links to the concept. *"Which datasets contain order totals?"* is now one click.
-- Switch to the **Diagram** view to see the ontology as a graph.
+- The diagram shows the ontology: Order with its properties, contains, Article with SKU.
+- **Metadata** shows the concept's IRI, both as `ecom:sku` and in full.
+- **Data Products** is the reverse lookup: every data product whose contracts link to the concept. *"Which data products contain SKUs?"* is now one click.
+
+![The SKU concept: ontology diagram, IRI, and the data products that use it](screenshots/semantics-concept-sku.webp)
+
+The data product list shows the linked concepts, too:
+
+![Data products with their linked concepts in the Semantics column](screenshots/semantics-data-products.webp)
 
 </Step>
 
 <Quiz
-  question="Why remove the field descriptions from the contracts after linking them to concepts?"
-  options={["The ODCS schema doesn't allow both", "So the meaning is defined in one place and can't drift apart between contracts", "To make the contracts smaller for faster tests"]}
+  question="Why link contract fields by IRI instead of by the concept's URL on the platform?"
+  options={["IRIs are shorter to type", "The IRI is a stable global identifier, so the link works on every instance and in other tools", "The platform cannot show concepts linked by URL"]}
   answer={1}
 >
-Exactly. Copies drift apart. A single definition stays consistent, and every linked contract benefits when it improves.
+Exactly. A URL contains host and organization and breaks when either changes. The IRI names the concept itself, and the platform resolves it wherever the ontology lives.
 </Quiz>

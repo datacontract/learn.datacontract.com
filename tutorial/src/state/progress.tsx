@@ -9,6 +9,7 @@ type Progress = {
   isDone: (chapter: string, step: string) => boolean
   toggle: (chapter: string, step: string) => void
   doneSteps: (chapter: string) => string[]
+  setChapter: (chapter: string, steps: string[]) => void
   reset: () => void
 }
 
@@ -33,8 +34,10 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
 
   const doneSteps = (chapter: string) => state[chapter] ?? []
 
+  const setChapter = (chapter: string, steps: string[]) => update({ ...state, [chapter]: steps })
+
   return (
-    <ProgressContext.Provider value={{ isDone, toggle, doneSteps, reset: () => update({}) }}>
+    <ProgressContext.Provider value={{ isDone, toggle, doneSteps, setChapter, reset: () => update({}) }}>
       {children}
     </ProgressContext.Provider>
   )

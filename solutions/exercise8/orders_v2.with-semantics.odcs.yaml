@@ -44,7 +44,7 @@ schema:
   physicalName: orders
   authoritativeDefinitions:
   - type: semantics
-    url: /acme/semantics/main/order
+    url: https://learn.datacontract.com/ontology/ecommerce#Order
   properties:
   - name: order_id
     physicalType: text
@@ -53,7 +53,7 @@ schema:
     primaryKey: true
     authoritativeDefinitions:
     - type: semantics
-      url: /acme/semantics/main/order.order_id
+      url: https://learn.datacontract.com/ontology/ecommerce#orderId
     quality:
     - type: sql
       description: Ensure order_id is unique
@@ -74,7 +74,7 @@ schema:
     logicalType: integer
     authoritativeDefinitions:
     - type: semantics
-      url: /acme/semantics/main/order.order_total
+      url: https://learn.datacontract.com/ontology/ecommerce#orderTotal
     quality:
     - type: sql
       description: Ensure order_total is non-negative
@@ -144,7 +144,7 @@ schema:
     required: true
     authoritativeDefinitions:
     - type: semantics
-      url: /acme/semantics/main/order.order_id
+      url: https://learn.datacontract.com/ontology/ecommerce#orderId
     relationships:
     - type: foreignKey
       to: orders.order_id
@@ -157,7 +157,7 @@ schema:
     logicalType: string
     authoritativeDefinitions:
     - type: semantics
-      url: /acme/semantics/main/article.sku
+      url: https://learn.datacontract.com/ontology/ecommerce#sku
     quality:
     - type: sql
       description: Ensure sku is not empty

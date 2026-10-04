@@ -125,6 +125,8 @@ properties:
     transformLogic: SUM(line_items.quantity)
 ```
 
+![Semantic Type im Property-Editor (Diagrammansicht, Klick auf eine Property)](screenshots/editor-semantic-type.webp)
+
 <Callout type="concept" title="Measures und Dimensionen">
 Eine **Dimension** ist ein Merkmal zum Gruppieren und Filtern (`sku`, `year`).
 Ein **Measure** ist ein aggregierter Wert (`order_count`, `total_quantity`); `transformLogic` sagt, wie er berechnet wird.
@@ -146,6 +148,8 @@ context:
     - question: Which three SKUs sold the most units in 2024?
       answer: SELECT sku, total_quantity FROM analytics.sku_sales_per_year WHERE year = 2024 ORDER BY total_quantity DESC LIMIT 3;
 ```
+
+![Kontext des SKU-Sales-Kontrakts](screenshots/editor-sku-context.webp)
 
 Das Verified Statement ist eine Frage mit geprüfter Antwort. Du kontrollierst sie, sobald die View existiert.
 
