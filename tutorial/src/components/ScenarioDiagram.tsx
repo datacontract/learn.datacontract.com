@@ -43,8 +43,8 @@ function Port({ name, kind, contract, dim }: { name: string; kind: string; contr
   return (
     <div className={`rounded-lg border border-brand-200 bg-white px-3 py-2 dark:border-brand-900 dark:bg-slate-900 ${dim ? 'opacity-50' : ''}`}>
       <div className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">{kind}</div>
-      <div className="font-mono text-xs font-medium text-slate-800 dark:text-slate-100">{name}</div>
-      <div className="mt-1 inline-flex items-center gap-1 rounded bg-brand-50 px-1.5 py-0.5 text-[10px] font-medium text-brand-700 dark:bg-brand-950 dark:text-brand-200">
+      <div className="break-all font-mono text-xs font-medium text-slate-800 dark:text-slate-100">{name}</div>
+      <div className="mt-1 inline-flex max-w-full items-center gap-1 break-all rounded bg-brand-50 px-1.5 py-0.5 text-[10px] font-medium text-brand-700 dark:bg-brand-950 dark:text-brand-200">
         ODCS {contract}
       </div>
     </div>
