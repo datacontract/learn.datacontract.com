@@ -3,6 +3,8 @@ Das Orders-Team ergänzt in `line_items` eine Spalte `quantity` mit Standardwert
 Harmlos? Nicht für eine Pipeline, die genau drei Spalten erwartet, etwa ein `SELECT *` in eine feste Zieltabelle.
 Deshalb veröffentlichst du die Änderung als **neue Major-Version**: `orders_v2`, in einem eigenen Datenbankschema, neben `orders_v1`.
 
+<ScenarioDiagram variant="evolution" />
+
 <Goals>
 - Eine Änderung als neue Major-Version eines Datenkontrakts veröffentlichen
 - Zwei Versionen mit `datacontract changelog` und `datacontract breaking` vergleichen
@@ -158,7 +160,7 @@ Server: Orders (type=postgres, host=localhost, port=5433, database=workshop, sch
 │ passed │ Ensure quantity is positive                   │ line_items.quantity           │         │
 …
 ╰────────┴───────────────────────────────────────────────┴───────────────────────────────┴─────────╯
-🟢 data contract is valid. Run 36 checks. Took 0.63683 seconds.
+🟢 data contract is valid. Run 37 checks. Took 0.63683 seconds.
 ```
 
 Alle Checks sollten grün sein, auch der neue Check für `quantity`.
@@ -291,7 +293,7 @@ datacontract test orders_v2.odcs.yaml
 ```output
 Testing orders_v2.odcs.yaml
 …
-🟢 data contract is valid. Run 36 checks. Took 0.63683 seconds.
+🟢 data contract is valid. Run 37 checks. Took 0.63683 seconds.
 ```
 
 </Step>
@@ -423,7 +425,7 @@ datacontract test orders_v2.odcs.yaml
 ```output
 Testing orders_v2.odcs.yaml
 …
-🟢 data contract is valid. Run 36 checks. Took 0.63683 seconds.
+🟢 data contract is valid. Run 37 checks. Took 0.63683 seconds.
 ```
 
 <Solution title="orders_v2.odcs.yaml">

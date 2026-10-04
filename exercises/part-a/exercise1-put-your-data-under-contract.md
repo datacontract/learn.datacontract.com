@@ -341,14 +341,23 @@ AI agents, LLM chat tools, and BI assistants increasingly query data on their ow
     # ... (other top-level keys) ...
     slaProperties:
       - property: retention
-        value: 1
+        value: 10
         unit: y
-        description: Order data retained for 1 year
+        element: orders.order_timestamp
+        description: Orders are deleted after 10 years
       - property: frequency
         value: 1
         unit: d
         description: Data updated daily
     ```
+
+    The CLI tests `retention` and `freshness` when `element` names a timestamp column (`frequency` is documentation only). Run only the service level checks:
+
+    ```bash
+    datacontract test --checks slaProperties orders_v1.odcs.yaml
+    ```
+
+    Optional: add a `freshness` property (`value: 24`, `unit: h`, `element: orders.order_timestamp`) and run the checks again. It fails, because the workshop data is a static snapshot. In production, this check alerts you when a pipeline stops loading. Remove it again afterwards. Documentation: https://docs.datacontract.com/service-levels
 
 
 ## Set to Active

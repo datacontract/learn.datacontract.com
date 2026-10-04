@@ -1,65 +1,65 @@
 WEBVTT
 
 1
-00:00:00.000 --> 00:00:03.452
+00:00:00.000 --> 00:00:03.451
 Exercise 2: data contract evolution.
 
 2
-00:00:03.502 --> 00:00:14.065
+00:00:03.501 --> 00:00:14.068
 The orders team adds a quantity column in the new schema orders_v2.
 
 3
-00:00:14.116 --> 00:00:21.035
+00:00:14.118 --> 00:00:21.036
 Start v2 as a copy of the v1 contract.
 
 4
-00:00:21.086 --> 00:00:23.537
+00:00:21.086 --> 00:00:23.538
 Open the copy in the editor. It still says orders_v1.
 
 5
-00:00:23.587 --> 00:00:27.554
+00:00:23.588 --> 00:00:27.558
 New major version: ID orders_v2, version 2.0.0.
 
 6
-00:00:27.604 --> 00:00:31.932
+00:00:27.608 --> 00:00:31.938
 Point the server to the orders_v2 schema.
 
 7
-00:00:31.982 --> 00:00:42.654
+00:00:31.988 --> 00:00:42.658
 Add the new quantity property to line_items.
 
 8
-00:00:42.703 --> 00:00:58.014
+00:00:42.708 --> 00:00:57.984
 Add a quality rule: quantity must be greater than 0.
 
 9
-00:00:58.064 --> 00:01:12.020
+00:00:58.034 --> 00:01:12.455
 Save, then run the tests against orders_v2.
 
 10
-00:01:12.070 --> 00:01:25.360
+00:01:12.505 --> 00:01:25.796
 The editor wrote everything to the YAML file.
 
 11
-00:01:25.410 --> 00:01:35.148
+00:01:25.846 --> 00:01:35.593
 datacontract changelog lists every difference between v1 and v2.
 
 12
-00:01:35.198 --> 00:01:46.261
+00:01:35.643 --> 00:01:46.704
 datacontract breaking rates each change. Adding a column is not breaking for the tool.
 
 13
-00:01:46.311 --> 00:02:01.101
+00:01:46.754 --> 00:02:01.545
 Changing a type is breaking: ERROR and exit code 1.
 
 14
-00:02:01.151 --> 00:02:10.805
+00:02:01.595 --> 00:02:11.253
 New in ODCS 3.2: mark a field deprecated first. That is only INFO.
 
 15
-00:02:10.856 --> 00:02:17.960
+00:02:11.303 --> 00:02:18.408
 Lifecycle: draft, active, deprecated, retired. Set v1 to deprecated with an end of support date.
 
 16
-00:02:18.011 --> 00:02:25.313
+00:02:18.458 --> 00:02:25.759
 Release v2 as active and retire v1. Done.

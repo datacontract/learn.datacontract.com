@@ -173,9 +173,10 @@ support:
   tool: slack
 slaProperties:
 - property: retention
-  value: 1
+  value: 10
   unit: y
-  description: Order data retained for 1 year
+  element: orders.order_timestamp
+  description: Orders are deleted after 10 years
 - property: frequency
   value: 1
   unit: d

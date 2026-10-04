@@ -197,7 +197,9 @@ export default {
       kind: 'terminal',
       steps: [
         { ...c('synonyms', 'datacontract lint'), hold: 4500, caption: { en: 'Add synonyms and lint the contract against ODCS 3.2.', de: 'Ergänze Synonyme und prüfe den Kontrakt mit lint gegen ODCS 3.2.' } },
-        { ...c('active', 'datacontract test'), hold: 6000, caption: { en: 'Add team, support, and SLAs, set the status to active, and test one last time.', de: 'Ergänze Team, Support und SLAs, setze den Status auf active und teste ein letztes Mal.' } },
+        { ...c('sla', 'slaProperties'), hold: 5000, caption: { en: 'Service levels: retention with a timestamp column becomes a real check.', de: 'Service Levels: Retention mit Zeitstempel-Spalte wird zum echten Check.' } },
+        { ...c('freshness', 'slaProperties'), hold: 6500, caption: { en: 'A freshness check fails: the sample data is a static snapshot. Remove it again.', de: 'Ein Freshness-Check schlägt fehl: Die Beispieldaten sind ein fester Stand. Wieder entfernen.' } },
+        { ...c('active', 'datacontract test'), hold: 6000, caption: { en: 'Add team and support, set the status to active, and test one last time.', de: 'Ergänze Team und Support, setze den Status auf active und teste ein letztes Mal.' } },
       ],
     },
     editorTests,

@@ -11,7 +11,7 @@ Answer them once, in a data contract.
 - Add ownership, support channels, and service levels
 </Goals>
 
-<ScenarioDiagram focus="a" />
+<ScenarioDiagram variant="contract" />
 
 ## Explore the data
 
@@ -560,14 +560,90 @@ How long is the data kept, and how fresh is it? Add top-level `slaProperties`:
 ```yaml
 slaProperties:
   - property: retention
-    value: 1
+    value: 10
     unit: y
-    description: Order data retained for 1 year
+    element: orders.order_timestamp
+    description: Orders are deleted after 10 years
   - property: frequency
     value: 1
     unit: d
     description: Data updated daily
 ```
+
+<Callout type="concept" title="Which service levels are tested?">
+The CLI turns two SLA properties into checks, if they name a timestamp column in `element` (`schema.property`):
+
+- `retention`: the **oldest** value (MIN) must be younger than the period, so old data really gets deleted.
+- `freshness`: the **newest** value (MAX) must be younger than the threshold, so new data keeps arriving.
+
+Other properties such as `frequency` or `latency` are documentation only. Careful: `unit: m` means minutes for freshness but months for retention. See the [service levels docs](https://docs.datacontract.com/service-levels).
+</Callout>
+
+Run only the service level checks:
+
+```bash
+datacontract test --checks slaProperties orders_v1.odcs.yaml
+```
+
+```powershell
+datacontract test --checks slaProperties orders_v1.odcs.yaml
+```
+
+```output
+Testing orders_v1.odcs.yaml
+Server: Orders (type=postgres, host=localhost, port=5433, database=workshop, schema=orders_v1)
+╭────────┬──────────────────────────────────────────────────┬─────────────────┬─────────╮
+│ Result │ Check                                            │ Field           │ Details │
+├────────┼──────────────────────────────────────────────────┼─────────────────┼─────────┤
+│ passed │ Retention of orders.order_timestamp < 315360000s │ order_timestamp │         │
+╰────────┴──────────────────────────────────────────────────┴─────────────────┴─────────╯
+🟢 data contract is valid. Run 1 checks. Took 0.52 seconds.
+```
+
+</Step>
+
+<Step id="freshness" title="Try a freshness check">
+
+Add a `freshness` service level: new orders should arrive within 24 hours.
+
+```yaml
+slaProperties:
+  - property: freshness
+    value: 24
+    unit: h
+    element: orders.order_timestamp
+    description: New orders arrive within 24 hours
+  # ... retention and frequency as before
+```
+
+Run the service level checks again:
+
+```bash
+datacontract test --checks slaProperties orders_v1.odcs.yaml
+```
+
+```powershell
+datacontract test --checks slaProperties orders_v1.odcs.yaml
+```
+
+```output
+Testing orders_v1.odcs.yaml
+Server: Orders (type=postgres, host=localhost, port=5433, database=workshop, schema=orders_v1)
+╭────────┬─────────────────────────────────────────────┬─────────────────┬─────────────────────────────────────────────╮
+│ Result │ Check                                       │ Field           │ Details                                     │
+├────────┼─────────────────────────────────────────────┼─────────────────┼─────────────────────────────────────────────┤
+│ failed │ Freshness of orders.order_timestamp < 24h   │ order_timestamp │ Freshness is 33337535s, which exceeds the   │
+│        │                                             │                 │ threshold of 86400s                         │
+│ passed │ Retention of orders.order_timestamp <       │ order_timestamp │                                             │
+│        │ 315360000s                                  │                 │                                             │
+╰────────┴─────────────────────────────────────────────┴─────────────────┴─────────────────────────────────────────────╯
+🔴 data contract is invalid, found the following errors:
+1) order_timestamp Freshness of orders.order_timestamp < 24h: Freshness is 33337535s, which exceeds the threshold of 
+86400s
+```
+
+The check fails: the newest order is from September 2025. The workshop data is a static snapshot, so it is never fresh. In production, exactly this check alerts you when a pipeline has stopped loading.
+**Remove the `freshness` entry again**, so your contract (and later your CI pipeline) stays green.
 
 </Step>
 
@@ -596,7 +672,7 @@ Server: Orders (type=postgres, host=localhost, port=5433, database=workshop, sch
 │ passed │ Ensure email addresses contain @                                  │ orders.customer_email_address │         │
 …
 ╰────────┴───────────────────────────────────────────────────────────────────┴───────────────────────────────┴─────────╯
-🟢 data contract is valid. Run 33 checks. Took 0.65 seconds.
+🟢 data contract is valid. Run 34 checks. Took 0.65 seconds.
 ```
 
 <Solution title="orders_v1.odcs.yaml">
