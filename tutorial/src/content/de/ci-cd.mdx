@@ -1,0 +1,293 @@
+Deine Kontrakte werden nur getestet, wenn jemand `datacontract test` ausführt. Irgendwann vergisst es jemand, und ein kaputter Kontrakt rutscht durch.
+In diesem Kapitel übernimmt GitHub Actions das für dich: Jeder Push lintet und testet alle Kontrakte, und jeder Pull Request wird vor dem Merge auf **Breaking Changes** geprüft.
+
+<Goals>
+- Kontrakte, Datenprodukte und SQL in deinem Fork versionieren
+- ODCS- und ODPS-Dateien bei jedem Push linten
+- Alle Kontrakte in der Pipeline gegen eine Datenbank testen
+- Breaking Changes in Pull Requests mit `datacontract breaking` stoppen
+</Goals>
+
+<Callout type="concept" title="Contracts as Code">
+Ein Kontrakt ist eine YAML-Datei in Git. Er wird also behandelt wie Code: Reviews, Pull Requests und automatische Checks.
+Die Pipeline prüft drei Dinge:
+
+1. **Syntax:** Ist jede Datei gültiges ODCS oder ODPS? (`lint`)
+2. **Realität:** Passen die Daten zum Kontrakt? (`ci`)
+3. **Kompatibilität:** Bricht eine Änderung die Konsumenten? (`breaking`)
+
+Je früher ein Problem auffällt, desto günstiger ist es zu beheben. Das nennt man *Shift Left*.
+</Callout>
+
+## Arbeit pushen
+
+<Step id="commit" title="Committe deine Arbeit in deinen Fork">
+
+Das Workshop-Repository ignoriert die Dateien, die du in den Übungen erstellst. In deinem Fork sind sie dein Quellcode.
+Öffne `.gitignore` und **lösche den letzten Block**: den Kommentar `# files created during the exercises` und die fünf Zeilen darunter.
+
+Deine Views sollten schon in `sql/sku_sales_input.sql` und `sql/sku_sales_per_year.sql` liegen (aus [Consumer-driven Contracts](#/de/consumer-driven)). Die Pipeline wendet sie in dieser Reihenfolge an.
+
+Committen und pushen:
+
+```bash
+git add .gitignore sql/ *.odcs.yaml *.odps.yaml
+git commit -m "Add data contracts, data products, and views"
+git push
+```
+
+```powershell
+git add .gitignore sql/ *.odcs.yaml *.odps.yaml
+git commit -m "Add data contracts, data products, and views"
+git push
+```
+
+<Callout type="warning">
+Dein Fork ist öffentlich. Committe niemals einen API-Key. Prüfe mit `git diff .env`, dass `.env` nur die Workshop-Zugangsdaten enthält.
+</Callout>
+
+</Step>
+
+<Step id="enable-actions" title="GitHub Actions im Fork aktivieren">
+
+GitHub deaktiviert Workflows in Forks standardmäßig.
+Öffne den Tab **Actions** deines Forks auf GitHub und klicke auf **I understand my workflows, go ahead and enable them**.
+
+</Step>
+
+## Bei jedem Push linten
+
+<Step id="lint-workflow" title="Workflow anlegen">
+
+Lege die Datei `.github/workflows/datacontract.yml` an:
+
+```yaml title=.github/workflows/datacontract.yml
+name: Data Contracts
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+env:
+  COLUMNS: 200 # wider tables in the logs
+
+jobs:
+  test:
+    name: Lint and test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: astral-sh/setup-uv@v10
+
+      - name: Install the CLIs
+        run: |
+          uv tool install --python 3.11 'datacontract-cli[postgres]==1.2.2'
+          uv tool install --python 3.11 'dataproduct-cli==0.2.0'
+
+      - name: Lint data contracts
+        run: |
+          for file in *.odcs.yaml; do
+            datacontract lint "$file"
+          done
+
+      - name: Lint data products
+        run: |
+          for file in *.odps.yaml; do
+            dataproduct lint "$file"
+          done
+```
+
+Committe und pushe die Datei, dann öffne den Tab **Actions**. Nach etwa einer Minute ist der Run grün.
+
+</Step>
+
+<Step id="break-lint" title="Den Lint brechen">
+
+Ändere in `orders_v1.odcs.yaml` den `logicalType` von `order_id` auf `text`. Das ist kein ODCS-Logical-Type.
+Pushe und öffne den fehlgeschlagenen Run. Das Log nennt das ungültige Feld und listet die erlaubten Werte.
+
+Mach die Änderung rückgängig und pushe erneut.
+
+</Step>
+
+## Gegen die Datenbank testen
+
+Linten prüft die Syntax. Jetzt prüfst du die Realität: Die Pipeline startet die Workshop-Datenbank, legt deine Views an und testet jeden Kontrakt.
+
+<Step id="test-workflow" title="Datenbank-Tests ergänzen">
+
+Ergänze diese Schritte am Ende des Jobs `test`:
+
+```yaml
+      - name: Start the database
+        run: docker compose up -d --wait
+
+      - name: Create the views
+        run: |
+          docker compose exec -T postgres psql -U workshop -d workshop -v ON_ERROR_STOP=1 < sql/sku_sales_input.sql
+          docker compose exec -T postgres psql -U workshop -d workshop -v ON_ERROR_STOP=1 < sql/sku_sales_per_year.sql
+
+      - name: Test data contracts
+        run: datacontract ci *.odcs.yaml
+```
+
+`datacontract ci` ist `datacontract test` für Pipelines. Es testet mehrere Kontrakte auf einmal, schreibt eine Zusammenfassung auf die Run-Seite und annotiert fehlgeschlagene Checks an der Kontraktdatei.
+Die Datenbank-Zugangsdaten kommen aus der Datei `.env` in deinem Repository.
+
+Pushe, öffne den Run und scrolle nach unten zur **Summary**.
+
+</Step>
+
+<Step id="break-test" title="Einen Test fehlschlagen lassen">
+
+Ändere in `sku_sales_per_year.odcs.yaml` den `physicalType` von `total_quantity` auf `integer` und pushe.
+Der Run schlägt fehl. Finde die Annotation: Die Spalte ist `bigint`, nicht `integer`.
+
+Mach die Änderung rückgängig und pushe erneut.
+
+<Callout type="note" title="Platzhalter für Staging und Produktion">
+Die Datenbank in der Pipeline ist ein Platzhalter. In einem echten Setup testet die Pipeline vor jedem Deployment eine Staging-Umgebung.
+Ein zeitgesteuerter Workflow (`on: schedule:` mit Cron-Ausdruck) testet regelmäßig die Produktion, denn Daten können auch ohne Code-Änderung kaputtgehen.
+</Callout>
+
+</Step>
+
+## Breaking Changes stoppen
+
+Ein Breaking Change im Kontrakt bricht die Konsumenten. Die Pipeline soll ihn vor dem Merge abfangen.
+Die Idee: Jeder Kontrakt im Pull Request wird mit seiner Version auf dem Base-Branch verglichen.
+
+<Step id="breaking-local" title="datacontract breaking lokal ausprobieren">
+
+Vergleiche zwei Kontrakte auf deinem Rechner:
+
+```bash
+datacontract breaking orders_v1.odcs.yaml orders_v2.odcs.yaml
+```
+
+```powershell
+datacontract breaking orders_v1.odcs.yaml orders_v2.odcs.yaml
+```
+
+Das neue Feld `quantity` ist `INFO`. Die geänderten SQL-Quality-Queries sind `WARNING`s: einen Blick wert, aber nicht brechend. Der Exit-Code ist `0`.
+Vergleiche jetzt in die andere Richtung, als würdest du `quantity` wieder entfernen:
+
+```bash
+datacontract breaking orders_v2.odcs.yaml orders_v1.odcs.yaml
+echo $?
+```
+
+```powershell
+datacontract breaking orders_v2.odcs.yaml orders_v1.odcs.yaml
+$LASTEXITCODE
+```
+
+Das entfernte Feld ist ein `ERROR`, und der Exit-Code ist `1`. Genau das lässt eine Pipeline fehlschlagen.
+
+</Step>
+
+<Step id="breaking-workflow" title="Breaking-Change-Check ergänzen">
+
+Ergänze einen zweiten Job im Workflow. Er läuft nur für Pull Requests:
+
+```yaml
+  breaking-changes:
+    name: Breaking changes
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # the base branch is needed for the comparison
+
+      - uses: astral-sh/setup-uv@v10
+
+      - name: Install the CLI
+        run: uv tool install --python 3.11 'datacontract-cli[postgres]==1.2.2'
+
+      - name: Compare with the base branch
+        env:
+          BASE: origin/${{ github.base_ref }}
+        run: |
+          status=0
+          # every contract on the base branch must stay compatible (new contracts have nothing to compare)
+          for file in $(git ls-tree --name-only "$BASE" | grep '\.odcs\.yaml$'); do
+            if [ ! -f "$file" ]; then
+              echo "::error file=$file::Data contract $file was removed"
+              status=1
+              continue
+            fi
+            git show "$BASE:$file" > "$RUNNER_TEMP/$file"
+            if ! datacontract breaking "$RUNNER_TEMP/$file" "$file"; then
+              echo "::error file=$file::Breaking change in $file. Release a new major version instead."
+              status=1
+            fi
+          done
+          exit $status
+```
+
+Die `::error`-Zeilen sind GitHub-Annotationen. Sie erscheinen im Pull Request.
+Committe und pushe auf `main`.
+
+</Step>
+
+<Step id="breaking-pr" title="Pull Request mit Breaking Change öffnen">
+
+Jetzt bist du das Orders-Team und willst eine Spalte „aufräumen“. Lege einen Branch an und entferne das Feld `customer_id` aus dem Schema `orders` in `orders_v2.odcs.yaml`:
+
+```bash
+git switch -c remove-customer-id
+# orders_v2.odcs.yaml bearbeiten: customer_id entfernen
+git commit -am "Remove customer_id"
+git push -u origin remove-customer-id
+```
+
+```powershell
+git switch -c remove-customer-id
+# orders_v2.odcs.yaml bearbeiten: customer_id entfernen
+git commit -am "Remove customer_id"
+git push -u origin remove-customer-id
+```
+
+Öffne einen Pull Request auf GitHub.
+
+<Callout type="warning" title="Wähle deinen Fork als Base">
+Bei einem Fork schlägt GitHub das ursprüngliche Workshop-Repository als Base vor. Ändere **base repository** auf `<dein-username>/odcs-odps-workshop` und die Base auf `main`.
+</Callout>
+
+Der Check **Breaking changes** schlägt fehl, mit einer Annotation an `orders_v2.odcs.yaml`.
+
+</Step>
+
+<Step id="fix-pr" title="Stattdessen kompatibel ändern">
+
+Stelle `customer_id` wieder her. Ergänze stattdessen eine `description` oder einen neuen Tag. Pushe auf denselben Branch.
+Der Check wird grün, und du kannst mergen.
+
+Eine Änderung, an die sich Konsumenten anpassen müssen, braucht eine neue Major-Version: einen neuen Kontrakt, wie `orders_v2` für `orders_v1` in [Evolution von Datenkontrakten](#/de/evolution).
+
+<Solution title=".github/workflows/datacontract.yml">
+
+```yaml file=../../../../solutions/exercise9/datacontract.yml
+```
+
+</Solution>
+
+</Step>
+
+<Quiz
+  question="Ein Pull Request entfernt eine Spalte aus einem aktiven Kontrakt. Welcher Befehl lässt die Pipeline fehlschlagen?"
+  options={["datacontract lint", "datacontract ci", "datacontract breaking"]}
+  answer={2}
+>
+`lint` prüft nur die Syntax, und `ci` prüft den Kontrakt gegen die Daten. Nur `breaking` vergleicht die neue mit der alten Version und schlägt bei inkompatiblen Änderungen fehl.
+</Quiz>
+
+## Bonus
+
+- **Checks verpflichtend machen:** Gehe in deinem Fork zu **Settings → Rules → Rulesets** und fordere die Checks **Lint and test** und **Breaking changes** für `main` an. Jetzt lässt sich kein Breaking Change mehr mergen.
+- **Consumer-driven Contracts in der Pipeline des Producers:** Dein Consumer-Kontrakt `orders_v2.consumer_sku_sales.odcs.yaml` läuft in derselben Pipeline. In einem echten Setup testet das Orders-Team die Kontrakte aller seiner Konsumenten. Ein fehlschlagender Check zeigt dann genau, wen eine Änderung bricht.
+- **Changelog lesen:** `datacontract changelog orders_v1.odcs.yaml orders_v2.odcs.yaml` listet alle Änderungen, nicht nur die brechenden.
+- **Testergebnisse veröffentlichen:** In [Teil D](#/de/publish) kannst du die Ergebnisse aus der Pipeline an Entropy Data senden. Der Referenz-Workflow in der Lösung enthält den Schritt als Kommentar.

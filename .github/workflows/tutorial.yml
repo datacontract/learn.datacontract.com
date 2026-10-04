@@ -1,0 +1,43 @@
+# Builds the online tutorial (tutorial/) and deploys it to GitHub Pages.
+# Only runs in the upstream repository, not in participants' forks.
+name: Deploy tutorial
+
+on:
+  push:
+    branches: [main]
+    paths: ['tutorial/**', 'solutions/**', '.github/workflows/tutorial.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    if: github.repository == 'datacontract/odcs-odps-workshop'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: tutorial/package-lock.json
+      - run: npm ci
+        working-directory: tutorial
+      - run: npm run build
+        working-directory: tutorial
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: tutorial/dist
+      - id: deployment
+        uses: actions/deploy-pages@v5

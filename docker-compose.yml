@@ -11,3 +11,9 @@ services:
     volumes:
       - ./initdb:/docker-entrypoint-initdb.d:ro
       - ./data:/data:ro
+    healthcheck:
+      # TCP only: the temporary server that loads initdb/ listens on the Unix socket only
+      test: ["CMD", "pg_isready", "-h", "127.0.0.1", "-U", "workshop", "-d", "workshop"]
+      interval: 2s
+      timeout: 5s
+      retries: 30

@@ -1,0 +1,226 @@
+Each of your contracts has its own copy of the descriptions of `order_id`, `order_total`, and `sku`.
+And a description says what a field *contains*, not which business concept it *is*.
+Here you define each concept **once** in **Semantics**, a lightweight business ontology on the platform, and link the contracts from [the previous exercise](#/en/publish) to it.
+
+<Goals>
+- Model business entities, their properties, and the relationships between them
+- Link data contract fields to business concepts with `authoritativeDefinitions`
+- Answer "which datasets contain X?" with a reverse lookup
+</Goals>
+
+<Callout type="note" title="Prerequisite">
+Builds on [Publish to Entropy Data](#/en/publish): your contracts are published and `entropy-data connection test` works. The Community Edition from the repository has Semantics enabled.
+</Callout>
+
+<Callout type="concept" title="Contract vs. ontology">
+A data contract describes **one dataset**. An ontology describes the **business language** shared by all datasets: *an Order has an Order Total, an Order contains Articles.*
+When fields point to concepts, the meaning lives in one place, and you can search all datasets by meaning instead of column name.
+</Callout>
+
+## Model the business concepts
+
+<Step id="concepts" title="Create the entities">
+
+Create a namespace, and two entities with their properties:
+
+```bash
+printf 'name: Main\n' | entropy-data semantics namespaces put main --file -
+
+cat <<EOF | entropy-data semantics concepts put main order --file -
+name: Order
+kind: entity
+description: A customer order in the e-commerce platform
+properties:
+- id: order_id
+  name: Order ID
+  kind: property
+  description: Unique identifier of an order (UUID)
+  data_type: string
+  required: true
+  unique: true
+- id: order_total
+  name: Order Total
+  kind: property
+  description: Total amount of an order in cents, never negative
+  data_type: integer
+EOF
+
+cat <<EOF | entropy-data semantics concepts put main article --file -
+name: Article
+kind: entity
+description: A product that can be bought in the e-commerce platform
+properties:
+- id: sku
+  name: SKU
+  kind: property
+  description: Stock keeping unit, the unique identifier of an article
+  data_type: string
+  required: true
+  unique: true
+EOF
+```
+
+```powershell
+"name: Main" | entropy-data semantics namespaces put main --file -
+
+@'
+name: Order
+kind: entity
+description: A customer order in the e-commerce platform
+properties:
+- id: order_id
+  name: Order ID
+  kind: property
+  description: Unique identifier of an order (UUID)
+  data_type: string
+  required: true
+  unique: true
+- id: order_total
+  name: Order Total
+  kind: property
+  description: Total amount of an order in cents, never negative
+  data_type: integer
+'@ | entropy-data semantics concepts put main order --file -
+
+@'
+name: Article
+kind: entity
+description: A product that can be bought in the e-commerce platform
+properties:
+- id: sku
+  name: SKU
+  kind: property
+  description: Stock keeping unit, the unique identifier of an article
+  data_type: string
+  required: true
+  unique: true
+'@ | entropy-data semantics concepts put main article --file -
+```
+
+</Step>
+
+<Step id="relationship" title="Relate the entities">
+
+An order contains articles:
+
+```bash
+cat <<EOF | entropy-data semantics relationships put main order-contains-article --file -
+type: relatedTo
+name: contains
+description: An order contains one or more articles
+roles:
+- concept: order
+- concept: article
+verbalizes:
+- "{Order} contains {Article}"
+EOF
+```
+
+```powershell
+@'
+type: relatedTo
+name: contains
+description: An order contains one or more articles
+roles:
+- concept: order
+- concept: article
+verbalizes:
+- "{Order} contains {Article}"
+'@ | entropy-data semantics relationships put main order-contains-article --file -
+```
+
+</Step>
+
+## Link your data contracts
+
+<Step id="link" title="Link the contract fields">
+
+Link schemas and fields to the concepts with `authoritativeDefinitions`. Address a property of an entity as `<entity>.<property>`:
+
+```yaml
+schema:
+  - name: orders
+    authoritativeDefinitions:
+      - type: semantics
+        url: /tutorial-<yourname>/semantics/main/order
+    properties:
+      - name: order_id
+        authoritativeDefinitions:
+          - type: semantics
+            url: /tutorial-<yourname>/semantics/main/order.order_id
+```
+
+Do the same for `order_total` (`order.order_total`, in every contract that has it) and `sku` (`article.sku`).
+Then **remove the copied descriptions** from these fields. The definition now lives in the concept.
+
+Replace `tutorial-<yourname>` with your organization name (`datameshlive2026` on the Community Edition).
+The URLs are host-relative on purpose, so they work on any instance, cloud or local.
+
+Check that the contracts are still valid:
+
+```bash
+datacontract lint orders_v1.odcs.yaml
+datacontract lint orders_v2.odcs.yaml
+datacontract lint sku_sales_per_year.odcs.yaml
+```
+
+```powershell
+datacontract lint orders_v1.odcs.yaml
+datacontract lint orders_v2.odcs.yaml
+datacontract lint sku_sales_per_year.odcs.yaml
+```
+
+</Step>
+
+<Step id="republish" title="Re-publish the contracts">
+
+```bash
+entropy-data datacontracts put orders_v1 --file orders_v1.odcs.yaml
+entropy-data datacontracts put orders_v2 --file orders_v2.odcs.yaml
+entropy-data datacontracts put sku_sales_per_year --file sku_sales_per_year.odcs.yaml
+```
+
+```powershell
+entropy-data datacontracts put orders_v1 --file orders_v1.odcs.yaml
+entropy-data datacontracts put orders_v2 --file orders_v2.odcs.yaml
+entropy-data datacontracts put sku_sales_per_year --file sku_sales_per_year.odcs.yaml
+```
+
+<Callout type="warning" title="Your CI pipeline now needs the platform">
+`datacontract test` and `datacontract ci` resolve linked definitions from `ENTROPY_DATA_HOST` by default. If the host is unreachable, the run fails with "Could not resolve business definition".
+In your workflow from [CI/CD with GitHub Actions](#/en/ci-cd), you have two options:
+
+- **Cloud:** pass the `ENTROPY_DATA_API_KEY` secret and `ENTROPY_DATA_HOST` to the step (see the bonus of the previous exercise).
+- **Community Edition** (unreachable from GitHub): add `--no-inline-references` to the `datacontract ci` command.
+</Callout>
+
+<Solution title="Contracts with semantic links">
+
+```yaml file=../../../../solutions/exercise8/orders_v1.with-semantics.odcs.yaml
+```
+
+```yaml file=../../../../solutions/exercise8/sku_sales_per_year.with-semantics.odcs.yaml
+```
+
+</Solution>
+
+</Step>
+
+## Explore the ontology
+
+<Step id="explore" title="Explore the ontology">
+
+In the web UI, open a concept's page in **Studio → Semantics**:
+
+- The reverse lookup lists every data contract that links to the concept. *"Which datasets contain order totals?"* is now one click.
+- Switch to the **Diagram** view to see the ontology as a graph.
+
+</Step>
+
+<Quiz
+  question="Why remove the field descriptions from the contracts after linking them to concepts?"
+  options={["The ODCS schema doesn't allow both", "So the meaning is defined in one place and can't drift apart between contracts", "To make the contracts smaller for faster tests"]}
+  answer={1}
+>
+Exactly. Copies drift apart. A single definition stays consistent, and every linked contract benefits when it improves.
+</Quiz>

@@ -1,0 +1,201 @@
+Das **Einkaufsteam** will wissen, wie oft jede SKU pro Jahr gekauft wird, um bessere Konditionen mit Lieferanten auszuhandeln.
+Dafür baust du ein neues Datenprodukt auf Orders auf: **SKU Sales**.
+
+Diesmal arbeitest du **contract-first**: Du entwirfst Datenkontrakt und Datenproduktbeschreibung, bevor du SQL schreibst.
+Der Kontrakt ist die Spezifikation. Implementiert wird er in der [nächsten Übung](#/de/implement).
+
+<Goals>
+- Einen Datenkontrakt für ein Datenprodukt entwerfen, das es noch nicht gibt
+- Die Semantik einer View als Quality Checks ausdrücken
+- Ein consumer-aligned Datenprodukt mit Input- und Output-Ports beschreiben
+- Verstehen, warum fehlschlagende Tests der erwartete Startpunkt sind
+</Goals>
+
+<ScenarioDiagram focus="b" />
+
+<Callout type="concept" title="Contract-first">
+Die Schnittstelle kommt vor der Implementierung, wie eine OpenAPI-Spezifikation vor der API.
+Consumer prüfen den Kontrakt, *bevor* Arbeit investiert wird, und seine Tests zeigen dir, wann die Implementierung fertig ist: **rot → grün**.
+</Callout>
+
+## Den Kontrakt entwerfen
+
+<Step id="create" title="Kontraktdatei anlegen">
+
+Lege einen neuen Kontrakt an und öffne ihn im Editor. Bestätige, wenn die CLI fragt, ob die Datei angelegt werden soll.
+
+```bash
+datacontract edit sku_sales_per_year.odcs.yaml
+```
+
+```powershell
+datacontract edit sku_sales_per_year.odcs.yaml
+```
+
+Setze die Grunddaten:
+
+| Feld | Wert |
+|---|---|
+| Name | `SKU Sales per Year` |
+| ID | `sku_sales_per_year` |
+| Version | `1.0.0` |
+| Status | `draft` |
+
+</Step>
+
+<Step id="server" title="Server hinzufügen">
+
+Die View liegt in einem neuen Schema `analytics` in derselben Datenbank. Füge einen **Server** hinzu:
+
+| Feld | Wert |
+|---|---|
+| Server | `postgres` |
+| Type | `postgres` |
+| Host | `localhost` |
+| Port | `5433` |
+| Database | `workshop` |
+| Schema | `analytics` |
+
+</Step>
+
+<Step id="schema" title="Schema beschreiben">
+
+Füge ein **Schema** `sku_sales_per_year` hinzu, setze **Advanced Metadata → Physical Type** auf `VIEW` und lege diese Properties an:
+
+| Property | Logical Type | Physical Type | Bedeutung |
+|---|---|---|---|
+| `sku` | `string` | `TEXT` | Die Produkt-SKU |
+| `year` | `integer` | `INTEGER` | Jahr der Bestellung |
+| `order_count` | `integer` | `BIGINT` | In wie vielen Bestellungen die SKU vorkam |
+| `total_quantity` | `integer` | `BIGINT` | Insgesamt gekaufte Stückzahl |
+
+Schreib die Bedeutung in die **Description** jeder Property. Genau das liest das Einkaufsteam.
+
+</Step>
+
+<Step id="quality" title="Semantik als Quality Checks festhalten">
+
+Das Schema sagt, *welche* Spalten es gibt. Quality Checks sagen, was über sie *wahr* sein muss. Ergänze Checks wie:
+
+- Die Kombination aus `sku` und `year` ist eindeutig
+- `total_quantity` ist nie kleiner als `order_count`
+- Die View ist nicht leer
+
+Nutze „fehlerhafte Zeilen zählen, null erwarten“, wie in [Übung 1](#/de/contract):
+
+```yaml
+quality:
+  - type: sql
+    description: Ensure total_quantity is at least order_count
+    query: SELECT COUNT(*) FROM analytics.sku_sales_per_year WHERE total_quantity < order_count;
+    mustBe: 0
+```
+
+<Callout type="tip">
+Eindeutigkeit über zwei Spalten: `GROUP BY ... HAVING COUNT(*) > 1` in einer Subquery. Checks über mehrere Spalten gehören auf Schema-Ebene (`schema[].quality`), nicht an eine einzelne Property.
+</Callout>
+
+</Step>
+
+<Step id="test-red" title="Tests ausführen und scheitern sehen">
+
+Speichere und führe die Tests aus:
+
+```bash
+datacontract test sku_sales_per_year.odcs.yaml
+```
+
+```powershell
+datacontract test sku_sales_per_year.odcs.yaml
+```
+
+Die Tests **schlagen fehl**, natürlich: Es ist noch nichts implementiert. Genau darum geht es. Das Einkaufsteam kann die Schnittstelle schon prüfen, während du die Tests in der nächsten Übung grün machst.
+
+<Solution title="sku_sales_per_year.odcs.yaml">
+
+```yaml file=../../../../solutions/exercise4/sku_sales_per_year.odcs.yaml
+```
+
+</Solution>
+
+</Step>
+
+## Das Datenprodukt beschreiben
+
+<Callout type="concept" title="Source-aligned vs. consumer-aligned">
+**Orders** ist *source-aligned*: Es stellt Daten nah am System bereit, in dem sie entstehen.
+**SKU Sales** ist *consumer-aligned*: gebaut für einen bestimmten Anwendungsfall eines bestimmten Consumers.
+Ein consumer-aligned Produkt deklariert seine Datenquellen über **Input-Ports**, jeder verweist auf den Kontrakt, auf den es sich verlässt.
+</Callout>
+
+<Step id="odps" title="Datenprodukt-Datei anlegen">
+
+Lege `sku_sales_per_year.odps.yaml` an, mit derselben Struktur wie in [Übung 3](#/de/data-product):
+
+| Feld | Wert |
+|---|---|
+| `id` | `sku_sales` |
+| `name` | `SKU Sales` |
+| `version` | `1.0.0` |
+| `status` | `draft` |
+| `domain` | `ecommerce` |
+
+Ergänze eine `description` mit `purpose` sowie `team` und `support` für das Purchasing-Analytics-Team (z. B. `purchasing_analytics_team`).
+
+</Step>
+
+<Step id="output-port" title="Output-Port hinzufügen">
+
+Das Produkt bietet einen Output-Port an, beschrieben durch deinen neuen Kontrakt:
+
+```yaml
+outputPorts:
+  - name: sku_sales_per_year
+    description: Aggregated SKU sales per year as a PostgreSQL view
+    version: 1.0.0
+    contractId: sku_sales_per_year
+```
+
+</Step>
+
+<Step id="input-port" title="Input-Port hinzufügen">
+
+Deklariere, auf welchen Daten (und Garantien) dein Produkt aufbaut. Du konsumierst `orders_v2`, denn nur v2 hat `quantity`:
+
+```yaml
+inputPorts:
+  - name: orders
+    version: 2.0.0
+    contractId: orders_v2
+```
+
+</Step>
+
+<Step id="lint" title="Datenprodukt prüfen">
+
+Validiere gegen den ODPS-Standard:
+
+```bash
+dataproduct lint sku_sales_per_year.odps.yaml
+```
+
+```powershell
+dataproduct lint sku_sales_per_year.odps.yaml
+```
+
+<Solution title="sku_sales_per_year.odps.yaml">
+
+```yaml file=../../../../solutions/exercise4/sku_sales_per_year.odps.yaml
+```
+
+</Solution>
+
+</Step>
+
+<Quiz
+  question="Du hast gerade den Kontrakt entworfen und die Tests schlagen fehl. Was sagt dir das?"
+  options={["Der Kontrakt ist falsch und muss korrigiert werden", "Es ist noch nichts implementiert: Die roten Tests sind die To-do-Liste", "Die Datenbank läuft nicht"]}
+  answer={1}
+>
+Genau. Bei Contract-first sind rote Tests der erwartete Startpunkt. Sie werden grün, sobald die Implementierung die Spezifikation erfüllt.
+</Quiz>

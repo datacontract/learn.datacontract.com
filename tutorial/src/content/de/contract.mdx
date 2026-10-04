@@ -1,0 +1,371 @@
+Du bist Owner der **Orders**-Daten in der E-Commerce-Plattform deines Unternehmens.
+Sie liegen in PostgreSQL in zwei Tabellen: `orders` (Zeitstempel, Summen, Kundeninformationen) und `line_items` (die Positionen jeder Bestellung, verknüpft über `order_id`).
+Deine Konsumenten fragen immer wieder: *Auf welche Spalten kann ich mich verlassen? Was bedeutet `order_total`? Wen frage ich, wenn etwas komisch aussieht?*
+Beantworte das einmal, in einem Datenkontrakt.
+
+<Goals>
+- Einen ODCS-Datenkontrakt mit dem Data Contract Editor erstellen
+- Den Kontrakt gegen die echte Datenbank testen und Tests fehlschlagen sehen
+- Nutzungsbedingungen, Klassifizierung, Beziehungen und Qualitätschecks ergänzen
+- Ownership, Support-Kanäle und Service Levels ergänzen
+</Goals>
+
+<ScenarioDiagram focus="a" />
+
+## Die Daten erkunden
+
+<Step id="explore" title="Daten ansehen">
+
+Stell sicher, dass die Datenbank läuft (siehe [Setup](#/de/setup)), und öffne einen SQL-Prompt:
+
+```bash
+docker compose exec postgres psql -U workshop -d workshop
+```
+
+```powershell
+docker compose exec postgres psql -U workshop -d workshop
+```
+
+Liste die Tabellen auf und sieh dir ein paar Zeilen an:
+
+```sql
+\dt orders_v1.*
+SELECT * FROM orders_v1.orders LIMIT 5;
+SELECT * FROM orders_v1.line_items LIMIT 5;
+```
+
+Das Ergebnis sieht etwa so aus:
+
+```text
+               order_id               |    order_timestamp     | order_total |     customer_id      | customer_email_address
+--------------------------------------+------------------------+-------------+----------------------+------------------------
+ a8c38fec-2acd-4b55-883b-4b48572d4a26 | 2020-01-01 00:00:00+00 |       29747 | 6GSHKOZIEN           | test394@example.org
+ 9e44da97-4f72-4bcf-821a-9d9500d06651 | 2020-01-01 10:37:00+00 |       55156 | ZN661MOMVMQXRJ       | test4757@example.org
+ 8fc4621c-66ae-4031-91f1-5313beb9f541 | 2020-01-01 20:14:00+00 |       85365 | NF0PRHKQP9W9Q0MTC87P | test1991@example.org
+```
+
+Keine Ausgabe? Prüfe auf Tippfehler: `psql` bleibt bei falsch geschriebenen Schema- oder Tabellennamen stumm.
+Verlasse den Prompt mit `\q`.
+
+</Step>
+
+## Den Kontrakt erstellen
+
+<Step id="create" title="Kontrakt-Datei anlegen">
+
+Lege im Root des Repositorys einen Kontrakt an und öffne ihn im Data Contract Editor:
+
+```bash
+datacontract edit orders_v1.odcs.yaml
+```
+
+```powershell
+datacontract edit orders_v1.odcs.yaml
+```
+
+Die CLI fragt, ob sie die Datei anlegen soll. Bestätige.
+Der Editor öffnet sich im Browser. **Speichern schreibt direkt in die Datei auf der Festplatte.**
+
+Setze in der **Form**-Ansicht die Grunddaten:
+
+| Feld | Wert |
+|---|---|
+| Name | `Orders` |
+| ID | `orders_v1` |
+| Version | `1.0.0` (so lassen) |
+| Status | `draft` (so lassen) |
+
+<Callout type="concept" title="Warum Version 1.0.0 und Status draft?">
+Kontrakte nutzen Semantic Versioning: Eine neue **Major**-Version signalisiert einen Breaking Change.
+Der `status` sagt Konsumenten, ob sie sich auf den Kontrakt verlassen können. `draft` heißt „in Arbeit, bau noch nicht darauf auf“.
+</Callout>
+
+</Step>
+
+<Step id="server" title="Server hinzufügen">
+
+Gehe zu **Servers** und füge einen Server hinzu. Er sagt den Werkzeugen, *wo* die Daten liegen, damit sie sie testen können:
+
+| Feld | Wert |
+|---|---|
+| Server | `Orders` |
+| Type | `postgres` |
+| Host | `localhost` |
+| Port | `5433` |
+| Database | `workshop` |
+| Schema | `orders_v1` |
+
+</Step>
+
+<Step id="schema" title="Schema beschreiben">
+
+Gehe zu **Schemas** und lege zwei Schemas mit ihren Properties an.
+
+**`orders`**
+
+| Property | Logical Type | Physical Type |
+|---|---|---|
+| `order_id` | `string` | `TEXT` |
+| `order_timestamp` | `date` | `TIMESTAMPTZ` |
+| `order_total` | `integer` | `BIGINT` |
+| `customer_id` | `string` | `TEXT` |
+| `customer_email_address` | `string` | `TEXT` |
+
+**`line_items`**
+
+| Property | Logical Type | Physical Type |
+|---|---|---|
+| `lines_item_id` | `string` | `TEXT` |
+| `order_id` | `string` | `TEXT` |
+| `sku` | `string` | `TEXT` |
+
+<Callout type="concept" title="Logischer vs. physischer Typ">
+Der **logische Typ** ist die technologieunabhängige Bedeutung (`integer`, `string`, `date`). Damit arbeiten Konsumenten.
+Der **physische Typ** ist, wie die Datenbank speichert (`BIGINT`, `TEXT`, `TIMESTAMPTZ`). Dagegen prüfen die Tests.
+</Callout>
+
+Klicke auf **Save** (oben rechts). Lass den Editor offen.
+
+</Step>
+
+## Den Kontrakt testen
+
+Der Test prüft deinen Kontrakt gegen die *echte* Datenbank: Gibt es die beschriebenen Tabellen, Spalten und Typen?
+So fällt auf, wenn Dokumentation und Realität auseinanderlaufen.
+
+<Step id="test" title="Tests ausführen">
+
+Die `.env`-Datei des Repositorys enthält die Zugangsdaten (`workshop` / `workshop`). Die CLI liest sie im Root des Repositorys automatisch.
+
+```bash
+datacontract test orders_v1.odcs.yaml
+```
+
+```powershell
+datacontract test orders_v1.odcs.yaml
+```
+
+Alle Checks sollten grün sein. Schlagen **alle** fehl, läuft die Datenbank vermutlich nicht: `docker compose up -d`.
+
+</Step>
+
+<Step id="test-fail" title="Einen Test fehlschlagen lassen">
+
+Tests nützen nur, wenn sie fehlschlagen können. Ändere in `orders_v1.odcs.yaml` den `physicalType` von `customer_email_address` auf `integer` und teste erneut:
+
+```bash
+datacontract test orders_v1.odcs.yaml
+```
+
+```powershell
+datacontract test orders_v1.odcs.yaml
+```
+
+Welcher Check schlägt fehl, und warum? Probier andere Fehler aus: eine falsch geschriebene Spalte, eine fehlende Tabelle.
+**Mach die Änderungen danach rückgängig**, bis alle Tests wieder grün sind.
+
+</Step>
+
+## Den Kontrakt anreichern
+
+Wähle, wie du arbeitest:
+
+- **Data Contract Editor**: ideal, um Felder zu entdecken. Öffne ihn wieder mit `datacontract edit orders_v1.odcs.yaml`.
+- **Deine IDE** (z. B. VS Code): schneller, wenn du die Felder kennst. Jedes Formularfeld ist ein YAML-Key, siehe die [ODCS-Referenz](https://bitol-io.github.io/open-data-contract-standard/latest/).
+
+<Callout type="warning">
+Datei in der IDE geändert, während der Editor offen ist? Lade die Editor-Seite neu, bevor du dort speicherst, sonst überschreibt er deine Änderungen.
+</Callout>
+
+<Step id="terms" title="Nutzungsbedingungen und Tags ergänzen">
+
+- Ergänze unter **Terms of Use** eine **Description**, einen **Purpose** und **Limitations**. Die ✨-AI-Buttons schreiben Entwürfe.
+- Ergänze unter **Fundamentals** **Tags** wie `orders` und `ecommerce`.
+
+</Step>
+
+<Step id="email" title="E-Mail-Adresse klassifizieren">
+
+Bearbeite unter **Schemas** das Feld `orders.customer_email_address`:
+
+- ergänze **Examples** aus den Daten, z. B. `test394@example.org`,
+- setze **Classification & Security → Classification** auf `confidential` (personenbezogene Daten),
+- setze **Constraints → Required** auf `true`.
+
+Speichere und finde die neuen Keys in der YAML-Datei.
+
+</Step>
+
+<Step id="test-again" title="Erneut testen und den neuen Check finden">
+
+```bash
+datacontract test orders_v1.odcs.yaml
+```
+
+```powershell
+datacontract test orders_v1.odcs.yaml
+```
+
+Findest du den neuen Check? Ein `required`-Feld ergibt einen Check auf fehlende Werte.
+
+Optional: Rendere den Kontrakt als HTML und öffne `orders_v1.odcs.html` im Browser:
+
+```bash
+datacontract export html orders_v1.odcs.yaml --output orders_v1.odcs.html
+```
+
+```powershell
+datacontract export html orders_v1.odcs.yaml --output orders_v1.odcs.html
+```
+
+</Step>
+
+## Beziehungen und Qualität
+
+<Step id="relationship" title="Beziehung definieren">
+
+Drücke aus, dass `line_items.order_id` auf `orders.order_id` verweist. So wissen Konsumenten, dass der Join sicher ist.
+Ergänze das an der **Property** `order_id` im Schema `line_items`:
+
+```yaml
+schema:
+  # ...
+  - name: line_items
+    properties:
+      # ...
+      - name: order_id
+        logicalType: string
+        physicalType: TEXT
+        relationships:
+          - type: foreignKey
+            to: orders.order_id
+```
+
+</Step>
+
+<Step id="quality" title="Qualitätscheck ergänzen">
+
+Schema-Checks prüfen die *Struktur*, Qualitätschecks den *Inhalt*.
+Ergänze an `customer_email_address` einen SQL-Check, dass jede E-Mail ein `@` enthält:
+
+```yaml
+schema:
+  - name: orders
+    properties:
+      # ...
+      - name: customer_email_address
+        # ... (Typen, Beispiele, Klassifizierung)
+        quality:
+          - type: sql
+            description: Ensure email addresses are valid
+            query: SELECT COUNT(*) FROM orders_v1.orders WHERE customer_email_address NOT LIKE '%@%';
+            mustBe: 0
+```
+
+Die Abfrage zählt *ungültige* Zeilen, `mustBe: 0` stellt sicher, dass es keine gibt. Führe die Tests aus und finde den neuen Check.
+
+<Callout type="tip">
+„Zähle die fehlerhaften Zeilen, erwarte null“ funktioniert für fast jede Regel. Schlägt der Check fehl, hilft dir die Abfrage beim Debuggen.
+</Callout>
+
+</Step>
+
+<Step id="more-quality" title="Weitere Qualitätschecks ergänzen">
+
+Ergänze weitere Regeln und teste nach jeder:
+
+- `order_total` ist nie negativ
+- jede `order_id` in `line_items` existiert in `orders`
+- die Tabelle `orders` ist nicht leer (Tipp: `mustBeGreaterThan: 0`)
+- deine eigenen Ideen
+
+Für Regeln, die sich (noch) nicht automatisieren lassen, nimm einen Text-Check:
+
+```yaml
+quality:
+  - type: text
+    description: Order total is in cents
+  - type: sql
+    description: Ensure that ...
+    query: SELECT COUNT(*) FROM ... WHERE ...;
+    mustBe: 0
+```
+
+Alle Optionen: [ODCS-Referenz zur Datenqualität](https://bitol-io.github.io/open-data-contract-standard/latest/data-quality/#sql).
+
+</Step>
+
+## Ownership und Service Levels
+
+<Step id="team" title="Team und Support ergänzen">
+
+Konsumenten müssen wissen, wem die Daten gehören und wo sie Hilfe bekommen. Ergänze diese Keys auf **oberster Ebene**:
+
+```yaml
+team:
+  name: order_data_team
+  members:
+    - username: owner@example.com
+      role: Owner
+
+support:
+  - channel: "#order-data-help"
+    url: https://example.slack.com/archives/order-data-help
+    tool: slack
+```
+
+</Step>
+
+<Step id="sla" title="Service Levels ergänzen">
+
+Wie lange werden die Daten aufbewahrt, wie aktuell sind sie? Ergänze `slaProperties` auf oberster Ebene:
+
+```yaml
+slaProperties:
+  - property: retention
+    value: 1
+    unit: y
+    description: Order data retained for 1 year
+  - property: frequency
+    value: 1
+    unit: d
+    description: Data updated daily
+```
+
+</Step>
+
+<Step id="active" title="Kontrakt auf active setzen">
+
+Dein Kontrakt ist fertig. Setze den `status` auf `active`: Ab jetzt können sich Konsumenten darauf verlassen.
+Führe die Tests ein letztes Mal aus:
+
+```bash
+datacontract test orders_v1.odcs.yaml
+```
+
+```powershell
+datacontract test orders_v1.odcs.yaml
+```
+
+<Solution title="orders_v1.odcs.yaml">
+
+```yaml file=../../../../solutions/exercise1/orders_v1.odcs.yaml
+```
+
+</Solution>
+
+</Step>
+
+<Quiz
+  question="Du hast eine Spalte als required markiert. Was macht datacontract test damit?"
+  options={["Nichts, das ist nur Dokumentation", "Es prüft, dass die Spalte keine fehlenden Werte enthält", "Es legt einen NOT-NULL-Constraint in der Datenbank an"]}
+  answer={1}
+>
+Aus `required: true` wird ein Check auf fehlende Werte. Die CLI verändert deine Datenbank nie. Sie liest nur.
+</Quiz>
+
+## Bonus
+
+- SQL-DDL erzeugen: `datacontract export sql orders_v1.odcs.yaml` (alle [Export-Formate](https://cli.datacontract.com/#export))
+- Gegen das ODCS-Schema prüfen: `datacontract lint orders_v1.odcs.yaml`
+- HTML-Katalog aller Kontrakte im Ordner erzeugen: `datacontract catalog`

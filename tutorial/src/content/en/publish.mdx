@@ -1,0 +1,312 @@
+YAML files in Git work well for a single team. But how do *other* teams discover your data products, browse the contracts, and request access?
+That's what a **data product platform** is for.
+In this exercise, you publish everything from Parts A and B to [Entropy Data](https://entropy-data.com) with the [Entropy Data CLI](https://github.com/entropy-data/entropy-data-cli).
+
+<Goals>
+- Connect the Entropy Data CLI to a cloud organization or a local Community Edition
+- Publish teams, data contracts, and data products
+- Model the dependency between two data products as an access agreement
+- Publish test results to show whether a contract is upheld
+</Goals>
+
+<Callout type="note" title="Optional part">
+Part D is optional and uses a commercial platform with a free tier. The free **Community Edition** runs fully locally. Everything you built so far works without it.
+</Callout>
+
+## Get access
+
+<Step id="access" title="Create an organization">
+
+Pick **one** option.
+
+**Option 1: Cloud.** Go to [app.entropy-data.com](https://app.entropy-data.com), create an account, and set up an organization named `tutorial-<yourname>`, e.g. `tutorial-simon`.
+Names are unique across the platform. Use lowercase letters, digits, and hyphens only.
+In the organization settings, create an **API key** with organization write permissions.
+
+**Option 2: Community Edition, locally.** Start it in Docker and run the setup script. It creates an account, an organization named `datameshlive2026`, and an API key:
+
+```bash
+docker compose -f entropy-data-ce/docker-compose.yaml up -d
+./scripts/setup-entropy-data-ce.sh
+```
+
+```powershell
+docker compose -f entropy-data-ce/docker-compose.yaml up -d
+powershell -ExecutionPolicy Bypass -File scripts\setup-entropy-data-ce.ps1
+```
+
+Log in at [http://localhost:8081](http://localhost:8081) with `workshop@example.com` / `workshop`.
+Below, use `datameshlive2026` wherever it says `tutorial-<yourname>`.
+
+</Step>
+
+<Step id="connect" title="Configure the connection">
+
+The install script from [Setup](#/en/setup) already installed the Entropy Data CLI. Check:
+
+```bash
+entropy-data --version
+```
+
+```powershell
+entropy-data --version
+```
+
+**Cloud:** set your API key as an environment variable in your terminal:
+
+```bash
+export ENTROPY_DATA_API_KEY=ed_...
+export ENTROPY_DATA_HOST=https://api.entropy-data.com
+```
+
+```powershell
+$env:ENTROPY_DATA_API_KEY = "ed_..."
+$env:ENTROPY_DATA_HOST = "https://api.entropy-data.com"
+```
+
+<Callout type="warning" title="Never commit your API key">
+Your fork is public, and `.env` is tracked in Git. Anything you push there is visible to everyone and stays in the history.
+So set the key in your shell instead. Shell variables take precedence over the placeholders in `.env`.
+Repeat these lines in every new terminal.
+</Callout>
+
+**Community Edition:** the setup script wrote the key and `ENTROPY_DATA_HOST=http://localhost:8081` into `.env`. Keep it out of Git anyway: check `git status` before you commit and undo the change with `git checkout .env`. Never run `git add .env`.
+
+Test the connection:
+
+```bash
+entropy-data connection test
+```
+
+```powershell
+entropy-data connection test
+```
+
+</Step>
+
+## Publish
+
+<Step id="teams" title="Create your teams">
+
+Contracts and data products name a team as owner. The team must exist before you publish anything that references it:
+
+```bash
+cat <<EOF | entropy-data teams put order_data_team --file -
+id: order_data_team
+name: Order Data Team
+type: team
+description: Owns the orders data
+EOF
+
+cat <<EOF | entropy-data teams put purchasing_analytics_team --file -
+id: purchasing_analytics_team
+name: Purchasing Analytics Team
+type: team
+description: Builds analytical data products for purchasing
+EOF
+
+entropy-data teams list
+```
+
+```powershell
+@'
+id: order_data_team
+name: Order Data Team
+type: team
+description: Owns the orders data
+'@ | entropy-data teams put order_data_team --file -
+
+@'
+id: purchasing_analytics_team
+name: Purchasing Analytics Team
+type: team
+description: Builds analytical data products for purchasing
+'@ | entropy-data teams put purchasing_analytics_team --file -
+
+entropy-data teams list
+```
+
+The `team.name` in your ODCS and ODPS files must match the team ID, e.g. `order_data_team`.
+
+</Step>
+
+<Step id="contracts" title="Publish your data contracts">
+
+The ID argument must match the `id` field in each contract:
+
+```bash
+entropy-data datacontracts put orders_v1 --file orders_v1.odcs.yaml
+entropy-data datacontracts put orders_v2 --file orders_v2.odcs.yaml
+entropy-data datacontracts put sku_sales_per_year --file sku_sales_per_year.odcs.yaml
+entropy-data datacontracts put orders_v2_consumer_sku_sales --file orders_v2.consumer_sku_sales.odcs.yaml
+
+entropy-data datacontracts list
+```
+
+```powershell
+entropy-data datacontracts put orders_v1 --file orders_v1.odcs.yaml
+entropy-data datacontracts put orders_v2 --file orders_v2.odcs.yaml
+entropy-data datacontracts put sku_sales_per_year --file sku_sales_per_year.odcs.yaml
+entropy-data datacontracts put orders_v2_consumer_sku_sales --file orders_v2.consumer_sku_sales.odcs.yaml
+
+entropy-data datacontracts list
+```
+
+</Step>
+
+<Step id="products" title="Publish your data products">
+
+Entropy Data supports ODPS natively, so you publish the files as they are.
+The ID argument must match the `id` field in the file:
+
+```bash
+entropy-data dataproducts put orders --file orders.odps.yaml
+entropy-data dataproducts put sku_sales --file sku_sales_per_year.odps.yaml
+
+entropy-data dataproducts list
+```
+
+```powershell
+entropy-data dataproducts put orders --file orders.odps.yaml
+entropy-data dataproducts put sku_sales --file sku_sales_per_year.odps.yaml
+
+entropy-data dataproducts list
+```
+
+<Callout type="warning" title="Workaround">
+Due to a current bug in Entropy Data, publishing fails if the ODPS file contains `inputPorts`. Remove the `inputPorts` section from `sku_sales_per_year.odps.yaml` right before you publish. The next step models the dependency another way.
+</Callout>
+
+<Callout type="tip" title="Alternative: the Data Product CLI">
+`dataproduct publish` validates the file against the ODPS schema and publishes it in one go. It reads `ENTROPY_DATA_API_KEY` and `ENTROPY_DATA_HOST` the same way and takes the ID from the file:
+
+```bash
+dataproduct publish orders.odps.yaml
+```
+
+```powershell
+dataproduct publish orders.odps.yaml
+```
+
+</Callout>
+
+</Step>
+
+<Step id="agreement" title="Connect the data products">
+
+On the platform, the dependency is an **access agreement**: SKU Sales consumes the `orders_v2` output port of Orders. Create it directly as approved:
+
+```bash
+cat <<EOF | entropy-data access put sku_sales_consumes_orders --file -
+dataUsageAgreementSpecification: 0.0.1
+id: sku_sales_consumes_orders
+info:
+  purpose: SKU Sales aggregates orders and line items per SKU and year for the purchasing team
+  status: approved
+  startDate: "2026-01-01"
+provider:
+  dataProductId: orders
+  outputPortId: orders_v2
+  dataContractId: orders_v2
+consumer:
+  dataProductId: sku_sales
+EOF
+```
+
+```powershell
+@'
+dataUsageAgreementSpecification: 0.0.1
+id: sku_sales_consumes_orders
+info:
+  purpose: SKU Sales aggregates orders and line items per SKU and year for the purchasing team
+  status: approved
+  startDate: "2026-01-01"
+provider:
+  dataProductId: orders
+  outputPortId: orders_v2
+  dataContractId: orders_v2
+consumer:
+  dataProductId: sku_sales
+'@ | entropy-data access put sku_sales_consumes_orders --file -
+```
+
+With status `approved` and a `startDate` in the past, the agreement is active.
+
+<Callout type="concept" title="Why an access agreement?">
+An input port says *"I read this data."* An access agreement adds *"…and the owner approved it, for this purpose."*
+So the owner of Orders knows every consumer and can warn them before changes ship.
+</Callout>
+
+</Step>
+
+## Explore
+
+<Step id="explore" title="Explore the platform">
+
+Open the web UI ([app.entropy-data.com](https://app.entropy-data.com) or [localhost:8081](http://localhost:8081)):
+
+- Find your two data products and their output ports.
+- Open the `sku_sales_per_year` contract and compare it with the Data Contract Editor.
+- Follow the access agreement from SKU Sales to Orders. The dependency from [Design Contract-First](#/en/contract-first) is now a link in the data product map.
+- How would someone find a data product about SKUs without knowing it exists?
+
+</Step>
+
+<Step id="test-results" title="Publish test results">
+
+The platform shows whether a contract is *currently* upheld, if you send it test results.
+Run your tests with `--publish` and your host's test results endpoint:
+
+Cloud:
+
+```bash
+datacontract test sku_sales_per_year.odcs.yaml --publish https://api.entropy-data.com/api/test-results
+```
+
+```powershell
+datacontract test sku_sales_per_year.odcs.yaml --publish https://api.entropy-data.com/api/test-results
+```
+
+Community Edition:
+
+```bash
+datacontract test sku_sales_per_year.odcs.yaml --publish http://localhost:8081/api/test-results
+```
+
+```powershell
+datacontract test sku_sales_per_year.odcs.yaml --publish http://localhost:8081/api/test-results
+```
+
+The CLI sends your API key only if the URL belongs to the host in `ENTROPY_DATA_HOST`. Find the results on the contract page in the UI.
+
+<Solution title="publish.sh">
+
+```bash file=../../../../solutions/exercise7/publish.sh
+```
+
+</Solution>
+
+</Step>
+
+<Quiz
+  question="Where should the Entropy Data API key go when you work in a public fork?"
+  options={["Into the tracked .env file, it is meant for credentials", "Into an environment variable in your shell, or a GitHub Actions secret in CI", "Into the data contract, next to the server"]}
+  answer={1}
+>
+Right. Anything committed to a public repository is public, including the history. Keep secrets in your environment or your CI system's secret store.
+</Quiz>
+
+## Bonus
+
+- **Publish test results from CI.** In your fork on GitHub, go to **Settings → Secrets and variables → Actions** and add a repository secret `ENTROPY_DATA_API_KEY`. In the workflow from [CI/CD with GitHub Actions](#/en/ci-cd), pass it to the test step and add `--publish`:
+
+  ```yaml
+  - name: Test data contracts
+    env:
+      ENTROPY_DATA_API_KEY: ${{ secrets.ENTROPY_DATA_API_KEY }}
+      ENTROPY_DATA_HOST: https://api.entropy-data.com
+    run: datacontract ci *.odcs.yaml --publish https://api.entropy-data.com/api/test-results
+  ```
+
+  This works only with the cloud: GitHub's runners can't reach your local Community Edition.
+- **Keep Git as the source of truth.** Look at `entropy-data datacontracts import-from-git --help`. How would you publish contracts automatically on every merge to `main`?

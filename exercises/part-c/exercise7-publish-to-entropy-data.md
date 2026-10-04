@@ -127,10 +127,10 @@ Entropy Data natively supports ODPS, so you can publish your data product files 
 12. The platform shows whether a contract is *currently* upheld — if you feed it test results. Run your local tests again and publish the results:
 
     ```bash
-    datacontract test sku_sales_per_year.odcs.yaml --publish-test-results
+    datacontract test sku_sales_per_year.odcs.yaml --publish https://api.entropy-data.com/api/test-results
     ```
 
-    The results are published to the Entropy Data host configured in `ENTROPY_DATA_HOST`.
+    The CLI sends the API key from your `.env` along, as the URL is on the `ENTROPY_DATA_HOST`. Running the Community Edition? Use `--publish http://localhost:8081/api/test-results` instead.
 
     Find the test results on the contract page in the UI.
 

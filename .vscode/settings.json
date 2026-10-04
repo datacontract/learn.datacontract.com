@@ -1,0 +1,6 @@
+{
+  "yaml.schemas": {
+    "./schemas/odcs-json-schema-v3.1.0.json": "*.odcs.yaml",
+    "./schemas/odps-json-schema-v1.0.0.json": "*.odps.yaml"
+  }
+}

@@ -1,0 +1,226 @@
+Jeder deiner Kontrakte hat eine eigene Kopie der Beschreibungen von `order_id`, `order_total` und `sku`.
+Und eine Beschreibung sagt, was ein Feld *enthält*, nicht welcher fachliche Begriff es *ist*.
+Hier definierst du jeden Begriff **einmal** in **Semantics**, einer schlanken fachlichen Ontologie auf der Plattform, und verknüpfst die Kontrakte aus [der vorigen Übung](#/de/publish) damit.
+
+<Goals>
+- Fachliche Entitäten, ihre Eigenschaften und ihre Beziehungen modellieren
+- Felder von Datenkontrakten mit `authoritativeDefinitions` an fachliche Begriffe binden
+- Die Frage „Welche Datensätze enthalten X?“ per Rückwärtssuche beantworten
+</Goals>
+
+<Callout type="note" title="Voraussetzung">
+Baut auf [Auf Entropy Data veröffentlichen](#/de/publish) auf: Deine Kontrakte sind veröffentlicht und `entropy-data connection test` funktioniert. In der Community Edition aus dem Repository ist Semantics aktiviert.
+</Callout>
+
+<Callout type="concept" title="Kontrakt vs. Ontologie">
+Ein Datenkontrakt beschreibt **einen Datensatz**. Eine Ontologie beschreibt die **Fachsprache**, die alle Datensätze teilen: *Eine Order hat einen Order Total, eine Order enthält Articles.*
+Zeigen Felder auf Begriffe, steht die Bedeutung an einer Stelle, und du suchst in allen Datensätzen nach Bedeutung statt nach Spaltennamen.
+</Callout>
+
+## Fachliche Begriffe modellieren
+
+<Step id="concepts" title="Entitäten anlegen">
+
+Leg einen Namespace an und zwei Entitäten mit ihren Eigenschaften:
+
+```bash
+printf 'name: Main\n' | entropy-data semantics namespaces put main --file -
+
+cat <<EOF | entropy-data semantics concepts put main order --file -
+name: Order
+kind: entity
+description: A customer order in the e-commerce platform
+properties:
+- id: order_id
+  name: Order ID
+  kind: property
+  description: Unique identifier of an order (UUID)
+  data_type: string
+  required: true
+  unique: true
+- id: order_total
+  name: Order Total
+  kind: property
+  description: Total amount of an order in cents, never negative
+  data_type: integer
+EOF
+
+cat <<EOF | entropy-data semantics concepts put main article --file -
+name: Article
+kind: entity
+description: A product that can be bought in the e-commerce platform
+properties:
+- id: sku
+  name: SKU
+  kind: property
+  description: Stock keeping unit, the unique identifier of an article
+  data_type: string
+  required: true
+  unique: true
+EOF
+```
+
+```powershell
+"name: Main" | entropy-data semantics namespaces put main --file -
+
+@'
+name: Order
+kind: entity
+description: A customer order in the e-commerce platform
+properties:
+- id: order_id
+  name: Order ID
+  kind: property
+  description: Unique identifier of an order (UUID)
+  data_type: string
+  required: true
+  unique: true
+- id: order_total
+  name: Order Total
+  kind: property
+  description: Total amount of an order in cents, never negative
+  data_type: integer
+'@ | entropy-data semantics concepts put main order --file -
+
+@'
+name: Article
+kind: entity
+description: A product that can be bought in the e-commerce platform
+properties:
+- id: sku
+  name: SKU
+  kind: property
+  description: Stock keeping unit, the unique identifier of an article
+  data_type: string
+  required: true
+  unique: true
+'@ | entropy-data semantics concepts put main article --file -
+```
+
+</Step>
+
+<Step id="relationship" title="Entitäten verbinden">
+
+Eine Order enthält Articles:
+
+```bash
+cat <<EOF | entropy-data semantics relationships put main order-contains-article --file -
+type: relatedTo
+name: contains
+description: An order contains one or more articles
+roles:
+- concept: order
+- concept: article
+verbalizes:
+- "{Order} contains {Article}"
+EOF
+```
+
+```powershell
+@'
+type: relatedTo
+name: contains
+description: An order contains one or more articles
+roles:
+- concept: order
+- concept: article
+verbalizes:
+- "{Order} contains {Article}"
+'@ | entropy-data semantics relationships put main order-contains-article --file -
+```
+
+</Step>
+
+## Datenkontrakte verknüpfen
+
+<Step id="link" title="Felder der Kontrakte verknüpfen">
+
+Verknüpfe Schemas und Felder über `authoritativeDefinitions` mit den Begriffen. Eine Eigenschaft einer Entität sprichst du als `<entität>.<eigenschaft>` an:
+
+```yaml
+schema:
+  - name: orders
+    authoritativeDefinitions:
+      - type: semantics
+        url: /tutorial-<deinname>/semantics/main/order
+    properties:
+      - name: order_id
+        authoritativeDefinitions:
+          - type: semantics
+            url: /tutorial-<deinname>/semantics/main/order.order_id
+```
+
+Mach dasselbe für `order_total` (`order.order_total`, in jedem Kontrakt, der es enthält) und `sku` (`article.sku`).
+**Entferne danach die kopierten Beschreibungen** aus diesen Feldern. Die Definition steht jetzt im Begriff.
+
+Ersetze `tutorial-<deinname>` durch den Namen deiner Organisation (in der Community Edition `datameshlive2026`).
+Die URLs sind bewusst relativ zum Host, damit sie auf jeder Instanz funktionieren, in der Cloud wie lokal.
+
+Prüfe, ob die Kontrakte noch gültig sind:
+
+```bash
+datacontract lint orders_v1.odcs.yaml
+datacontract lint orders_v2.odcs.yaml
+datacontract lint sku_sales_per_year.odcs.yaml
+```
+
+```powershell
+datacontract lint orders_v1.odcs.yaml
+datacontract lint orders_v2.odcs.yaml
+datacontract lint sku_sales_per_year.odcs.yaml
+```
+
+</Step>
+
+<Step id="republish" title="Kontrakte erneut veröffentlichen">
+
+```bash
+entropy-data datacontracts put orders_v1 --file orders_v1.odcs.yaml
+entropy-data datacontracts put orders_v2 --file orders_v2.odcs.yaml
+entropy-data datacontracts put sku_sales_per_year --file sku_sales_per_year.odcs.yaml
+```
+
+```powershell
+entropy-data datacontracts put orders_v1 --file orders_v1.odcs.yaml
+entropy-data datacontracts put orders_v2 --file orders_v2.odcs.yaml
+entropy-data datacontracts put sku_sales_per_year --file sku_sales_per_year.odcs.yaml
+```
+
+<Callout type="warning" title="Deine CI-Pipeline braucht jetzt die Plattform">
+`datacontract test` und `datacontract ci` lösen verknüpfte Definitionen standardmäßig über `ENTROPY_DATA_HOST` auf. Ist der Host nicht erreichbar, schlägt der Lauf mit „Could not resolve business definition“ fehl.
+Für deinen Workflow aus [CI/CD mit GitHub Actions](#/de/ci-cd) hast du zwei Möglichkeiten:
+
+- **Cloud:** Gib das Secret `ENTROPY_DATA_API_KEY` und `ENTROPY_DATA_HOST` an den Schritt weiter (siehe Bonus der vorigen Übung).
+- **Community Edition** (von GitHub aus nicht erreichbar): Ergänze `--no-inline-references` am Befehl `datacontract ci`.
+</Callout>
+
+<Solution title="Kontrakte mit semantischen Links">
+
+```yaml file=../../../../solutions/exercise8/orders_v1.with-semantics.odcs.yaml
+```
+
+```yaml file=../../../../solutions/exercise8/sku_sales_per_year.with-semantics.odcs.yaml
+```
+
+</Solution>
+
+</Step>
+
+## Die Ontologie erkunden
+
+<Step id="explore" title="Ontologie erkunden">
+
+Öffne in der Weboberfläche die Seite eines Begriffs unter **Studio → Semantics**:
+
+- Die Rückwärtssuche zeigt jeden Datenkontrakt, der auf den Begriff verweist. *„Welche Datensätze enthalten Bestellsummen?“* ist jetzt ein Klick.
+- Wechsle in die Ansicht **Diagram**, um die Ontologie als Graph zu sehen.
+
+</Step>
+
+<Quiz
+  question="Warum entfernst du die Feldbeschreibungen aus den Kontrakten, nachdem du sie mit Begriffen verknüpft hast?"
+  options={["Das ODCS-Schema erlaubt nicht beides", "Damit die Bedeutung an einer Stelle definiert ist und zwischen Kontrakten nicht auseinanderläuft", "Damit die Kontrakte kleiner sind und die Tests schneller laufen"]}
+  answer={1}
+>
+Genau. Kopien laufen auseinander. Eine einzige Definition bleibt konsistent, und jeder verknüpfte Kontrakt profitiert, wenn sie besser wird.
+</Quiz>

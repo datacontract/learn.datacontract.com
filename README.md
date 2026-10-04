@@ -49,7 +49,7 @@ To reset the database, run `docker compose down && docker compose up -d`.
 3. [Exercise 3: Describe Your Data Product](exercises/part-a/exercise3-describe-your-data-product.md) (ODPS)
 
 
-## Part B: Build a Data Product on Top
+## Part B: The Consumer-Aligned Data Product
 
 4. [Exercise 4: Design Your Data Product](exercises/part-b/exercise4-design-your-data-product.md) (ODCS + ODPS, contract-first)
 5. [Exercise 5: Implement Your Data Product](exercises/part-b/exercise5-implement-your-data-product.md) (SQL view)
@@ -62,6 +62,13 @@ To reset the database, run `docker compose down && docker compose up -d`.
 8. [Exercise 8: Semantics](exercises/part-c/exercise8-semantics.md) (Entropy Data CLI)
 
 No account on [app.entropy-data.com](https://app.entropy-data.com)? Run the [Entropy Data Community Edition](https://github.com/entropy-data/entropy-data-ce) locally with `docker compose -f entropy-data-ce/docker-compose.yaml up -d` (web UI on [http://localhost:8081](http://localhost:8081), set `ENTROPY_DATA_HOST=http://localhost:8081` in your `.env`).
+
+
+## Part D: Automate with CI/CD
+
+Builds on Parts A and B only (Part C is not required). Needs a GitHub account.
+
+9. [Exercise 9: CI/CD with GitHub Actions](exercises/part-d/exercise9-ci-cd-with-github-actions.md) (Data Contract CLI, Data Product CLI, GitHub Actions)
 
 
 ## Links

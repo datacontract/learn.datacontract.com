@@ -1,0 +1,296 @@
+Das Business möchte wissen, *wie viele* Einheiten eines Artikels pro Bestellung gekauft werden.
+Das Orders-Team ergänzt in `line_items` eine Spalte `quantity` mit Standardwert 1.
+Harmlos? Nicht für eine Pipeline, die genau drei Spalten erwartet, etwa ein `SELECT *` in eine feste Zieltabelle.
+Deshalb veröffentlichst du die Änderung als **neue Major-Version**: `orders_v2`, in einem eigenen Datenbankschema, neben `orders_v1`.
+
+<Goals>
+- Eine Änderung als neue Major-Version eines Datenkontrakts veröffentlichen
+- Zwei Versionen mit `datacontract changelog` und `datacontract breaking` vergleichen
+- Verstehen, was als Breaking Change gilt und wo Werkzeuge an ihre Grenzen stoßen
+- Den Lebenszyklus eines Kontrakts durchlaufen: draft → active → deprecated → retired
+</Goals>
+
+<Callout type="concept" title="Breaking vs. Non-Breaking Changes">
+Eine Änderung ist **breaking**, wenn ein Consumer, der gestern funktioniert hat, heute fehlschlagen kann, ohne selbst etwas geändert zu haben. Typische Breaking Changes:
+
+- ein Feld oder eine Tabelle **entfernen oder umbenennen**
+- einen **Typ ändern**, z. B. `BIGINT` → `TEXT`
+- eine **Garantie abschwächen**, z. B. ein `required`-Feld wird optional oder eine Qualitätsregel wird gelockert
+
+Ein neues optionales Feld, bessere Beschreibungen oder zusätzliche Quality Checks sind typischerweise **non-breaking**.
+
+Kontrakte nutzen **Semantic Versioning**: Breaking Changes erhöhen die **Major**-Version (`1.x` → `2.0.0`), kompatible Erweiterungen die Minor-Version, Korrekturen die Patch-Version.
+</Callout>
+
+## Die neuen Daten ansehen
+
+<Step id="explore" title="Das Schema orders_v2 erkunden">
+
+Das Schema `orders_v2` enthält beide Tabellen: `orders` ist unverändert, `line_items` hat die neue Spalte `quantity`.
+
+```bash
+docker compose exec postgres psql -U workshop -d workshop
+```
+
+```powershell
+docker compose exec postgres psql -U workshop -d workshop
+```
+
+```sql
+\dt orders_v2.*
+SELECT * FROM orders_v2.line_items LIMIT 5;
+```
+
+Du solltest etwa Folgendes sehen:
+
+```text
+            lines_item_id             |               order_id               |      sku      | quantity
+--------------------------------------+--------------------------------------+---------------+----------
+ 94aa82c8-50ba-47fb-994a-9b041b4127af | a8c38fec-2acd-4b55-883b-4b48572d4a26 | D3KT74L5EV46T |        1
+ d67c963f-42a4-4aa8-afff-d7869008e3a9 | 9e44da97-4f72-4bcf-821a-9d9500d06651 | E202K62FT     |        3
+ 270ad2c1-f651-438e-a81a-d77713c1d3a3 | 8fc4621c-66ae-4031-91f1-5313beb9f541 | 1O7RID9Y5QJ   |        1
+```
+
+Verlasse den Prompt mit `\q`.
+
+</Step>
+
+## v2 erstellen
+
+<Step id="copy" title="Den Kontrakt kopieren">
+
+Kopiere deinen v1-Kontrakt und öffne die Kopie im Editor:
+
+```bash
+cp orders_v1.odcs.yaml orders_v2.odcs.yaml
+datacontract edit orders_v2.odcs.yaml
+```
+
+```powershell
+Copy-Item orders_v1.odcs.yaml orders_v2.odcs.yaml
+datacontract edit orders_v2.odcs.yaml
+```
+
+</Step>
+
+<Step id="fundamentals" title="Die Version erhöhen">
+
+Setze in **Fundamentals** die neue Major-Version:
+
+| Feld | Wert |
+|---|---|
+| ID | `orders_v2` |
+| Version | `2.0.0` |
+| Status | `draft` |
+
+Die ID ändert sich mit der Major-Version: Consumer wechseln bewusst auf `orders_v2`, und `orders_v1` bleibt verfügbar, bis sie migriert haben.
+
+</Step>
+
+<Step id="server" title="Den Server auf orders_v2 umstellen">
+
+Ändere unter **Servers** das **Schema** auf `orders_v2`.
+
+Ersetze dann in allen SQL-**Quality Checks** `orders_v1.` durch `orders_v2.` (z. B. im Check für `customer_email_address`). Sonst prüfen sie weiter die alten Tabellen.
+
+<Callout type="tip">
+Suchen und Ersetzen `orders_v1.` → `orders_v2.` in deiner IDE erledigt das in einem Rutsch. Prüfe danach `id:` und das `schema:` des Servers.
+</Callout>
+
+</Step>
+
+<Step id="quantity" title="Die Spalte quantity ergänzen">
+
+Ergänze unter **Schemas → `line_items`** die neue Property:
+
+| Property | Logical Type | Physical Type |
+|---|---|---|
+| `quantity` | `integer` | `BIGINT` |
+
+Füge einen Quality Check hinzu, dass `quantity` immer größer als 0 ist. Nutze das Muster „fehlerhafte Zeilen zählen, null erwarten“.
+
+<Solution title="Property quantity">
+
+```yaml
+- name: quantity
+  physicalType: bigint
+  logicalType: integer
+  quality:
+    - type: sql
+      description: Ensure quantity is positive
+      query: SELECT COUNT(*) FROM orders_v2.line_items WHERE quantity <= 0;
+      mustBe: 0
+```
+
+</Solution>
+
+</Step>
+
+<Step id="test" title="v2 testen">
+
+Speichere und führe die Tests aus:
+
+```bash
+datacontract test orders_v2.odcs.yaml
+```
+
+```powershell
+datacontract test orders_v2.odcs.yaml
+```
+
+Alle Checks sollten grün sein, auch der neue Check für `quantity`.
+
+</Step>
+
+## Versionen vergleichen
+
+Vor einem Release willst du wissen, was sich geändert hat und ob es Consumer bricht. Die CLI vergleicht zwei Kontraktdateien.
+
+<Step id="changelog" title="Den Changelog anzeigen">
+
+```bash
+datacontract changelog orders_v1.odcs.yaml orders_v2.odcs.yaml
+```
+
+```powershell
+datacontract changelog orders_v1.odcs.yaml orders_v2.odcs.yaml
+```
+
+Du bekommst eine Zusammenfassung und eine detaillierte Liste aller Änderungen:
+
+```text
+│ Change  │ Field                                 │
+├─────────┼───────────────────────────────────────┤
+│ Updated │ id                                    │
+│ Added   │ schema.line_items.properties.quantity │
+│ Updated │ servers.postgres                      │
+│ Updated │ version                               │
+```
+
+Eine gute Grundlage für Release Notes.
+
+</Step>
+
+<Step id="breaking" title="Auf Breaking Changes prüfen">
+
+`breaking` stuft jede Änderung nach Schweregrad ein:
+
+```bash
+datacontract breaking orders_v1.odcs.yaml orders_v2.odcs.yaml
+echo "exit code: $?"
+```
+
+```powershell
+datacontract breaking orders_v1.odcs.yaml orders_v2.odcs.yaml
+echo "exit code: $LASTEXITCODE"
+```
+
+`quantity` wird als **INFO** gemeldet, Exit-Code `0`: Eine zusätzliche Spalte ist schemakompatibel.
+
+Jetzt provozierst du einen echten Breaking Change. Lege eine Kopie an, ändere den `physicalType` von `quantity` auf `text` (oder lösche `customer_id`) und vergleiche:
+
+```bash
+cp orders_v2.odcs.yaml orders_v2.before.odcs.yaml
+# jetzt orders_v2.odcs.yaml bearbeiten: physicalType von quantity auf text setzen
+datacontract breaking orders_v2.before.odcs.yaml orders_v2.odcs.yaml
+echo "exit code: $?"
+```
+
+```powershell
+Copy-Item orders_v2.odcs.yaml orders_v2.before.odcs.yaml
+# jetzt orders_v2.odcs.yaml bearbeiten: physicalType von quantity auf text setzen
+datacontract breaking orders_v2.before.odcs.yaml orders_v2.odcs.yaml
+echo "exit code: $LASTEXITCODE"
+```
+
+Diesmal gibt es einen **ERROR** und Exit-Code `1`. Dieser Exit-Code macht den Check zum Gate in CI/CD, siehe [CI/CD mit GitHub Actions](#/de/ci-cd).
+
+**Mach es rückgängig** und führe die Tests erneut aus:
+
+```bash
+mv orders_v2.before.odcs.yaml orders_v2.odcs.yaml
+datacontract test orders_v2.odcs.yaml
+```
+
+```powershell
+Move-Item -Force orders_v2.before.odcs.yaml orders_v2.odcs.yaml
+datacontract test orders_v2.odcs.yaml
+```
+
+</Step>
+
+<Callout type="concept" title="Werkzeuge sehen Schemas, nicht Consumer">
+`datacontract breaking` hält `quantity` für unproblematisch. Warum trotzdem eine neue Major-Version?
+
+Weil „breaking“ davon abhängt, wie Consumer die Daten nutzen. Ein Consumer, der `SELECT *` in eine strikte Tabelle lädt oder die exakte Spaltenliste prüft, *wird* brechen. Das Werkzeug prüft Kompatibilitätsregeln. Seine Consumer muss der Producer trotzdem kennen, und eine Major-Version ist eine bewusste, vorsichtige Entscheidung.
+
+[Consumer-driven Contracts](#/de/consumer-driven) zeigt, wie Consumer ihre tatsächlichen Abhängigkeiten explizit machen.
+</Callout>
+
+## Die Migration durchführen
+
+<Callout type="concept" title="Der Lebenszyklus eines Kontrakts">
+Eine Kontraktversion durchläuft diese Zustände:
+
+1. **`draft`**: in Arbeit, nicht darauf aufbauen
+2. **`active`**: veröffentlicht, Consumer können sich darauf verlassen
+3. **`deprecated`**: noch verfügbar, Consumer sollen migrieren; ergänze eine SLA-Property `endOfSupport` mit Datum
+4. **`retired`**: nicht mehr verfügbar
+
+Eine vollständige Migration: v2 auf `active` setzen, v1 mit Enddatum abkündigen, das im Support-Kanal ankündigen und v1 stilllegen, sobald niemand mehr darauf zugreift.
+</Callout>
+
+<Step id="deprecate" title="v1 abkündigen (zur Übung)">
+
+Setze in `orders_v1.odcs.yaml` `status: deprecated` und ergänze eine SLA-Property `endOfSupport`:
+
+```yaml
+slaProperties:
+  # ... retention, frequency
+  - property: endOfSupport
+    value: "2026-12-31"
+    description: orders_v1 is replaced by orders_v2. Please migrate until end of 2026.
+```
+
+Prüfe, dass der Kontrakt gültig bleibt: `datacontract lint orders_v1.odcs.yaml`.
+
+</Step>
+
+<Step id="migrate" title="v2 veröffentlichen und v1 stilllegen">
+
+Als Abkürzung springst du direkt zum Endzustand:
+
+- setze `orders_v2.odcs.yaml` auf `status: active`
+- setze `orders_v1.odcs.yaml` auf `status: retired`
+
+Führe die Tests für v2 ein letztes Mal aus:
+
+```bash
+datacontract test orders_v2.odcs.yaml
+```
+
+```powershell
+datacontract test orders_v2.odcs.yaml
+```
+
+<Solution title="orders_v2.odcs.yaml">
+
+```yaml file=../../../../solutions/exercise2/orders_v2.odcs.yaml
+```
+
+</Solution>
+
+</Step>
+
+<Quiz
+  question="Welche Änderung an einem aktiven Kontrakt ist für Consumer breaking?"
+  options={["Eine neue optionale Spalte hinzufügen", "Den physischen Typ einer Spalte von BIGINT auf TEXT ändern", "Einer Spalte eine Beschreibung hinzufügen"]}
+  answer={1}
+>
+Eine Typänderung bricht jeden Consumer, der sich auf den alten Typ verlässt; `datacontract breaking` meldet sie als ERROR. Optionale Spalten und Beschreibungen sind schemakompatibel (auch wenn deine Consumer das anders sehen können).
+</Quiz>
+
+## Bonus
+
+- Exportiere beide Versionen als HTML und vergleiche: `datacontract export html orders_v2.odcs.yaml --output orders_v2.odcs.html`
+- Sag den Schweregrad voraus, bevor du `datacontract breaking` ausführst: ein Feld umbenennen, `required: true` entfernen, eine neue Tabelle hinzufügen.

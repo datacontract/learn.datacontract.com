@@ -86,6 +86,6 @@ You consume the `orders_v2` contract — it guarantees you the `quantity` column
 9. Validate:
 
    ```bash
-   uvx check-jsonschema --schemafile schemas/odps-json-schema-v1.0.0.json sku_sales_per_year.odps.yaml
+   dataproduct lint sku_sales_per_year.odps.yaml
    ```
 

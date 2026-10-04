@@ -1,0 +1,182 @@
+Your view from the [previous exercise](#/en/implement) reads the producer's tables directly.
+It implicitly depends on the *whole* `orders_v2` contract, but needs only five fields.
+The orders team can't tell whether a change breaks you.
+
+Make the dependency explicit: a **consumer-driven contract** for exactly the fields you need, and views that expose only those fields.
+
+<Goals>
+- Understand consumer-driven data contracts
+- Write a contract with only what a consumer uses
+- Decouple your data product from the producer's tables with access views
+- Verify that your own consumers are unaffected
+</Goals>
+
+<Callout type="concept" title="Consumer-driven contracts">
+The **consumer** states which subset of the data it needs and which quality it expects.
+The idea comes from API testing (e.g. Pact): the producer runs the contracts of all its consumers in its own pipeline.
+So the producer knows which fields are in use and can change everything else freely.
+</Callout>
+
+<ScenarioDiagram focus="consumer" />
+
+## Define what you need
+
+<Step id="copy" title="Copy the producer's contract">
+
+Copy the `orders_v2` contract and open the copy in the editor:
+
+```bash
+cp orders_v2.odcs.yaml orders_v2.consumer_sku_sales.odcs.yaml
+datacontract edit orders_v2.consumer_sku_sales.odcs.yaml
+```
+
+```powershell
+Copy-Item orders_v2.odcs.yaml orders_v2.consumer_sku_sales.odcs.yaml
+datacontract edit orders_v2.consumer_sku_sales.odcs.yaml
+```
+
+Set the **ID** to `orders_v2_consumer_sku_sales`. Keep the **Version** at `2.0.0`, as it is based on the v2 data.
+
+</Step>
+
+<Step id="strip" title="Strip it down to what you use">
+
+Remove all properties your view doesn't use, and the quality checks on them. Keep only:
+
+- `orders`: `order_id`, `order_timestamp`
+- `line_items`: `order_id`, `sku`, `quantity`
+
+Keep the `quantity > 0` check. Your data product relies on it: otherwise `total_quantity` could be smaller than `order_count`.
+
+</Step>
+
+<Step id="owner" title="Make it your contract">
+
+This is *your* contract now, not the orders team's:
+
+- set `team` and `support` to the purchasing analytics team (as in your `sku_sales_per_year` contract),
+- rewrite `description.purpose`, e.g. "The fields the SKU Sales data product actually needs from orders_v2".
+
+</Step>
+
+<Step id="server" title="Point it to the access views">
+
+Your access views will live in a new schema `sku_sales_input`:
+
+- change the server's **Schema** to `sku_sales_input`,
+- set the `physicalType` of both schema objects to `VIEW`,
+- if the `quantity > 0` check is a SQL query, change `orders_v2.` to `sku_sales_input.` in it. Otherwise it still tests the old tables.
+
+</Step>
+
+<Step id="test-red" title="Run the tests: red again">
+
+```bash
+datacontract test orders_v2.consumer_sku_sales.odcs.yaml
+```
+
+```powershell
+datacontract test orders_v2.consumer_sku_sales.odcs.yaml
+```
+
+They fail, because the views don't exist yet. Contract-first, once more.
+
+<Solution title="orders_v2.consumer_sku_sales.odcs.yaml">
+
+```yaml file=../../../../solutions/exercise6/orders_v2.consumer_sku_sales.odcs.yaml
+```
+
+</Solution>
+
+</Step>
+
+## Create the access views
+
+<Step id="views" title="Create the views">
+
+Create `sql/sku_sales_input.sql` with views that expose only the contracted fields:
+
+```sql file=../../../../solutions/exercise6/sku_sales_input.sql
+```
+
+Apply it:
+
+```bash
+docker compose exec -T postgres psql -U workshop -d workshop < sql/sku_sales_input.sql
+```
+
+```powershell
+Get-Content sql/sku_sales_input.sql | docker compose exec -T postgres psql -U workshop -d workshop
+```
+
+</Step>
+
+<Step id="test-green" title="Run the tests: green">
+
+```bash
+datacontract test orders_v2.consumer_sku_sales.odcs.yaml
+```
+
+```powershell
+datacontract test orders_v2.consumer_sku_sales.odcs.yaml
+```
+
+</Step>
+
+## Rebase your data product
+
+<Step id="rebase" title="Read from the access views">
+
+Change `sql/sku_sales_per_year.sql` to select from `sku_sales_input.orders` and `sku_sales_input.line_items` instead of the `orders_v2` tables. Re-apply it:
+
+```bash
+docker compose exec -T postgres psql -U workshop -d workshop < sql/sku_sales_per_year.sql
+```
+
+```powershell
+Get-Content sql/sku_sales_per_year.sql | docker compose exec -T postgres psql -U workshop -d workshop
+```
+
+<Callout type="note">
+`sql/sku_sales_per_year.sql` now depends on `sql/sku_sales_input.sql`, so apply the input views first. The CI pipeline in [Part C](#/en/ci-cd) does exactly that.
+</Callout>
+
+<Solution title="sql/sku_sales_per_year.sql">
+
+```sql file=../../../../solutions/exercise6/sku_sales_per_year.sql
+```
+
+</Solution>
+
+</Step>
+
+<Step id="verify" title="Verify your consumers are unaffected">
+
+The output of your data product must not change. Your own contract proves it:
+
+```bash
+datacontract test sku_sales_per_year.odcs.yaml
+```
+
+```powershell
+datacontract test sku_sales_per_year.odcs.yaml
+```
+
+</Step>
+
+Your data product now touches only the fields in your consumer-driven contract.
+Everything else in `orders_v2` may change without breaking you.
+Even better: the orders team can run *your* contract in *their* CI pipeline and catch a breaking change before it ships. You build such a pipeline in the [next exercise](#/en/ci-cd).
+
+<Quiz
+  question="The orders team wants to drop the column customer_email_address from orders_v2. Does that break the SKU Sales data product?"
+  options={["Yes, every change to orders_v2 is breaking", "No, it is not in the consumer-driven contract, and the access views don't select it", "Only if the view uses SELECT *"]}
+  answer={1}
+>
+Right. The consumer-driven contract documents that SKU Sales needs only five fields. Running it in the producer's pipeline proves that dropping `customer_email_address` is safe for this consumer.
+</Quiz>
+
+## Bonus
+
+- Compare the producer's and the consumer's contract: `datacontract changelog orders_v2.odcs.yaml orders_v2.consumer_sku_sales.odcs.yaml`
+- Point the input port in `sku_sales_per_year.odps.yaml` to `orders_v2_consumer_sku_sales`. Should the input port reference the producer's contract or yours? Both have good arguments.

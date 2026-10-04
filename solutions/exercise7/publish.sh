@@ -56,10 +56,10 @@ EOF
 # re-run all contract tests and publish the results to the configured Entropy Data host
 export DATACONTRACT_POSTGRES_USERNAME=workshop
 export DATACONTRACT_POSTGRES_PASSWORD=workshop
-datacontract test ../exercise1/orders_v1.odcs.yaml --publish-test-results
-datacontract test ../exercise2/orders_v2.odcs.yaml --publish-test-results
-datacontract test ../exercise4/sku_sales_per_year.odcs.yaml --publish-test-results
-datacontract test ../exercise6/orders_v2.consumer_sku_sales.odcs.yaml --publish-test-results
+datacontract test ../exercise1/orders_v1.odcs.yaml --publish "${ENTROPY_DATA_HOST:-https://api.entropy-data.com}/api/test-results"
+datacontract test ../exercise2/orders_v2.odcs.yaml --publish "${ENTROPY_DATA_HOST:-https://api.entropy-data.com}/api/test-results"
+datacontract test ../exercise4/sku_sales_per_year.odcs.yaml --publish "${ENTROPY_DATA_HOST:-https://api.entropy-data.com}/api/test-results"
+datacontract test ../exercise6/orders_v2.consumer_sku_sales.odcs.yaml --publish "${ENTROPY_DATA_HOST:-https://api.entropy-data.com}/api/test-results"
 
 entropy-data datacontracts list
 entropy-data dataproducts list

@@ -1,0 +1,139 @@
+Your data contracts describe the *interface* of your data: tables, types, quality rules.
+Consumers want more: *What is this data for? Who owns it? Which versions exist, and which one should I use?*
+That is the job of the **data product**, described with the [Open Data Product Standard](https://bitol-io.github.io/open-data-product-standard/latest/) (ODPS).
+
+<Goals>
+- Understand the difference between a data product and a data contract
+- Describe the Orders data product with ODPS, including its output ports
+- Validate the description with the Data Product CLI
+</Goals>
+
+<Callout type="concept" title="Data product vs. data contract">
+A **data product** is data that a team owns and offers to others *as a product*: with a purpose, an owner, support, and a lifecycle.
+It offers its data through **output ports**, each described by a **data contract**.
+
+There is **one** Orders data product, even though it offers **two** contract versions (`orders_v1` and `orders_v2`).
+The product is the stable unit of ownership. Its ports and contracts evolve.
+</Callout>
+
+<ScenarioDiagram focus="a" />
+
+## Create the data product
+
+<Step id="create" title="Create the file">
+
+The Data Product CLI creates a starter file:
+
+```bash
+dataproduct init orders.odps.yaml
+```
+
+```powershell
+dataproduct init orders.odps.yaml
+```
+
+Open `orders.odps.yaml` in your IDE. It contains placeholders and commented-out sections.
+Replace the top part with the fundamentals of your Orders product:
+
+```yaml
+apiVersion: v1.0.0
+kind: DataProduct
+id: orders
+name: Orders
+version: 1.0.0 # the version of the data product, independent of the contract versions
+status: active
+domain: ecommerce
+description:
+  purpose: # what is this data product for?
+  limitations: # what should consumers know before using it?
+```
+
+Replace the `purpose` and `limitations` comments with real text: what does a consumer need to know before requesting access?
+
+</Step>
+
+<Step id="output-ports" title="Add the output ports">
+
+Add one **output port** per data contract. The `contractId` must match the contract's `id`:
+
+```yaml
+outputPorts:
+  - name: orders_v1
+    description: Orders and line items tables in PostgreSQL (v1, superseded by v2)
+    version: 1.0.0
+    contractId: orders_v1
+  - name: orders_v2
+    description: # ...
+    version: 2.0.0
+    contractId: orders_v2
+```
+
+Write the description for `orders_v2` yourself. Remove the example output port from `dataproduct init`.
+
+</Step>
+
+<Step id="team" title="Add team and support">
+
+Add `team` and `support`. Reuse what you defined in your contracts:
+
+```yaml
+team:
+  name: order_data_team
+  members:
+    - username: owner@example.com
+      role: Owner
+
+support:
+  - channel: "#order-data-help"
+    url: https://example.slack.com/archives/order-data-help
+    tool: slack
+```
+
+</Step>
+
+## Validate
+
+<Step id="lint" title="Lint the data product">
+
+Validate against the official ODPS JSON schema:
+
+```bash
+dataproduct lint orders.odps.yaml
+```
+
+```powershell
+dataproduct lint orders.odps.yaml
+```
+
+```text
+🟢 Data product is valid.
+```
+
+Make it fail once: change `kind: DataProduct` to `kind: DataProdukt` and lint again. The CLI names the wrong field and exits with code `1`. Revert afterwards.
+
+<Solution title="orders.odps.yaml">
+
+```yaml file=../../../../solutions/exercise3/orders.odps.yaml
+```
+
+</Solution>
+
+</Step>
+
+<Callout type="note" title="Lint vs. test">
+`dataproduct lint` checks that the file is *well-formed* according to the standard. It doesn't connect to a database.
+Whether the data behind an output port keeps its promise is checked by `datacontract test` on the contract.
+</Callout>
+
+<Quiz
+  question="Your Orders product releases orders_v3 next year. What changes in orders.odps.yaml?"
+  options={["You create a new data product orders_v3", "You add an output port that references the orders_v3 contract", "Nothing, the data product doesn't know about contracts"]}
+  answer={1}
+>
+The data product stays the same: it is the stable unit of ownership. A new contract version becomes a new output port. Old ports are removed once their contracts are retired.
+</Quiz>
+
+## Bonus
+
+- `orders_v1` is `retired`. Should its output port stay in the product description? Weigh transparency for existing consumers against a clean catalog.
+- Add `tags` to the data product, e.g. `['orders', 'ecommerce']`, and lint again.

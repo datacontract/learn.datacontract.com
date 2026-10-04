@@ -1,0 +1,296 @@
+The business wants to know *how many* units of an item are bought per order.
+The orders team adds a column `quantity` to `line_items`, defaulting to 1.
+Harmless? Not for a pipeline that expects exactly three columns, e.g. a `SELECT *` into a fixed target table.
+So you release the change as a **new major version**: `orders_v2`, in its own database schema, next to `orders_v1`.
+
+<Goals>
+- Release a change as a new major version of a data contract
+- Compare two versions with `datacontract changelog` and `datacontract breaking`
+- Understand what counts as a breaking change, and where tools reach their limits
+- Walk through the contract lifecycle: draft → active → deprecated → retired
+</Goals>
+
+<Callout type="concept" title="Breaking vs. non-breaking changes">
+A change is **breaking** when a consumer that worked yesterday can fail today without changing anything. Typical breaking changes:
+
+- **removing or renaming** a field or table
+- **changing a type**, e.g. `BIGINT` → `TEXT`
+- **weakening a guarantee**, e.g. a `required` field becomes optional, or a quality rule is relaxed
+
+Adding an optional field, improving descriptions, or adding quality checks are typically **non-breaking**.
+
+Contracts use **semantic versioning**: breaking changes bump the **major** version (`1.x` → `2.0.0`), compatible additions the minor version, fixes the patch version.
+</Callout>
+
+## Look at the new data
+
+<Step id="explore" title="Explore the orders_v2 schema">
+
+The `orders_v2` schema holds both tables: `orders` is unchanged, `line_items` has the new `quantity` column.
+
+```bash
+docker compose exec postgres psql -U workshop -d workshop
+```
+
+```powershell
+docker compose exec postgres psql -U workshop -d workshop
+```
+
+```sql
+\dt orders_v2.*
+SELECT * FROM orders_v2.line_items LIMIT 5;
+```
+
+You should see something like this:
+
+```text
+            lines_item_id             |               order_id               |      sku      | quantity
+--------------------------------------+--------------------------------------+---------------+----------
+ 94aa82c8-50ba-47fb-994a-9b041b4127af | a8c38fec-2acd-4b55-883b-4b48572d4a26 | D3KT74L5EV46T |        1
+ d67c963f-42a4-4aa8-afff-d7869008e3a9 | 9e44da97-4f72-4bcf-821a-9d9500d06651 | E202K62FT     |        3
+ 270ad2c1-f651-438e-a81a-d77713c1d3a3 | 8fc4621c-66ae-4031-91f1-5313beb9f541 | 1O7RID9Y5QJ   |        1
+```
+
+Leave the prompt with `\q`.
+
+</Step>
+
+## Create v2
+
+<Step id="copy" title="Copy the contract">
+
+Copy your v1 contract and open the copy in the editor:
+
+```bash
+cp orders_v1.odcs.yaml orders_v2.odcs.yaml
+datacontract edit orders_v2.odcs.yaml
+```
+
+```powershell
+Copy-Item orders_v1.odcs.yaml orders_v2.odcs.yaml
+datacontract edit orders_v2.odcs.yaml
+```
+
+</Step>
+
+<Step id="fundamentals" title="Bump the version">
+
+In **Fundamentals**, set the new major version:
+
+| Field | Value |
+|---|---|
+| ID | `orders_v2` |
+| Version | `2.0.0` |
+| Status | `draft` |
+
+The ID changes with the major version: consumers switch to `orders_v2` deliberately, and `orders_v1` stays available until they have migrated.
+
+</Step>
+
+<Step id="server" title="Point the server to orders_v2">
+
+In **Servers**, change the **Schema** to `orders_v2`.
+
+Then replace `orders_v1.` with `orders_v2.` in all SQL **quality checks** (e.g. the `customer_email_address` check). Otherwise they keep testing the old tables.
+
+<Callout type="tip">
+A search-and-replace `orders_v1.` → `orders_v2.` in your IDE does it in one go. Then check `id:` and the server's `schema:`.
+</Callout>
+
+</Step>
+
+<Step id="quantity" title="Add the quantity column">
+
+In **Schemas → `line_items`**, add the new property:
+
+| Property | Logical Type | Physical Type |
+|---|---|---|
+| `quantity` | `integer` | `BIGINT` |
+
+Add a quality check that `quantity` is always greater than 0. Use the "count the bad rows, expect zero" pattern.
+
+<Solution title="quantity property">
+
+```yaml
+- name: quantity
+  physicalType: bigint
+  logicalType: integer
+  quality:
+    - type: sql
+      description: Ensure quantity is positive
+      query: SELECT COUNT(*) FROM orders_v2.line_items WHERE quantity <= 0;
+      mustBe: 0
+```
+
+</Solution>
+
+</Step>
+
+<Step id="test" title="Test v2">
+
+Save and run the tests:
+
+```bash
+datacontract test orders_v2.odcs.yaml
+```
+
+```powershell
+datacontract test orders_v2.odcs.yaml
+```
+
+All checks should pass, including the new `quantity` check.
+
+</Step>
+
+## Compare the versions
+
+Before a release, you want to know what changed and whether it breaks consumers. The CLI compares two contract files.
+
+<Step id="changelog" title="Show the changelog">
+
+```bash
+datacontract changelog orders_v1.odcs.yaml orders_v2.odcs.yaml
+```
+
+```powershell
+datacontract changelog orders_v1.odcs.yaml orders_v2.odcs.yaml
+```
+
+You get a summary and a detailed list of all changes:
+
+```text
+│ Change  │ Field                                 │
+├─────────┼───────────────────────────────────────┤
+│ Updated │ id                                    │
+│ Added   │ schema.line_items.properties.quantity │
+│ Updated │ servers.postgres                      │
+│ Updated │ version                               │
+```
+
+A good base for release notes.
+
+</Step>
+
+<Step id="breaking" title="Check for breaking changes">
+
+`breaking` classifies each change by severity:
+
+```bash
+datacontract breaking orders_v1.odcs.yaml orders_v2.odcs.yaml
+echo "exit code: $?"
+```
+
+```powershell
+datacontract breaking orders_v1.odcs.yaml orders_v2.odcs.yaml
+echo "exit code: $LASTEXITCODE"
+```
+
+Adding `quantity` is **INFO**, exit code `0`: adding a column is schema-compatible.
+
+Now provoke a real breaking change. Keep a copy, change the `physicalType` of `quantity` to `text` (or delete `customer_id`), and compare:
+
+```bash
+cp orders_v2.odcs.yaml orders_v2.before.odcs.yaml
+# now edit orders_v2.odcs.yaml: change quantity's physicalType to text
+datacontract breaking orders_v2.before.odcs.yaml orders_v2.odcs.yaml
+echo "exit code: $?"
+```
+
+```powershell
+Copy-Item orders_v2.odcs.yaml orders_v2.before.odcs.yaml
+# now edit orders_v2.odcs.yaml: change quantity's physicalType to text
+datacontract breaking orders_v2.before.odcs.yaml orders_v2.odcs.yaml
+echo "exit code: $LASTEXITCODE"
+```
+
+This time you get an **ERROR** and exit code `1`. That exit code turns the check into a CI/CD gate, see [CI/CD with GitHub Actions](#/en/ci-cd).
+
+**Revert** and run the tests again:
+
+```bash
+mv orders_v2.before.odcs.yaml orders_v2.odcs.yaml
+datacontract test orders_v2.odcs.yaml
+```
+
+```powershell
+Move-Item -Force orders_v2.before.odcs.yaml orders_v2.odcs.yaml
+datacontract test orders_v2.odcs.yaml
+```
+
+</Step>
+
+<Callout type="concept" title="Tools see schemas, not consumers">
+`datacontract breaking` says adding `quantity` is fine. Why a new major version anyway?
+
+Because "breaking" depends on how consumers use the data. A consumer that loads `SELECT *` into a strict table, or validates the exact column list, *will* break. The tool checks compatibility rules. The producer still has to know their consumers, and releasing a major version is a deliberate, conservative decision.
+
+[Consumer-Driven Contracts](#/en/consumer-driven) shows how consumers make their actual dependencies explicit.
+</Callout>
+
+## Execute the migration
+
+<Callout type="concept" title="The contract lifecycle">
+A contract version goes through these states:
+
+1. **`draft`**: work in progress, don't build on it
+2. **`active`**: released, consumers can rely on it
+3. **`deprecated`**: still served, consumers should migrate; add an `endOfSupport` SLA property with a date
+4. **`retired`**: no longer served
+
+A full migration: set v2 to `active`, deprecate v1 with an end-of-support date, announce it in the support channel, and retire v1 once nobody queries it.
+</Callout>
+
+<Step id="deprecate" title="Deprecate v1 (practice)">
+
+In `orders_v1.odcs.yaml`, set `status: deprecated` and add an `endOfSupport` SLA property:
+
+```yaml
+slaProperties:
+  # ... retention, frequency
+  - property: endOfSupport
+    value: "2026-12-31"
+    description: orders_v1 is replaced by orders_v2. Please migrate until end of 2026.
+```
+
+Check that the contract is still valid: `datacontract lint orders_v1.odcs.yaml`.
+
+</Step>
+
+<Step id="migrate" title="Release v2 and retire v1">
+
+As a shortcut, jump to the end state:
+
+- set `orders_v2.odcs.yaml` to `status: active`
+- set `orders_v1.odcs.yaml` to `status: retired`
+
+Run the v2 tests one last time:
+
+```bash
+datacontract test orders_v2.odcs.yaml
+```
+
+```powershell
+datacontract test orders_v2.odcs.yaml
+```
+
+<Solution title="orders_v2.odcs.yaml">
+
+```yaml file=../../../../solutions/exercise2/orders_v2.odcs.yaml
+```
+
+</Solution>
+
+</Step>
+
+<Quiz
+  question="Which change to an active contract is breaking for consumers?"
+  options={["Adding a new optional column", "Changing a column's physical type from BIGINT to TEXT", "Adding a description to a column"]}
+  answer={1}
+>
+A type change breaks every consumer that relies on the old type; `datacontract breaking` reports it as ERROR. Optional columns and descriptions are schema-compatible (though your consumers might still disagree).
+</Quiz>
+
+## Bonus
+
+- Export both versions as HTML and compare: `datacontract export html orders_v2.odcs.yaml --output orders_v2.odcs.html`
+- Predict the severity before running `datacontract breaking`: rename a field, remove `required: true`, add a new table.

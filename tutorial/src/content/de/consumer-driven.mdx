@@ -1,0 +1,182 @@
+Deine View aus der [vorigen Übung](#/de/implement) liest direkt die Tabellen des Produzenten.
+Sie hängt implizit vom *gesamten* `orders_v2`-Kontrakt ab, braucht aber nur fünf Felder.
+Das Orders-Team kann nicht erkennen, ob eine Änderung dich bricht.
+
+Mach die Abhängigkeit explizit: ein **Consumer-driven Contract** für genau die Felder, die du brauchst, und Views, die nur diese Felder bereitstellen.
+
+<Goals>
+- Consumer-driven Data Contracts verstehen
+- Einen Kontrakt schreiben, der nur enthält, was ein Konsument nutzt
+- Dein Datenprodukt mit Zugriffs-Views von den Tabellen des Produzenten entkoppeln
+- Prüfen, dass deine eigenen Konsumenten nicht betroffen sind
+</Goals>
+
+<Callout type="concept" title="Consumer-driven Contracts">
+Der **Konsument** legt fest, welchen Ausschnitt der Daten er braucht und welche Qualität er erwartet.
+Die Idee stammt aus dem API-Testing (z. B. Pact): Der Produzent führt die Kontrakte aller Konsumenten in seiner eigenen Pipeline aus.
+So weiß er, welche Felder genutzt werden, und kann alles andere frei ändern.
+</Callout>
+
+<ScenarioDiagram focus="consumer" />
+
+## Festlegen, was du brauchst
+
+<Step id="copy" title="Kontrakt des Produzenten kopieren">
+
+Kopiere den `orders_v2`-Kontrakt und öffne die Kopie im Editor:
+
+```bash
+cp orders_v2.odcs.yaml orders_v2.consumer_sku_sales.odcs.yaml
+datacontract edit orders_v2.consumer_sku_sales.odcs.yaml
+```
+
+```powershell
+Copy-Item orders_v2.odcs.yaml orders_v2.consumer_sku_sales.odcs.yaml
+datacontract edit orders_v2.consumer_sku_sales.odcs.yaml
+```
+
+Setze die **ID** auf `orders_v2_consumer_sku_sales`. Lass die **Version** bei `2.0.0`, da der Kontrakt auf den v2-Daten basiert.
+
+</Step>
+
+<Step id="strip" title="Auf das Genutzte reduzieren">
+
+Entferne alle Properties, die deine View nicht nutzt, samt ihren Quality Checks. Behalte nur:
+
+- `orders`: `order_id`, `order_timestamp`
+- `line_items`: `order_id`, `sku`, `quantity`
+
+Behalte den Check `quantity > 0`. Dein Datenprodukt verlässt sich darauf: Sonst könnte `total_quantity` kleiner als `order_count` sein.
+
+</Step>
+
+<Step id="owner" title="Mach ihn zu deinem Kontrakt">
+
+Das ist jetzt *dein* Kontrakt, nicht der des Orders-Teams:
+
+- setze `team` und `support` auf das Purchasing-Analytics-Team (wie in deinem `sku_sales_per_year`-Kontrakt),
+- formuliere `description.purpose` neu, z. B. „The fields the SKU Sales data product actually needs from orders_v2“.
+
+</Step>
+
+<Step id="server" title="Auf die Zugriffs-Views zeigen">
+
+Deine Zugriffs-Views liegen in einem neuen Schema `sku_sales_input`:
+
+- ändere das **Schema** des Servers auf `sku_sales_input`,
+- setze den `physicalType` beider Schema-Objekte auf `VIEW`,
+- falls der Check `quantity > 0` eine SQL-Query ist, ändere darin `orders_v2.` in `sku_sales_input.`. Sonst testet er weiter die alten Tabellen.
+
+</Step>
+
+<Step id="test-red" title="Tests ausführen: wieder rot">
+
+```bash
+datacontract test orders_v2.consumer_sku_sales.odcs.yaml
+```
+
+```powershell
+datacontract test orders_v2.consumer_sku_sales.odcs.yaml
+```
+
+Sie schlagen fehl, weil es die Views noch nicht gibt. Contract-first, schon wieder.
+
+<Solution title="orders_v2.consumer_sku_sales.odcs.yaml">
+
+```yaml file=../../../../solutions/exercise6/orders_v2.consumer_sku_sales.odcs.yaml
+```
+
+</Solution>
+
+</Step>
+
+## Zugriffs-Views anlegen
+
+<Step id="views" title="Views anlegen">
+
+Lege `sql/sku_sales_input.sql` mit Views an, die nur die vereinbarten Felder bereitstellen:
+
+```sql file=../../../../solutions/exercise6/sku_sales_input.sql
+```
+
+Wende sie an:
+
+```bash
+docker compose exec -T postgres psql -U workshop -d workshop < sql/sku_sales_input.sql
+```
+
+```powershell
+Get-Content sql/sku_sales_input.sql | docker compose exec -T postgres psql -U workshop -d workshop
+```
+
+</Step>
+
+<Step id="test-green" title="Tests ausführen: grün">
+
+```bash
+datacontract test orders_v2.consumer_sku_sales.odcs.yaml
+```
+
+```powershell
+datacontract test orders_v2.consumer_sku_sales.odcs.yaml
+```
+
+</Step>
+
+## Dein Datenprodukt umstellen
+
+<Step id="rebase" title="Aus den Zugriffs-Views lesen">
+
+Ändere `sql/sku_sales_per_year.sql`, sodass die View aus `sku_sales_input.orders` und `sku_sales_input.line_items` liest statt aus den `orders_v2`-Tabellen. Wende sie erneut an:
+
+```bash
+docker compose exec -T postgres psql -U workshop -d workshop < sql/sku_sales_per_year.sql
+```
+
+```powershell
+Get-Content sql/sku_sales_per_year.sql | docker compose exec -T postgres psql -U workshop -d workshop
+```
+
+<Callout type="note">
+`sql/sku_sales_per_year.sql` hängt jetzt von `sql/sku_sales_input.sql` ab, wende also zuerst die Input-Views an. Die CI-Pipeline in [Teil C](#/de/ci-cd) macht genau das.
+</Callout>
+
+<Solution title="sql/sku_sales_per_year.sql">
+
+```sql file=../../../../solutions/exercise6/sku_sales_per_year.sql
+```
+
+</Solution>
+
+</Step>
+
+<Step id="verify" title="Prüfen, dass deine Konsumenten nicht betroffen sind">
+
+Die Ausgabe deines Datenprodukts darf sich nicht ändern. Dein eigener Kontrakt beweist es:
+
+```bash
+datacontract test sku_sales_per_year.odcs.yaml
+```
+
+```powershell
+datacontract test sku_sales_per_year.odcs.yaml
+```
+
+</Step>
+
+Dein Datenprodukt berührt jetzt nur die Felder aus deinem Consumer-driven Contract.
+Alles andere in `orders_v2` darf sich ändern, ohne dich zu brechen.
+Noch besser: Das Orders-Team kann *deinen* Kontrakt in *seiner* CI-Pipeline ausführen und einen Breaking Change abfangen, bevor er live geht. So eine Pipeline baust du in der [nächsten Übung](#/de/ci-cd).
+
+<Quiz
+  question="Das Orders-Team will die Spalte customer_email_address aus orders_v2 entfernen. Bricht das das Datenprodukt SKU Sales?"
+  options={["Ja, jede Änderung an orders_v2 ist breaking", "Nein, sie ist nicht im Consumer-driven Contract, und die Zugriffs-Views selektieren sie nicht", "Nur wenn die View SELECT * nutzt"]}
+  answer={1}
+>
+Richtig. Der Consumer-driven Contract dokumentiert, dass SKU Sales nur fünf Felder braucht. Läuft er in der Pipeline des Produzenten, ist belegt, dass das Entfernen von `customer_email_address` für diesen Konsumenten sicher ist.
+</Quiz>
+
+## Bonus
+
+- Vergleiche den Kontrakt des Produzenten mit dem des Konsumenten: `datacontract changelog orders_v2.odcs.yaml orders_v2.consumer_sku_sales.odcs.yaml`
+- Lass den Input-Port in `sku_sales_per_year.odps.yaml` auf `orders_v2_consumer_sku_sales` zeigen. Sollte der Input-Port auf den Kontrakt des Produzenten verweisen oder auf deinen? Für beides gibt es gute Argumente.

@@ -1,0 +1,88 @@
+Jede Datenpipeline beruht auf einem Versprechen: *Die Daten sehen morgen auch noch so aus.*
+Meist ist dieses Versprechen implizit. Es bricht unbemerkt, wenn eine Spalte umbenannt wird, sich ein Typ ändert oder eine Tabelle verschwindet.
+**Datenkontrakte** machen das Versprechen explizit, maschinenlesbar und testbar.
+
+In diesem Tutorial arbeitest du ein realistisches Szenario komplett durch, auf deinem Laptop, in deinem Tempo.
+
+<Goals>
+- Einen bestehenden PostgreSQL-Datenbestand mit dem **Open Data Contract Standard (ODCS)** unter Vertrag nehmen und testen
+- Einen Kontrakt mit Versionierung und Migrations-Lebenszyklus sicher weiterentwickeln
+- Datenprodukte mit dem **Open Data Product Standard (ODPS)** beschreiben
+- Ein neues Datenprodukt **contract-first** entwerfen und implementieren, optional mit einem KI-Coding-Agenten
+- Abhängigkeiten mit **Consumer-driven Contracts** explizit machen
+- Alles in **CI/CD mit GitHub Actions** laufen lassen und Breaking Changes vor der Auslieferung stoppen
+</Goals>
+
+## Was ist ein Datenkontrakt?
+
+<Callout type="concept" title="Datenkontrakt">
+Ein Datenkontrakt beschreibt **Struktur, Bedeutung, Qualität und Nutzungsbedingungen** eines Datenbestands. Er ist in YAML geschrieben, liegt in Git und wird zwischen Produzent und Konsumenten vereinbart.
+Weil er maschinenlesbar ist, können Werkzeuge die echten Daten dagegen testen, Dokumentation und Code generieren und Breaking Changes erkennen.
+</Callout>
+
+Stell es dir vor wie eine API-Spezifikation (etwa OpenAPI), nur für Daten.
+Ein Kontrakt beantwortet:
+
+- **Schema**: Welche Tabellen und Spalten gibt es, mit welchen Typen?
+- **Semantik**: Was bedeutet `order_total`? In welcher Einheit?
+- **Qualität**: Welche Regeln müssen die Daten erfüllen, z. B. „keine negativen Summen“?
+- **Ownership & Support**: Wer ist verantwortlich, und wo bekomme ich Hilfe?
+- **Service Levels**: Wie aktuell sind die Daten, und wie lange werden sie aufbewahrt?
+
+## Zwei offene Standards
+
+Beide Standards entstehen offen bei [Bitol](https://bitol.io), einem Projekt der Linux Foundation.
+
+| | **ODCS**: Open Data Contract Standard | **ODPS**: Open Data Product Standard |
+|---|---|---|
+| Beschreibt | die *Schnittstelle* eines Datenbestands | das *Produkt* hinter einer oder mehreren Schnittstellen |
+| Enthält | Schema, Qualitätsregeln, Server, SLAs, Team | Zweck, Ownership, Input- und Output-Ports |
+| Datei | `orders_v1.odcs.yaml` | `orders.odps.yaml` |
+
+Ein Datenprodukt bietet seine Daten über **Output-Ports** an, jeder beschrieben durch einen Datenkontrakt.
+Baut ein Datenprodukt auf anderen auf, deklariert es das über **Input-Ports**.
+
+## Das Szenario
+
+Du arbeitest für ein E-Commerce-Unternehmen.
+In **Teil A** bist du Owner der **Orders**-Daten: zwei PostgreSQL-Tabellen, `orders` und `line_items`.
+Du nimmst sie unter Vertrag, veröffentlichst einen Breaking Change als neue Version und beschreibst das Datenprodukt.
+
+In **Teil B** wechselst du die Seite. Das **Einkaufsteam** will wissen, wie oft jede SKU pro Jahr verkauft wird, um mit Lieferanten zu verhandeln.
+Du entwirfst ein consumer-aligned Datenprodukt, **SKU Sales**, auf Basis von Orders (contract-first) und implementierst es als SQL-View.
+
+<ScenarioDiagram />
+
+In **Teil C** automatisierst du alles in deinem GitHub-Fork: Jeder Push testet alle Kontrakte, jeder Pull Request wird auf Breaking Changes geprüft.
+**Teil D** ist optional: Du veröffentlichst alles auf einer Datenproduktplattform und verknüpfst deine Kontrakte mit fachlichen Begriffen.
+
+## Die Werkzeuge
+
+Alle Werkzeuge sind Open Source und laufen lokal:
+
+- **[Data Contract CLI](https://cli.datacontract.com)** (`datacontract`): Datenkontrakte erstellen, bearbeiten, linten, testen und vergleichen
+- **[Data Product CLI](https://github.com/entropy-data/dataproduct-cli)** (`dataproduct`): ODPS-Datenprodukte erstellen und linten
+- **Data Contract Editor**: ein visueller Editor, den `datacontract edit` im Browser öffnet
+- **PostgreSQL** in Docker: die Datenbank mit den Beispieldaten
+- **Entropy Data CLI** (`entropy-data`): nur für den optionalen Teil D
+
+## So funktioniert dieses Tutorial
+
+Jede Übung besteht aus **Schritten**.
+Markiere einen Schritt als erledigt, wenn du fertig bist. Erledigte Schritte klappen zu, dein Fortschritt wird in diesem Browser gespeichert.
+Befehle haben einen Kopieren-Button. Wo sich macOS/Linux und Windows unterscheiden, schaltest du per Tab um (die Auswahl wird gemerkt).
+
+Du hängst fest? Die meisten Übungen haben einen Button **Lösung anzeigen**. Probier es zuerst selbst.
+
+<Quiz
+  question="Welcher Standard beschreibt die Schnittstelle eines einzelnen Datenbestands, inklusive Schema und Qualitätsregeln?"
+  options={["ODPS: Open Data Product Standard", "ODCS: Open Data Contract Standard", "OpenAPI"]}
+  answer={1}
+>
+Richtig. ODCS beschreibt die Schnittstelle (Schema, Qualität, SLAs) eines Datenbestands. ODPS beschreibt das Datenprodukt, das eine oder mehrere dieser Schnittstellen über seine Ports anbietet.
+</Quiz>
+
+**Voraussetzungen:** Grundkenntnisse in YAML und SQL. Plane etwa 5–6 Stunden für die Teile A–C ein, plus etwa eine Stunde für den optionalen Teil D.
+Du musst nicht alles an einem Stück machen.
+
+Bereit? Dann richten wir deine Umgebung ein.

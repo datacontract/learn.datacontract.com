@@ -1,0 +1,56 @@
+You made it! Look back at what you built, and think about how it applies to your own data.
+
+## What you built
+
+<ScenarioDiagram />
+
+- **A source data product with contracts.** You put the `orders` tables under an ODCS contract, made it testable, and added semantics, quality rules, ownership, and service levels.
+- **Safe evolution.** You shipped a breaking change as a new major version (`orders_v2`) and went through the migration lifecycle.
+- **Data products.** You described Orders and SKU Sales with ODPS, including input and output ports.
+- **Contract-first development.** You designed SKU Sales before writing SQL and used the failing tests as the specification, for yourself or an AI agent.
+- **Consumer-driven contracts.** You made explicit which fields you depend on.
+- **Automation.** GitHub Actions tests every change and stops breaking changes in pull requests.
+- If you did Part D: **a platform** where other teams discover your data products, and **semantics** that define your business language once.
+
+<Callout type="concept" title="The big idea">
+A data contract turns an implicit promise into an explicit, testable one. Once it is machine-readable, the rest follows: documentation, tests, CI gates, discovery, and code generation.
+</Callout>
+
+## Reflect
+
+<Step id="reflect" title="Apply it to your own data">
+
+Take five minutes and write down short answers. They make a good first draft of a proposal for your team.
+
+1. **Which dataset in your company would benefit first from a contract?** Think of data that many teams use, that breaks often, or that feeds critical reports.
+2. **Who would own the contract?** Who answers questions about the data, and who decides about changes?
+3. **Who are the consumers?** Do the owners know them today?
+4. **Where would the contract tests run?** In the producer's pipeline, in CI on every change, on a schedule?
+5. **What is the first quality rule you would write?** What went wrong recently that a test would have caught?
+
+</Step>
+
+## How to get started in your organization
+
+- **Start small.** Put one important dataset under contract, as you did with Orders. One contract tested every day convinces more than a big rollout plan.
+- **Go contract-first for new data products.** Agree on the interface with your consumers before you build. It costs little and saves rework.
+- **Put contracts in Git and test them in CI.** An untested contract goes stale like any other documentation.
+- **Make breaking changes visible.** Run `datacontract breaking` in pull requests, and release breaking changes as new major versions with a migration period.
+- **Let consumers speak up.** Consumer-driven contracts show producers what really matters.
+
+## Go further
+
+- [Open Data Contract Standard (ODCS)](https://bitol-io.github.io/open-data-contract-standard/) and [Open Data Product Standard (ODPS)](https://bitol-io.github.io/open-data-product-standard/): the full specifications
+- [Data Contract CLI](https://cli.datacontract.com): all commands, importers, and exporters ([GitHub](https://github.com/datacontract/datacontract-cli))
+- [Data Product CLI](https://github.com/entropy-data/dataproduct-cli): lint and publish ODPS data products
+- [Data Contract Editor](https://editor.datacontract.com): the visual editor in your browser, no installation needed
+- [Entropy Data docs](https://docs.entropy-data.com): the data product platform from Part D
+
+<Step id="feedback" title="Share your feedback">
+
+Something didn't work? A step was unclear? An idea for an exercise?
+[Open an issue on GitHub](https://github.com/datacontract/odcs-odps-workshop/issues). Every bit of feedback improves the tutorial.
+
+</Step>
+
+Thanks for working through the tutorial, and good luck with your first data contract in production!

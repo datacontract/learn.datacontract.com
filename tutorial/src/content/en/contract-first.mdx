@@ -1,0 +1,201 @@
+The **purchasing team** wants to know how often each SKU is bought per year, to negotiate better deals with suppliers.
+You build them a new data product on top of Orders: **SKU Sales**.
+
+This time you work **contract-first**: you design the data contract and the data product description before writing any SQL.
+The contract is the specification. You implement it in the [next exercise](#/en/implement).
+
+<Goals>
+- Design a data contract for a data product that does not exist yet
+- Express the semantics of a view as quality checks
+- Describe a consumer-aligned data product with input and output ports
+- Understand why failing tests are the expected starting point
+</Goals>
+
+<ScenarioDiagram focus="b" />
+
+<Callout type="concept" title="Contract-first">
+The interface comes before the implementation, like an OpenAPI spec before the API.
+Consumers review the contract *before* any work is done, and its tests tell you when the implementation is complete: **red → green**.
+</Callout>
+
+## Design the contract
+
+<Step id="create" title="Create the contract file">
+
+Create a new contract and open it in the editor. Confirm when the CLI asks to create the file.
+
+```bash
+datacontract edit sku_sales_per_year.odcs.yaml
+```
+
+```powershell
+datacontract edit sku_sales_per_year.odcs.yaml
+```
+
+Set the fundamentals:
+
+| Field | Value |
+|---|---|
+| Name | `SKU Sales per Year` |
+| ID | `sku_sales_per_year` |
+| Version | `1.0.0` |
+| Status | `draft` |
+
+</Step>
+
+<Step id="server" title="Add the server">
+
+The view will live in a new schema `analytics` in the same database. Add a **Server**:
+
+| Field | Value |
+|---|---|
+| Server | `postgres` |
+| Type | `postgres` |
+| Host | `localhost` |
+| Port | `5433` |
+| Database | `workshop` |
+| Schema | `analytics` |
+
+</Step>
+
+<Step id="schema" title="Describe the schema">
+
+Add a **Schema** `sku_sales_per_year`, set **Advanced Metadata → Physical Type** to `VIEW`, and add these properties:
+
+| Property | Logical Type | Physical Type | Meaning |
+|---|---|---|---|
+| `sku` | `string` | `TEXT` | The product SKU |
+| `year` | `integer` | `INTEGER` | Year of the order |
+| `order_count` | `integer` | `BIGINT` | How many orders contained the SKU |
+| `total_quantity` | `integer` | `BIGINT` | Total units bought |
+
+Put the meaning into each property's **Description**. That is what the purchasing team reads.
+
+</Step>
+
+<Step id="quality" title="Capture the semantics as quality checks">
+
+The schema says *which* columns exist. Quality checks say what must be *true* about them. Add checks such as:
+
+- The combination of `sku` and `year` is unique
+- `total_quantity` is never less than `order_count`
+- The view is not empty
+
+Use "count the bad rows, expect zero", as in [Exercise 1](#/en/contract):
+
+```yaml
+quality:
+  - type: sql
+    description: Ensure total_quantity is at least order_count
+    query: SELECT COUNT(*) FROM analytics.sku_sales_per_year WHERE total_quantity < order_count;
+    mustBe: 0
+```
+
+<Callout type="tip">
+Uniqueness over two columns: `GROUP BY ... HAVING COUNT(*) > 1` in a subquery. Put checks spanning several columns on the schema level (`schema[].quality`), not on a single property.
+</Callout>
+
+</Step>
+
+<Step id="test-red" title="Run the tests and watch them fail">
+
+Save and run the tests:
+
+```bash
+datacontract test sku_sales_per_year.odcs.yaml
+```
+
+```powershell
+datacontract test sku_sales_per_year.odcs.yaml
+```
+
+The tests **fail**, of course: nothing is implemented yet. That is the point. The purchasing team can review the interface while you turn the tests green in the next exercise.
+
+<Solution title="sku_sales_per_year.odcs.yaml">
+
+```yaml file=../../../../solutions/exercise4/sku_sales_per_year.odcs.yaml
+```
+
+</Solution>
+
+</Step>
+
+## Describe the data product
+
+<Callout type="concept" title="Source-aligned vs. consumer-aligned">
+**Orders** is *source-aligned*: it exposes data close to the system that creates it.
+**SKU Sales** is *consumer-aligned*: built for a specific use case of a specific consumer.
+A consumer-aligned product declares the data it builds on through **input ports**, each pointing to the contract it relies on.
+</Callout>
+
+<Step id="odps" title="Create the data product file">
+
+Create `sku_sales_per_year.odps.yaml` with the same structure as in [Exercise 3](#/en/data-product):
+
+| Field | Value |
+|---|---|
+| `id` | `sku_sales` |
+| `name` | `SKU Sales` |
+| `version` | `1.0.0` |
+| `status` | `draft` |
+| `domain` | `ecommerce` |
+
+Add a `description` with `purpose`, plus `team` and `support` for the purchasing analytics team (e.g. `purchasing_analytics_team`).
+
+</Step>
+
+<Step id="output-port" title="Add the output port">
+
+The product offers one output port, described by your new contract:
+
+```yaml
+outputPorts:
+  - name: sku_sales_per_year
+    description: Aggregated SKU sales per year as a PostgreSQL view
+    version: 1.0.0
+    contractId: sku_sales_per_year
+```
+
+</Step>
+
+<Step id="input-port" title="Add the input port">
+
+Declare which data (and which guarantees) your product builds on. You consume `orders_v2`, because only v2 has `quantity`:
+
+```yaml
+inputPorts:
+  - name: orders
+    version: 2.0.0
+    contractId: orders_v2
+```
+
+</Step>
+
+<Step id="lint" title="Lint the data product">
+
+Validate against the ODPS standard:
+
+```bash
+dataproduct lint sku_sales_per_year.odps.yaml
+```
+
+```powershell
+dataproduct lint sku_sales_per_year.odps.yaml
+```
+
+<Solution title="sku_sales_per_year.odps.yaml">
+
+```yaml file=../../../../solutions/exercise4/sku_sales_per_year.odps.yaml
+```
+
+</Solution>
+
+</Step>
+
+<Quiz
+  question="You just designed the contract and the tests fail. What does that tell you?"
+  options={["The contract is wrong and needs to be fixed", "Nothing is implemented yet: the failing tests are the to-do list", "The database is not running"]}
+  answer={1}
+>
+Exactly. In contract-first, red tests are the expected starting point. They turn green once the implementation fulfills the specification.
+</Quiz>

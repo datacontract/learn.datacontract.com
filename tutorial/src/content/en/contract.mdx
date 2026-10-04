@@ -1,0 +1,371 @@
+You own the **orders** data of your company's e-commerce platform.
+It lives in PostgreSQL in two tables: `orders` (timestamps, totals, customer information) and `line_items` (the items of each order, linked by `order_id`).
+Consumers keep asking: *Which columns can I rely on? What does `order_total` mean? Who do I ask when something looks off?*
+Answer them once, in a data contract.
+
+<Goals>
+- Create an ODCS data contract with the Data Contract Editor
+- Test the contract against the real database, and see tests fail
+- Add terms of use, classification, relationships, and quality checks
+- Add ownership, support channels, and service levels
+</Goals>
+
+<ScenarioDiagram focus="a" />
+
+## Explore the data
+
+<Step id="explore" title="Look at the data">
+
+Make sure the database is running (see [Setup](#/en/setup)), then open a SQL prompt:
+
+```bash
+docker compose exec postgres psql -U workshop -d workshop
+```
+
+```powershell
+docker compose exec postgres psql -U workshop -d workshop
+```
+
+List the tables and look at a few rows:
+
+```sql
+\dt orders_v1.*
+SELECT * FROM orders_v1.orders LIMIT 5;
+SELECT * FROM orders_v1.line_items LIMIT 5;
+```
+
+You should see something like this:
+
+```text
+               order_id               |    order_timestamp     | order_total |     customer_id      | customer_email_address
+--------------------------------------+------------------------+-------------+----------------------+------------------------
+ a8c38fec-2acd-4b55-883b-4b48572d4a26 | 2020-01-01 00:00:00+00 |       29747 | 6GSHKOZIEN           | test394@example.org
+ 9e44da97-4f72-4bcf-821a-9d9500d06651 | 2020-01-01 10:37:00+00 |       55156 | ZN661MOMVMQXRJ       | test4757@example.org
+ 8fc4621c-66ae-4031-91f1-5313beb9f541 | 2020-01-01 20:14:00+00 |       85365 | NF0PRHKQP9W9Q0MTC87P | test1991@example.org
+```
+
+No output? Check for typos: `psql` stays silent for a misspelled schema or table name.
+Leave the prompt with `\q`.
+
+</Step>
+
+## Create the contract
+
+<Step id="create" title="Create the contract file">
+
+From the repository root, create a contract and open it in the Data Contract Editor:
+
+```bash
+datacontract edit orders_v1.odcs.yaml
+```
+
+```powershell
+datacontract edit orders_v1.odcs.yaml
+```
+
+The CLI asks whether to create the file. Confirm.
+The editor opens in your browser. **Saving writes directly to the file on disk.**
+
+In the **Form** view, set the fundamentals:
+
+| Field | Value |
+|---|---|
+| Name | `Orders` |
+| ID | `orders_v1` |
+| Version | `1.0.0` (leave as is) |
+| Status | `draft` (leave as is) |
+
+<Callout type="concept" title="Why version 1.0.0 and status draft?">
+Contracts use semantic versioning: a new **major** version signals a breaking change.
+The `status` tells consumers whether they can rely on the contract. `draft` means "work in progress, don't build on it yet".
+</Callout>
+
+</Step>
+
+<Step id="server" title="Add the server">
+
+Go to **Servers** and add a server. It tells tools *where* the data lives, so they can test it:
+
+| Field | Value |
+|---|---|
+| Server | `Orders` |
+| Type | `postgres` |
+| Host | `localhost` |
+| Port | `5433` |
+| Database | `workshop` |
+| Schema | `orders_v1` |
+
+</Step>
+
+<Step id="schema" title="Describe the schema">
+
+Go to **Schemas** and add two schemas with their properties.
+
+**`orders`**
+
+| Property | Logical Type | Physical Type |
+|---|---|---|
+| `order_id` | `string` | `TEXT` |
+| `order_timestamp` | `date` | `TIMESTAMPTZ` |
+| `order_total` | `integer` | `BIGINT` |
+| `customer_id` | `string` | `TEXT` |
+| `customer_email_address` | `string` | `TEXT` |
+
+**`line_items`**
+
+| Property | Logical Type | Physical Type |
+|---|---|---|
+| `lines_item_id` | `string` | `TEXT` |
+| `order_id` | `string` | `TEXT` |
+| `sku` | `string` | `TEXT` |
+
+<Callout type="concept" title="Logical vs. physical type">
+The **logical type** is the technology-independent meaning (`integer`, `string`, `date`). Consumers reason about it.
+The **physical type** is how the database stores it (`BIGINT`, `TEXT`, `TIMESTAMPTZ`). Tests check against it.
+</Callout>
+
+Click **Save** (top right). Keep the editor open.
+
+</Step>
+
+## Test the contract
+
+Testing checks your contract against the *real* database: do the described tables, columns, and types exist?
+This catches drift between documentation and reality.
+
+<Step id="test" title="Run the tests">
+
+The repository's `.env` file holds the database credentials (`workshop` / `workshop`). The CLI reads it automatically from the repository root.
+
+```bash
+datacontract test orders_v1.odcs.yaml
+```
+
+```powershell
+datacontract test orders_v1.odcs.yaml
+```
+
+All checks should pass. If **all** fail, the database is probably not running: `docker compose up -d`.
+
+</Step>
+
+<Step id="test-fail" title="Make a test fail">
+
+Tests are only useful if they can fail. In `orders_v1.odcs.yaml`, change the `physicalType` of `customer_email_address` to `integer` and test again:
+
+```bash
+datacontract test orders_v1.odcs.yaml
+```
+
+```powershell
+datacontract test orders_v1.odcs.yaml
+```
+
+Which check fails, and why? Try other mistakes: a misspelled column, a missing table.
+**Revert your changes** afterwards, until all tests are green again.
+
+</Step>
+
+## Enrich the contract
+
+Choose how you work:
+
+- **Data Contract Editor**: great for discovering fields. Reopen it with `datacontract edit orders_v1.odcs.yaml`.
+- **Your IDE** (e.g. VS Code): faster once you know the fields. Every form field is a YAML key, see the [ODCS reference](https://bitol-io.github.io/open-data-contract-standard/latest/).
+
+<Callout type="warning">
+Changed the file in your IDE while the editor is open? Reload the editor page before saving there, or it overwrites your IDE changes.
+</Callout>
+
+<Step id="terms" title="Add terms of use and tags">
+
+- In **Terms of Use**, add a **Description**, a **Purpose**, and **Limitations**. The ✨ AI buttons can draft them.
+- In **Fundamentals**, add **Tags** such as `orders` and `ecommerce`.
+
+</Step>
+
+<Step id="email" title="Classify the email address">
+
+In **Schemas**, edit `orders.customer_email_address`:
+
+- add **Examples** from the data, e.g. `test394@example.org`,
+- set **Classification & Security → Classification** to `confidential` (it's personal data),
+- set **Constraints → Required** to `true`.
+
+Save, then find the new keys in the YAML file.
+
+</Step>
+
+<Step id="test-again" title="Test again and spot the new check">
+
+```bash
+datacontract test orders_v1.odcs.yaml
+```
+
+```powershell
+datacontract test orders_v1.odcs.yaml
+```
+
+Spot the new check? A `required` field adds a "no missing values" check.
+
+Optionally, render the contract as HTML and open `orders_v1.odcs.html` in your browser:
+
+```bash
+datacontract export html orders_v1.odcs.yaml --output orders_v1.odcs.html
+```
+
+```powershell
+datacontract export html orders_v1.odcs.yaml --output orders_v1.odcs.html
+```
+
+</Step>
+
+## Relationships and quality
+
+<Step id="relationship" title="Define the relationship">
+
+Express that `line_items.order_id` references `orders.order_id`, so consumers know the tables join safely.
+Add it to the `order_id` **property** in the `line_items` schema:
+
+```yaml
+schema:
+  # ...
+  - name: line_items
+    properties:
+      # ...
+      - name: order_id
+        logicalType: string
+        physicalType: TEXT
+        relationships:
+          - type: foreignKey
+            to: orders.order_id
+```
+
+</Step>
+
+<Step id="quality" title="Add a quality check">
+
+Schema checks verify *structure*. Quality checks verify *content*.
+Add a SQL check on `customer_email_address` that every email contains an `@`:
+
+```yaml
+schema:
+  - name: orders
+    properties:
+      # ...
+      - name: customer_email_address
+        # ... (types, examples, classification)
+        quality:
+          - type: sql
+            description: Ensure email addresses are valid
+            query: SELECT COUNT(*) FROM orders_v1.orders WHERE customer_email_address NOT LIKE '%@%';
+            mustBe: 0
+```
+
+The query counts *invalid* rows, `mustBe: 0` asserts there are none. Run the tests and find the new check.
+
+<Callout type="tip">
+"Count the bad rows, expect zero" works for almost any rule. When the check fails, the query helps you debug.
+</Callout>
+
+</Step>
+
+<Step id="more-quality" title="Add more quality checks">
+
+Add more rules and test after each one:
+
+- `order_total` is never negative
+- every `order_id` in `line_items` exists in `orders`
+- the `orders` table is not empty (hint: `mustBeGreaterThan: 0`)
+- your own ideas
+
+For rules you can't automate (yet), use a text check:
+
+```yaml
+quality:
+  - type: text
+    description: Order total is in cents
+  - type: sql
+    description: Ensure that ...
+    query: SELECT COUNT(*) FROM ... WHERE ...;
+    mustBe: 0
+```
+
+All options: [ODCS data quality reference](https://bitol-io.github.io/open-data-contract-standard/latest/data-quality/#sql).
+
+</Step>
+
+## Ownership and service levels
+
+<Step id="team" title="Add team and support">
+
+Consumers need to know who owns the data and where to get help. Add these **top-level** keys:
+
+```yaml
+team:
+  name: order_data_team
+  members:
+    - username: owner@example.com
+      role: Owner
+
+support:
+  - channel: "#order-data-help"
+    url: https://example.slack.com/archives/order-data-help
+    tool: slack
+```
+
+</Step>
+
+<Step id="sla" title="Add service levels">
+
+How long is the data kept, and how fresh is it? Add top-level `slaProperties`:
+
+```yaml
+slaProperties:
+  - property: retention
+    value: 1
+    unit: y
+    description: Order data retained for 1 year
+  - property: frequency
+    value: 1
+    unit: d
+    description: Data updated daily
+```
+
+</Step>
+
+<Step id="active" title="Set the contract to active">
+
+Your contract is complete. Set `status` to `active`: consumers can now rely on it.
+Run the tests one last time:
+
+```bash
+datacontract test orders_v1.odcs.yaml
+```
+
+```powershell
+datacontract test orders_v1.odcs.yaml
+```
+
+<Solution title="orders_v1.odcs.yaml">
+
+```yaml file=../../../../solutions/exercise1/orders_v1.odcs.yaml
+```
+
+</Solution>
+
+</Step>
+
+<Quiz
+  question="You declared a column as required. What does datacontract test do with that?"
+  options={["Nothing, it's documentation only", "It checks that the column has no missing values", "It adds a NOT NULL constraint to the database"]}
+  answer={1}
+>
+`required: true` becomes a "no missing values" check. The CLI never changes your database. It only reads.
+</Quiz>
+
+## Bonus
+
+- Generate SQL DDL: `datacontract export sql orders_v1.odcs.yaml` (all [export formats](https://cli.datacontract.com/#export))
+- Lint against the ODCS schema: `datacontract lint orders_v1.odcs.yaml`
+- Build an HTML catalog of all contracts in the folder: `datacontract catalog`

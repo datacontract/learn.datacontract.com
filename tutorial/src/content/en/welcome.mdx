@@ -1,0 +1,88 @@
+Every data pipeline rests on a promise: *the data will look like this tomorrow, too.*
+That promise is usually implicit, and it breaks silently when a column is renamed, a type changes, or a table is dropped.
+**Data contracts** make the promise explicit, machine-readable, and testable.
+
+In this tutorial you work through a realistic scenario end to end, on your own laptop, at your own pace.
+
+<Goals>
+- Put an existing PostgreSQL dataset under contract with the **Open Data Contract Standard (ODCS)** and test it
+- Evolve a contract safely with versioning and a migration lifecycle
+- Describe data products with the **Open Data Product Standard (ODPS)**
+- Design a new data product **contract-first** and implement it, optionally with an AI coding agent
+- Make dependencies explicit with **consumer-driven contracts**
+- Run everything in **CI/CD with GitHub Actions** and stop breaking changes before they ship
+</Goals>
+
+## What is a data contract?
+
+<Callout type="concept" title="Data contract">
+A data contract describes a dataset's **structure, semantics, quality, and terms of use**. It is written in YAML, stored in Git, and agreed between producer and consumers.
+Because it is machine-readable, tools can test the real data against it, generate documentation and code, and detect breaking changes.
+</Callout>
+
+Think of it as an API specification (like OpenAPI), but for data.
+A contract answers:
+
+- **Schema**: Which tables and columns exist, with which types?
+- **Semantics**: What does `order_total` mean? In which unit?
+- **Quality**: Which rules must the data fulfill, e.g. "no negative totals"?
+- **Ownership & support**: Who is responsible, and where do I get help?
+- **Service levels**: How fresh is the data, and how long is it retained?
+
+## Two open standards
+
+Both standards are developed in the open by [Bitol](https://bitol.io), a Linux Foundation project.
+
+| | **ODCS**: Open Data Contract Standard | **ODPS**: Open Data Product Standard |
+|---|---|---|
+| Describes | the *interface* of a dataset | the *product* behind one or more interfaces |
+| Contains | schema, quality rules, servers, SLAs, team | purpose, ownership, input and output ports |
+| File | `orders_v1.odcs.yaml` | `orders.odps.yaml` |
+
+A data product offers its data through **output ports**, each described by a data contract.
+A data product that builds on others declares this through **input ports**.
+
+## The scenario
+
+You work for an e-commerce company.
+In **Part A**, you own the **Orders** data: two PostgreSQL tables, `orders` and `line_items`.
+You put them under contract, release a breaking change as a new version, and describe the data product.
+
+In **Part B**, you switch sides. The **purchasing team** wants to know how often each SKU sells per year, to negotiate with suppliers.
+You design a consumer-aligned data product, **SKU Sales**, on top of Orders (contract first) and implement it as a SQL view.
+
+<ScenarioDiagram />
+
+In **Part C**, you automate everything in your own GitHub fork: every push tests all contracts, and every pull request is checked for breaking changes.
+**Part D** is optional: you publish everything to a data product platform and link your contracts to business concepts.
+
+## The tools
+
+All tools are open source and run locally:
+
+- **[Data Contract CLI](https://cli.datacontract.com)** (`datacontract`): create, edit, lint, test, and compare data contracts
+- **[Data Product CLI](https://github.com/entropy-data/dataproduct-cli)** (`dataproduct`): create and lint ODPS data products
+- **Data Contract Editor**: a visual editor, opened in your browser by `datacontract edit`
+- **PostgreSQL** in Docker: the database with the sample data
+- **Entropy Data CLI** (`entropy-data`): only for the optional Part D
+
+## How this tutorial works
+
+Each exercise is a sequence of **steps**.
+Mark a step as done when you finish it. Done steps collapse, and your progress is saved in this browser.
+Commands have a copy button. Where instructions differ between macOS/Linux and Windows, switch tabs (your choice is remembered).
+
+Stuck? Most exercises have a **Show solution** button. Try it yourself first.
+
+<Quiz
+  question="Which standard describes the interface of a single dataset, including its schema and quality rules?"
+  options={["ODPS: Open Data Product Standard", "ODCS: Open Data Contract Standard", "OpenAPI"]}
+  answer={1}
+>
+Right. ODCS describes the interface (schema, quality, SLAs) of a dataset. ODPS describes the data product that offers one or more of these interfaces through its ports.
+</Quiz>
+
+**Prerequisites:** basic YAML and SQL. Plan about 5–6 hours for Parts A–C, plus about an hour for the optional Part D.
+You don't need to do it in one sitting.
+
+Ready? Let's set up your environment.

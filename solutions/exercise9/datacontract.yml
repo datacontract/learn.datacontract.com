@@ -1,0 +1,94 @@
+# Put this file at .github/workflows/datacontract.yml in your fork.
+name: Data Contracts
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+env:
+  # wider tables in the logs of the Data Contract CLI
+  COLUMNS: 200
+
+jobs:
+  test:
+    name: Lint and test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: astral-sh/setup-uv@v10
+
+      - name: Install the CLIs
+        run: |
+          uv tool install --python 3.11 'datacontract-cli[postgres]==1.2.2'
+          uv tool install --python 3.11 'dataproduct-cli==0.2.0'
+
+      - name: Lint data contracts
+        run: |
+          for file in *.odcs.yaml; do
+            datacontract lint "$file"
+          done
+
+      - name: Lint data products
+        run: |
+          for file in *.odps.yaml; do
+            dataproduct lint "$file"
+          done
+
+      - name: Start the database
+        run: docker compose up -d --wait
+
+      - name: Create the views
+        run: |
+          docker compose exec -T postgres psql -U workshop -d workshop -v ON_ERROR_STOP=1 < sql/sku_sales_input.sql
+          docker compose exec -T postgres psql -U workshop -d workshop -v ON_ERROR_STOP=1 < sql/sku_sales_per_year.sql
+
+      - name: Test data contracts
+        # the database credentials come from the .env file in the repository
+        run: datacontract ci *.odcs.yaml
+
+      # Part D: publish the test results to Entropy Data.
+      # Add your API key as repository secret ENTROPY_DATA_API_KEY, then replace the step above with:
+      #
+      # - name: Test data contracts
+      #   run: datacontract ci *.odcs.yaml --publish https://api.entropy-data.com/api/test-results
+      #   env:
+      #     ENTROPY_DATA_API_KEY: ${{ secrets.ENTROPY_DATA_API_KEY }}
+      #
+      # Contracts linked to semantic concepts (Part D) are resolved on the Entropy Data host:
+      # add --no-inline-references if the pipeline can't reach it.
+
+  breaking-changes:
+    name: Breaking changes
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # the base branch is needed for the comparison
+
+      - uses: astral-sh/setup-uv@v10
+
+      - name: Install the CLI
+        run: uv tool install --python 3.11 'datacontract-cli[postgres]==1.2.2'
+
+      - name: Compare with the base branch
+        env:
+          BASE: origin/${{ github.base_ref }}
+        run: |
+          status=0
+          # every contract on the base branch must stay compatible (new contracts have nothing to compare)
+          for file in $(git ls-tree --name-only "$BASE" | grep '\.odcs\.yaml$'); do
+            if [ ! -f "$file" ]; then
+              echo "::error file=$file::Data contract $file was removed"
+              status=1
+              continue
+            fi
+            git show "$BASE:$file" > "$RUNNER_TEMP/$file"
+            if ! datacontract breaking "$RUNNER_TEMP/$file" "$file"; then
+              echo "::error file=$file::Breaking change in $file. Release a new major version instead."
+              status=1
+            fi
+          done
+          exit $status

@@ -8,11 +8,9 @@ if [ -f .env ]; then set -a; . ./.env; set +a; fi
 export DATACONTRACT_POSTGRES_USERNAME="${DATACONTRACT_POSTGRES_USERNAME:-workshop}"
 export DATACONTRACT_POSTGRES_PASSWORD="${DATACONTRACT_POSTGRES_PASSWORD:-workshop}"
 
-ODPS_SCHEMA=schemas/odps-json-schema-v1.0.0.json
-
 check_odps() {
   echo "=== Validating $1 ==="
-  uvx check-jsonschema --schemafile "$ODPS_SCHEMA" "$1"
+  dataproduct lint "$1"
 }
 
 psql_cmd() {

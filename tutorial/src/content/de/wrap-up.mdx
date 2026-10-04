@@ -1,0 +1,56 @@
+Geschafft! Schau auf das Gebaute zurück und überleg, wie es zu deinen eigenen Daten passt.
+
+## Was du gebaut hast
+
+<ScenarioDiagram />
+
+- **Ein Quell-Datenprodukt mit Kontrakten.** Du hast die `orders`-Tabellen unter einen ODCS-Kontrakt gestellt, ihn testbar gemacht und um Semantik, Qualitätsregeln, Ownership und Service Levels ergänzt.
+- **Sichere Evolution.** Du hast einen Breaking Change als neue Major-Version (`orders_v2`) veröffentlicht und den Migrationszyklus durchlaufen.
+- **Datenprodukte.** Du hast Orders und SKU Sales mit ODPS beschrieben, inklusive Input- und Output-Ports.
+- **Contract-first-Entwicklung.** Du hast SKU Sales vor dem SQL entworfen und die fehlschlagenden Tests als Spezifikation genutzt, für dich oder einen KI-Agenten.
+- **Consumer-driven Contracts.** Du hast explizit gemacht, von welchen Feldern du abhängst.
+- **Automatisierung.** GitHub Actions testet jede Änderung und stoppt Breaking Changes im Pull Request.
+- Wenn du Teil D gemacht hast: **eine Plattform**, auf der andere Teams deine Datenprodukte finden, und **Semantik**, die deine Fachsprache einmal definiert.
+
+<Callout type="concept" title="Die große Idee">
+Ein Datenkontrakt macht aus einem impliziten Versprechen ein explizites, testbares. Ist es maschinenlesbar, folgt der Rest: Dokumentation, Tests, CI-Gates, Auffindbarkeit und Codegenerierung.
+</Callout>
+
+## Reflektieren
+
+<Step id="reflect" title="Auf deine eigenen Daten übertragen">
+
+Nimm dir fünf Minuten und schreib kurze Antworten auf. Sie sind ein guter erster Entwurf für einen Vorschlag an dein Team.
+
+1. **Welcher Datensatz in deinem Unternehmen würde zuerst von einem Kontrakt profitieren?** Denk an Daten, die viele Teams nutzen, die oft kaputtgehen oder in kritische Reports einfließen.
+2. **Wer wäre Owner des Kontrakts?** Wer beantwortet Fragen zu den Daten, und wer entscheidet über Änderungen?
+3. **Wer sind die Konsumenten?** Kennen die Owner sie heute?
+4. **Wo würden die Kontrakttests laufen?** In der Pipeline des Producers, in der CI bei jeder Änderung, zeitgesteuert?
+5. **Welche Qualitätsregel würdest du als Erstes schreiben?** Was ist kürzlich schiefgegangen, das ein Test erkannt hätte?
+
+</Step>
+
+## So fängst du in deiner Organisation an
+
+- **Klein anfangen.** Stell einen wichtigen Datensatz unter Vertrag, so wie Orders. Ein täglich getesteter Kontrakt überzeugt mehr als ein großer Rollout-Plan.
+- **Neue Datenprodukte contract-first bauen.** Stimm die Schnittstelle mit deinen Konsumenten ab, bevor du baust. Das kostet wenig und spart Nacharbeit.
+- **Kontrakte in Git ablegen und in der CI testen.** Ein ungetesteter Kontrakt veraltet wie jede andere Dokumentation.
+- **Breaking Changes sichtbar machen.** Nutze `datacontract breaking` in Pull Requests und veröffentliche Breaking Changes als neue Major-Versionen mit Übergangszeit.
+- **Konsumenten zu Wort kommen lassen.** Consumer-driven Contracts zeigen Producern, was wirklich wichtig ist.
+
+## Weiterlernen
+
+- [Open Data Contract Standard (ODCS)](https://bitol-io.github.io/open-data-contract-standard/) und [Open Data Product Standard (ODPS)](https://bitol-io.github.io/open-data-product-standard/): die vollständigen Spezifikationen
+- [Data Contract CLI](https://cli.datacontract.com): alle Befehle, Importer und Exporter ([GitHub](https://github.com/datacontract/datacontract-cli))
+- [Data Product CLI](https://github.com/entropy-data/dataproduct-cli): ODPS-Datenprodukte prüfen und veröffentlichen
+- [Data Contract Editor](https://editor.datacontract.com): der visuelle Editor im Browser, ohne Installation
+- [Entropy Data Docs](https://docs.entropy-data.com): die Datenproduktplattform aus Teil D
+
+<Step id="feedback" title="Feedback geben">
+
+Hat etwas nicht funktioniert? War ein Schritt unklar? Eine Idee für eine Übung?
+[Leg ein Issue auf GitHub an](https://github.com/datacontract/odcs-odps-workshop/issues). Jedes Feedback verbessert das Tutorial.
+
+</Step>
+
+Danke, dass du das Tutorial durchgearbeitet hast, und viel Erfolg mit deinem ersten Datenkontrakt in Produktion!

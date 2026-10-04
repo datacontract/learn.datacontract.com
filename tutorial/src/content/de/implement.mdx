@@ -1,0 +1,120 @@
+In der [vorigen Übung](#/de/contract-first) hast du den Kontrakt entworfen. Jetzt erfüllst du ihn: eine SQL-View `analytics.sku_sales_per_year` auf den `orders_v2`-Tabellen, mit der deine Kontrakt-Tests grün werden.
+
+Eine perfekte Aufgabe für einen **KI-Coding-Agenten**: Der Kontrakt legt genau fest, was gebaut wird, und mit `datacontract test` prüft der Agent seine Arbeit selbst.
+
+<Goals>
+- Ein Datenprodukt aus seinem Kontrakt heraus implementieren
+- Einen KI-Coding-Agenten gegen Kontrakt und Test-Feedback-Schleife arbeiten lassen
+- Verstehen, warum Datentypen Teil des Kontrakts sind
+- Ein Datenprodukt live schalten
+</Goals>
+
+<Callout type="concept" title="Warum Kontrakte und KI-Agenten zusammenpassen">
+Ein Agent ist nur so gut wie seine Spezifikation und sein Feedback. Ein Datenkontrakt liefert beides:
+das **Ziel** (Spalten, Typen, Semantik, Qualitätsregeln) und die **Quelle** (den `orders_v2`-Kontrakt) als präzisen Input, und `datacontract test` als objektive Prüfung, ob er fertig ist.
+Kein Raten, kein „sieht für mich richtig aus“.
+</Callout>
+
+## Implementieren
+
+Die View-Definition kommt nach `sql/sku_sales_per_year.sql`. So ist sie mit dem Kontrakt versioniert, und die CI-Pipeline in [Teil C](#/de/ci-cd) kann sie automatisch anwenden.
+
+<Step id="agent" title="Mit einem KI-Coding-Agenten implementieren">
+
+Starte deinen KI-Coding-Agenten (Claude Code, Codex, Copilot, …) im Repository und gib ihm zum Beispiel diesen Prompt:
+
+> Implement a PostgreSQL view that fulfills the data contract in `sku_sales_per_year.odcs.yaml`. The source data is described by the contract `orders_v2.odcs.yaml`. Write the SQL to `sql/sku_sales_per_year.sql`. It must be idempotent (`CREATE SCHEMA IF NOT EXISTS`, `CREATE OR REPLACE VIEW`). Apply it to the database via `docker compose exec -T postgres psql -U workshop -d workshop`. Then verify with `datacontract test sku_sales_per_year.odcs.yaml` and iterate until all tests pass.
+
+Beobachte, was der Agent tut:
+
+- Liest er beide Kontrakte (deinen für das Ziel, `orders_v2` für die Quelle)?
+- Führt er die Tests aus und reagiert er auf Fehler?
+- Das Repository weist Agenten an, nicht in `solutions/` zu schauen. Er muss aus dem Kontrakt heraus arbeiten, wie ein Engineer.
+
+Kein KI-Agent zur Hand? Dann mach es im nächsten Schritt von Hand.
+
+</Step>
+
+<Step id="manual" title="…oder von Hand implementieren">
+
+Lege den Ordner `sql` und darin die Datei `sku_sales_per_year.sql` an und ergänze die Transformation:
+
+```sql title=sql/sku_sales_per_year.sql
+CREATE SCHEMA IF NOT EXISTS analytics;
+
+CREATE OR REPLACE VIEW analytics.sku_sales_per_year AS
+SELECT
+    -- your transformation here
+FROM orders_v2.line_items li
+JOIN orders_v2.orders o ON li.order_id = o.order_id
+GROUP BY ...;
+```
+
+Wende sie auf die Datenbank an:
+
+```bash
+docker compose exec -T postgres psql -U workshop -d workshop < sql/sku_sales_per_year.sql
+```
+
+```powershell
+Get-Content sql/sku_sales_per_year.sql | docker compose exec -T postgres psql -U workshop -d workshop
+```
+
+<Callout type="warning" title="Datentypen sind Teil deines Kontrakts">
+`EXTRACT(YEAR FROM order_timestamp)` liefert in PostgreSQL `numeric`: caste es mit `::int`.
+Auch `SUM(quantity)` liefert `numeric`: caste es mit `::bigint`.
+Der Kontrakt sagt `INTEGER` und `BIGINT`, und genau das prüfen die Tests.
+</Callout>
+
+<Callout type="tip">
+`CREATE OR REPLACE VIEW` kann Name oder Typ einer bestehenden Spalte nicht ändern. Wenn PostgreSQL meckert, setz `DROP VIEW IF EXISTS analytics.sku_sales_per_year;` davor.
+</Callout>
+
+</Step>
+
+## Live gehen
+
+<Step id="green" title="Tests grün machen">
+
+Testen, SQL korrigieren, erneut anwenden, wiederholen, bis alles grün ist:
+
+```bash
+datacontract test sku_sales_per_year.odcs.yaml
+```
+
+```powershell
+datacontract test sku_sales_per_year.odcs.yaml
+```
+
+<Solution title="sql/sku_sales_per_year.sql">
+
+```sql file=../../../../solutions/exercise5/sku_sales_per_year.sql
+```
+
+</Solution>
+
+</Step>
+
+<Step id="active" title="Datenprodukt auf active setzen">
+
+Dein Datenprodukt ist live. Setze `status` auf `active` in `sku_sales_per_year.odcs.yaml` und `sku_sales_per_year.odps.yaml` und prüfe beide:
+
+```bash
+datacontract lint sku_sales_per_year.odcs.yaml
+dataproduct lint sku_sales_per_year.odps.yaml
+```
+
+```powershell
+datacontract lint sku_sales_per_year.odcs.yaml
+dataproduct lint sku_sales_per_year.odps.yaml
+```
+
+</Step>
+
+<Quiz
+  question="Deine View liefert die richtigen Zahlen, aber der Test für die Spalte year schlägt fehl. Wahrscheinlichster Grund?"
+  options={["Der Kontrakt ist zu streng", "EXTRACT liefert numeric, der Kontrakt erwartet aber INTEGER", "PostgreSQL unterstützt keine Views"]}
+  answer={1}
+>
+Richtig. Der physische Typ ist Teil des Kontrakts. Caste `EXTRACT(YEAR FROM ...)` mit `::int`, damit Consumer genau den versprochenen Typ bekommen.
+</Quiz>

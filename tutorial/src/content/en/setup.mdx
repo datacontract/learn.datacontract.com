@@ -1,0 +1,257 @@
+Let's get your environment ready.
+You work in **your own fork** of the workshop repository, so you can push your contracts to GitHub and run them in CI/CD in [Part C](#/en/ci-cd).
+
+<Goals>
+- Fork and clone the workshop repository
+- Install the Data Contract CLI and the Data Product CLI
+- Start the PostgreSQL database with the sample data
+- Set up VS Code for editing YAML
+</Goals>
+
+<Callout type="tip" title="No local installs? Use GitHub Codespaces">
+You can do the whole tutorial in the browser with [GitHub Codespaces](https://github.com/features/codespaces).
+Fork the repository (step 2), then on **your fork** click **Code → Codespaces → Create codespace on main**.
+Docker, uv, and both CLIs are preinstalled. Skip the install steps and continue with **Start PostgreSQL**.
+When `datacontract edit` starts the editor, Codespaces forwards the port and offers to open it.
+</Callout>
+
+## Prerequisites
+
+<Step id="prerequisites" title="Check the prerequisites">
+
+You need:
+
+- a **GitHub account** ([sign up](https://github.com/signup)),
+- **git**,
+- **Docker** with Docker Compose, running,
+- **[uv](https://docs.astral.sh/uv/)**, the Python package manager that installs the CLIs,
+- an editor, we recommend **[VS Code](https://code.visualstudio.com/)**.
+
+<OsTabs>
+<Os name="unix">
+
+- **git**: preinstalled on most systems. On macOS, run `xcode-select --install` if it's missing.
+- **Docker**: [Docker Desktop](https://www.docker.com/products/docker-desktop/) (macOS), or Docker Engine with the Compose plugin (Linux).
+
+</Os>
+<Os name="windows">
+
+- **git**: install [Git for Windows](https://gitforwindows.org/).
+- **Docker**: [Docker Desktop](https://www.docker.com/products/docker-desktop/) with the WSL 2 backend.
+- **Terminal**: use **PowerShell**, ideally in [Windows Terminal](https://aka.ms/terminal). Every command in this tutorial has a PowerShell variant. No Git Bash needed.
+
+</Os>
+</OsTabs>
+
+Install **uv**:
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+```powershell
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+Verify in a new terminal:
+
+```bash
+git --version
+docker compose version
+uv --version
+```
+
+```powershell
+git --version
+docker compose version
+uv --version
+```
+
+You should see three version numbers, for example:
+
+```text
+git version 2.47.0
+Docker Compose version v2.31.0
+uv 0.9.5
+```
+
+If `docker compose version` fails, start Docker Desktop.
+
+</Step>
+
+## Get the repository
+
+<Step id="fork" title="Fork the repository">
+
+Open [github.com/datacontract/odcs-odps-workshop](https://github.com/datacontract/odcs-odps-workshop) and click **Fork**, then **Create fork**.
+Your copy lives at `github.com/<your-username>/odcs-odps-workshop`.
+
+With the [GitHub CLI](https://cli.github.com/), you can fork and clone in one go (then skip the next step):
+
+```bash
+gh repo fork datacontract/odcs-odps-workshop --clone
+```
+
+```powershell
+gh repo fork datacontract/odcs-odps-workshop --clone
+```
+
+<Callout type="concept" title="Why a fork?">
+Data contracts live in Git, next to the code that produces the data. That makes them reviewable and versioned.
+In your fork you can push changes, open pull requests, and run GitHub Actions, like in a real project.
+</Callout>
+
+</Step>
+
+<Step id="clone" title="Clone your fork">
+
+Clone **your fork** (replace `<your-username>`) and change into the folder:
+
+```bash
+git clone https://github.com/<your-username>/odcs-odps-workshop.git
+cd odcs-odps-workshop
+```
+
+```powershell
+git clone https://github.com/<your-username>/odcs-odps-workshop.git
+cd odcs-odps-workshop
+```
+
+Run all commands in this tutorial from this folder, the repository root.
+
+</Step>
+
+## Install the tools
+
+<Step id="install" title="Install the CLIs">
+
+The install script uses uv to install the **Data Contract CLI** (`datacontract`), the **Data Product CLI** (`dataproduct`), and the **Entropy Data CLI** (`entropy-data`, only for Part D). It also pre-pulls the PostgreSQL image.
+
+```bash
+scripts/install.sh
+```
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\install.ps1
+```
+
+This takes a few minutes: the Data Contract CLI ships drivers for many databases.
+
+</Step>
+
+<Step id="verify-cli" title="Verify the CLIs">
+
+Open a **new terminal** (to update your `PATH`), go to the repository root, and run:
+
+```bash
+datacontract --version
+dataproduct --version
+```
+
+```powershell
+datacontract --version
+dataproduct --version
+```
+
+You should see two version numbers:
+
+```text
+1.2.2
+0.2.0
+```
+
+`command not found`? Run `uv tool update-shell` and open a new terminal.
+
+<Callout type="tip">
+Every command supports `--help`, e.g. `datacontract test --help`.
+</Callout>
+
+</Step>
+
+## Start the database
+
+<Step id="database" title="Start PostgreSQL">
+
+The `docker-compose.yml` starts PostgreSQL 17 on port **5433** with e-commerce sample data:
+
+```bash
+docker compose up -d
+```
+
+```powershell
+docker compose up -d
+```
+
+Run a quick query:
+
+```bash
+docker compose exec postgres psql -U workshop -d workshop -c "SELECT COUNT(*) FROM orders_v1.orders;"
+```
+
+```powershell
+docker compose exec postgres psql -U workshop -d workshop -c "SELECT COUNT(*) FROM orders_v1.orders;"
+```
+
+You should see the row count:
+
+```text
+ count
+-------
+  5000
+(1 row)
+```
+
+Port already in use? Stop whatever runs on port 5433 and try again.
+
+The database has two schemas, `orders_v1` and `orders_v2`, each with an `orders` and a `line_items` table.
+To reset everything, run `docker compose down`, then `docker compose up -d`.
+
+</Step>
+
+<Step id="env" title="Look at the .env file">
+
+Open `.env` in the repository root. It holds the database credentials:
+
+```text title=.env
+DATACONTRACT_POSTGRES_USERNAME=workshop
+DATACONTRACT_POSTGRES_PASSWORD=workshop
+```
+
+Both CLIs read `.env` automatically when run from the repository root. Nothing to configure.
+
+<Callout type="warning">
+`.env` is tracked in Git. Fine for the local workshop credentials, but **never put real secrets such as API keys into it**: your fork is public.
+</Callout>
+
+</Step>
+
+## Set up your editor
+
+<Step id="editor" title="Open the repository in VS Code">
+
+Open the repository folder in VS Code:
+
+```bash
+code .
+```
+
+```powershell
+code .
+```
+
+Install the **[YAML extension by Red Hat](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml)** (VS Code suggests it when you open the folder).
+The repository ships the official schemas in `schemas/` and maps them in `.vscode/settings.json`, so you get autocompletion and validation for every `*.odcs.yaml` and `*.odps.yaml` file.
+
+`code: command not found`? Use **File → Open Folder…** instead.
+
+</Step>
+
+<Quiz
+  question="Why do you work in your own fork instead of just downloading the files?"
+  options={["Forks run faster", "To push changes and run GitHub Actions on your contracts later", "The CLIs only work in forks"]}
+  answer={1}
+>
+Contracts belong in Git. In your fork you can commit, open pull requests, and automate tests with GitHub Actions in Part C.
+</Quiz>
+
+You're all set. Time to write your first data contract!
