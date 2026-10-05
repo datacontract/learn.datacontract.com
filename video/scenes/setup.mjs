@@ -50,7 +50,7 @@ export default {
       steps: [
         ...split(c('clone', 'git clone'), { outs: { 0: c('clone', 'git clone').out }, lastHold: 2500, caption: { en: 'Clone your fork and change into the folder.', de: 'Klone deinen Fork und wechsle in den Ordner.' } }),
         { ...c('install', 'install'), hold: 5000, caption: { en: 'The install script installs the Data Contract CLI and the Data Product CLI.', de: 'Das Install-Skript installiert die Data Contract CLI und die Data Product CLI.' } },
-        ...split(c('verify-cli', 'datacontract --version'), { outs: { 0: '1.2.3', 1: '0.2.0' }, lastHold: 3500, caption: { en: 'Check the versions: 1.2.3 and 0.2.0.', de: 'Prüfe die Versionen: 1.2.3 und 0.2.0.' } }),
+        ...split(c('verify-cli', 'datacontract --version'), { outs: { 0: '1.2.3', 1: '0.3.1' }, lastHold: 3500, caption: { en: 'Check the versions: 1.2.3 and 0.3.1.', de: 'Prüfe die Versionen: 1.2.3 und 0.3.1.' } }),
       ],
     },
     {

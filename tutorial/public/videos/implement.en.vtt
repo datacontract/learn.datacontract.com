@@ -1,65 +1,65 @@
 WEBVTT
 
 1
-00:00:00.000 --> 00:00:03.451
+00:00:00.000 --> 00:00:03.452
 Exercise 5: implement the SKU Sales data product.
 
 2
-00:00:03.501 --> 00:00:12.043
+00:00:03.502 --> 00:00:12.046
 Where we start: the contract exists, the view does not. Tests are red.
 
 3
-00:00:12.094 --> 00:00:15.197
+00:00:12.096 --> 00:00:15.203
 The contract is the specification: one view, four columns, exact types.
 
 4
-00:00:15.248 --> 00:00:21.198
+00:00:15.254 --> 00:00:21.206
 Dimensions group the data, measures are aggregated. transformLogic says how.
 
 5
-00:00:21.249 --> 00:00:27.619
+00:00:21.257 --> 00:00:27.464
 Option 1: let an AI coding agent do it. The contracts tell it exactly what to build.
 
 6
-00:00:27.669 --> 00:00:33.622
+00:00:27.514 --> 00:00:33.465
 The tests give the agent a feedback loop to verify its own work.
 
 7
-00:00:33.672 --> 00:00:49.537
+00:00:33.515 --> 00:00:49.257
 Option 2: write the view by hand. Group by SKU and year.
 
 8
-00:00:49.586 --> 00:00:55.539
+00:00:49.307 --> 00:00:55.258
 Cast to int and bigint: the types are part of your contract.
 
 9
-00:00:55.589 --> 00:01:01.135
+00:00:55.308 --> 00:01:00.786
 Apply the SQL file to the database.
 
 10
-00:01:01.185 --> 00:01:10.735
+00:01:00.836 --> 00:01:10.337
 Run the tests again: green. The implementation fulfills the contract.
 
 11
-00:01:10.785 --> 00:01:23.563
+00:01:10.387 --> 00:01:23.050
 Check the verified statement from the context: the top three SKUs of 2024.
 
 12
-00:01:23.613 --> 00:01:30.672
+00:01:23.100 --> 00:01:30.182
 Back in the editor: the context tells agents how to query the product.
 
 13
-00:01:30.722 --> 00:01:36.073
+00:01:30.232 --> 00:01:36.086
 And the same tests are one click away.
 
 14
-00:01:36.123 --> 00:01:40.576
+00:01:36.136 --> 00:01:40.589
 All checks of the view pass: types, uniqueness, and plausibility.
 
 15
-00:01:40.626 --> 00:01:50.259
+00:01:40.639 --> 00:01:50.457
 Set contract and data product to active, and lint both. Done.
 
 16
-00:01:50.309 --> 00:01:54.261
+00:01:50.507 --> 00:01:54.457
 Your data product is live. Next: consumer-driven contracts.

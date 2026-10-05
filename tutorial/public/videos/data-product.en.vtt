@@ -9,37 +9,37 @@ Exercise 3: describe your data product.
 Orders is one data product. It offers two contract versions as output ports.
 
 3
-00:00:10.004 --> 00:00:16.621
+00:00:10.004 --> 00:00:16.620
 The Data Product CLI creates a starter file. Open it in your IDE.
 
 4
-00:00:16.671 --> 00:00:26.383
+00:00:16.670 --> 00:00:26.383
 One data product, Orders. ODPS 1.1 adds the type: sourceAligned.
 
 5
-00:00:26.433 --> 00:00:34.582
+00:00:26.433 --> 00:00:34.583
 Purpose and limitations: what consumers need to know first.
 
 6
-00:00:34.632 --> 00:00:48.362
+00:00:34.633 --> 00:00:48.365
 One output port per contract version. The old v1 port is deprecated.
 
 7
-00:00:48.412 --> 00:00:53.436
+00:00:48.415 --> 00:00:53.438
 Tags help consumers find the product in a catalog.
 
 8
-00:00:53.486 --> 00:01:04.590
+00:00:53.488 --> 00:01:04.589
 Team and support, reused from the contracts.
 
 9
-00:01:04.640 --> 00:01:11.479
+00:01:04.639 --> 00:01:11.704
 Validate against the official ODPS JSON schema.
 
 10
-00:01:11.529 --> 00:01:21.215
+00:01:11.754 --> 00:01:21.658
 A typo in kind: the CLI names the wrong field and exits with code 1.
 
 11
-00:01:21.265 --> 00:01:25.716
+00:01:21.708 --> 00:01:26.159
 Next: a consumer-aligned data product on top of Orders.
