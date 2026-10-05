@@ -3,7 +3,7 @@ rem Installs the Data Contract CLI, the Data Product CLI, and the Entropy Data C
 rem Works in cmd and PowerShell. Keep the pinned versions in sync with install.sh and install.ps1.
 uv tool install --force --python python3.11 "datacontract-cli[all]==1.2.3"
 uv tool install --force --python python3.11 "dataproduct-cli==0.3.1"
-uv tool install "entropy-data==0.3.13"
+uv tool install "entropy-data==0.3.24"
 uv tool update-shell
 datacontract --version
 dataproduct --version
