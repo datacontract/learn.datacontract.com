@@ -62,7 +62,7 @@ The product is the stable unit of ownership; its ports evolve.
 
 ## Validate
 
-4. Validate your data product description with the [Data Product CLI](https://github.com/entropy-data/dataproduct-cli). It checks the file against the official ODPS JSON schema:
+4. Validate your data product description with the [Data Product CLI](https://github.com/datacontract/dataproduct-cli). It checks the file against the official ODPS JSON schema:
 
    ```bash
    dataproduct lint orders.odps.yaml

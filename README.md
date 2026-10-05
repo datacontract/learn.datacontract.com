@@ -75,7 +75,7 @@ No account on [app.entropy-data.com](https://app.entropy-data.com)? Run the [Ent
 
 - [ODCS Docs](https://bitol-io.github.io/open-data-contract-standard/) · [Source (GitHub)](https://github.com/bitol-io/open-data-contract-standard)
 - [ODPS Docs](https://bitol-io.github.io/open-data-product-standard/) · [Source (GitHub)](https://github.com/bitol-io/open-data-product-standard)
-- [Data Contract CLI (GitHub)](https://github.com/datacontract/datacontract-cli) · [Data Contract Editor](https://editor.datacontract.com) · [Data Product CLI (GitHub)](https://github.com/entropy-data/dataproduct-cli)
+- [Data Contract CLI (GitHub)](https://github.com/datacontract/datacontract-cli) · [Data Contract Editor](https://editor.datacontract.com) · [Data Product CLI (GitHub)](https://github.com/datacontract/dataproduct-cli)
 - [Entropy Data Docs](https://docs.entropy-data.com) · [Entropy Data CLI (GitHub)](https://github.com/entropy-data/entropy-data-cli)
 
 
