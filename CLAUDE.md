@@ -10,13 +10,13 @@ Everything below is for maintainers changing the workshop or the online tutorial
 - **On-site workshop**: `README.md`, `exercises/part-*/`, used with slides (intro and retro are on the slides, not in the repo).
 - **Shared**: `solutions/` (reference solutions, also embedded in the tutorial), `initdb/` + `data/` (PostgreSQL sample data), `scripts/` (install and Community Edition setup), `schemas/` (official JSON schemas), `entropy-data-ce/`.
 - **Walkthrough videos**: `video/` records one video per tutorial chapter (see `video/README.md`).
-- The old Data Mesh Live 2026 version lives in a separate repo, `simonharrer/odcs-odps-workshop` (no SPA). Do not mention Data Mesh Live here.
+- The data2day 2026 version lives in a separate repo, `simonharrer/odcs-odps-workshop` (no SPA).
 
 Online and on-site use the same numbering: Part C is CI/CD (exercise 7), Part D is the data platform (exercise 8 publish, exercise 9 semantics). Solution folders follow these numbers.
 
 ## Versions (keep in sync everywhere)
 
-- datacontract-cli `1.2.2`, dataproduct-cli `0.2.0`, entropy-data `0.3.13`: pinned in `scripts/install.sh`, `install.ps1`, `install.bat`, and in `solutions/exercise7/datacontract.yml`.
+- datacontract-cli `1.2.3`, dataproduct-cli `0.2.0`, entropy-data `0.3.13`: pinned in `scripts/install.sh`, `install.ps1`, `install.bat`, and in `solutions/exercise7/datacontract.yml`.
 - ODCS `v3.2.0` and ODPS `v1.1.0` in all solutions, examples, and `schemas/` (mapped in `.vscode/settings.json`).
 - GitHub Actions: `actions/checkout@v7`, `astral-sh/setup-uv@v10.2.0` (setup-uv has no floating major tags).
 - When bumping a CLI, re-capture the terminal outputs in the tutorial and re-record the affected videos.

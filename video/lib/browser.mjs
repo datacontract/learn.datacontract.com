@@ -66,7 +66,7 @@ export async function startEditor({ workdir, file = 'orders_v1.odcs.yaml', from,
   mkdirSync(workdir, { recursive: true })
   const path = join(workdir, file)
   if (from) copyFileSync(from, path)
-  const child = spawn('sh', ['-c', `yes | uvx --quiet --python 3.11 --from 'datacontract-cli[all]==1.2.2' datacontract edit ${file} --no-open --port ${port}`],
+  const child = spawn('sh', ['-c', `yes | uvx --quiet --python 3.11 --from 'datacontract-cli[all]==1.2.3' datacontract edit ${file} --no-open --port ${port}`],
     { cwd: workdir, env: { ...process.env, DATACONTRACT_POSTGRES_USERNAME: 'workshop', DATACONTRACT_POSTGRES_PASSWORD: 'workshop' }, stdio: 'ignore', detached: true })
   const url = `http://localhost:${port}`
   for (let i = 0; i < 120; i++) {
