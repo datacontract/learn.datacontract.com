@@ -356,7 +356,7 @@ Testing orders_v1.odcs.yaml
 ```
 
 <Callout type="tip">
-"Count the bad rows, expect zero" works for almost any rule. When the check fails, the query helps you debug.
+"Count the bad rows, expect zero" works for almost any rule. When the check fails, the query helps you debug. More in the [SQL quality rules docs](https://docs.datacontract.com/quality-rules/sql#property-level-example).
 </Callout>
 
 </Step>
@@ -382,7 +382,7 @@ quality:
     mustBe: 0
 ```
 
-All options: [ODCS data quality reference](https://bitol-io.github.io/open-data-contract-standard/latest/data-quality/#sql).
+All options: the [quality rule types](https://docs.datacontract.com/quality-rules#quality-rule-types), [schema-level SQL rules](https://docs.datacontract.com/quality-rules/sql#schema-level-example) for checks across columns and tables, [library metrics](https://docs.datacontract.com/quality-rules/library#supported-metrics) such as `rowCount`, and the [comparators](https://docs.datacontract.com/quality-rules/sql#comparators).
 
 </Step>
 
@@ -571,12 +571,12 @@ slaProperties:
 ```
 
 <Callout type="concept" title="Which service levels are tested?">
-The CLI turns two SLA properties into checks, if they name a timestamp column in `element` (`schema.property`):
+The CLI turns two SLA properties into checks, if they name a timestamp column in [`element`](https://docs.datacontract.com/service-levels#the-element-reference) (`schema.property`):
 
-- `retention`: the **oldest** value (MIN) must be younger than the period, so old data really gets deleted.
-- `freshness`: the **newest** value (MAX) must be younger than the threshold, so new data keeps arriving.
+- [`retention`](https://docs.datacontract.com/service-levels#retention): the **oldest** value (MIN) must be younger than the period, so old data really gets deleted.
+- [`freshness`](https://docs.datacontract.com/service-levels#freshness): the **newest** value (MAX) must be younger than the threshold, so new data keeps arriving.
 
-Other properties such as `frequency` or `latency` are documentation only. Careful: `unit: m` means minutes for freshness but months for retention. See the [service levels docs](https://docs.datacontract.com/service-levels).
+Other properties such as `frequency` or `latency` are [documentation only](https://docs.datacontract.com/service-levels#when-no-check-is-generated). Careful: `unit: m` means minutes for freshness but months for retention. See the [service levels docs](https://docs.datacontract.com/service-levels).
 </Callout>
 
 Run only the service level checks:

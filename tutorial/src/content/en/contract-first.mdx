@@ -101,7 +101,7 @@ quality:
 ```
 
 <Callout type="tip">
-Uniqueness over two columns: `GROUP BY ... HAVING COUNT(*) > 1` in a subquery. Put checks spanning several columns on the schema level (`schema[].quality`), not on a single property.
+Uniqueness over two columns: `GROUP BY ... HAVING COUNT(*) > 1` in a subquery. Put checks spanning several columns on the [schema level](https://docs.datacontract.com/quality-rules/sql#schema-level-example) (`schema[].quality`), not on a single property. Uniqueness and "not empty" also work without SQL, as [library metrics](https://docs.datacontract.com/quality-rules/library#supported-metrics) `duplicateValues` and `rowCount`.
 </Callout>
 
 </Step>

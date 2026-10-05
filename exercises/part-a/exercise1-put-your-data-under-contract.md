@@ -243,7 +243,9 @@ Let's add some more detail to the contract...
                 mustBe: 0
           # ...
     ```
-    
+
+    Documentation: [SQL quality rules, property-level example](https://docs.datacontract.com/quality-rules/sql#property-level-example)
+
 19. Test the contract again and spot the new check added by this.
 
 20. Add more constraints (if time allows), e.g.:
@@ -267,7 +269,11 @@ Let's add some more detail to the contract...
             # mustBeGreaterThan: 0
     ```
 
-    Documentation: https://bitol-io.github.io/open-data-contract-standard/latest/data-quality/#sql
+    Documentation:
+
+    - [Quality rule types](https://docs.datacontract.com/quality-rules#quality-rule-types): `text`, `sql`, and `library`
+    - [SQL schema-level example](https://docs.datacontract.com/quality-rules/sql#schema-level-example): checks that span several columns or tables, like the `order_id` check above
+    - [SQL comparators](https://docs.datacontract.com/quality-rules/sql#comparators): `mustBe`, `mustBeGreaterThan`, `mustBeBetween`, ...
 
 
 ## Add Context for AI
@@ -351,13 +357,13 @@ AI agents, LLM chat tools, and BI assistants increasingly query data on their ow
         description: Data updated daily
     ```
 
-    The CLI tests `retention` and `freshness` when `element` names a timestamp column (`frequency` is documentation only). Run only the service level checks:
+    The CLI tests [`retention`](https://docs.datacontract.com/service-levels#retention) and [`freshness`](https://docs.datacontract.com/service-levels#freshness) when [`element`](https://docs.datacontract.com/service-levels#the-element-reference) names a timestamp column ([`frequency` is documentation only](https://docs.datacontract.com/service-levels#when-no-check-is-generated)). Run only the service level checks:
 
     ```bash
     datacontract test --checks slaProperties orders_v1.odcs.yaml
     ```
 
-    Optional: add a `freshness` property (`value: 24`, `unit: h`, `element: orders.order_timestamp`) and run the checks again. It fails, because the workshop data is a static snapshot. In production, this check alerts you when a pipeline stops loading. Remove it again afterwards. Documentation: https://docs.datacontract.com/service-levels
+    Optional: add a `freshness` property (`value: 24`, `unit: h`, `element: orders.order_timestamp`) and run the checks again. It fails, because the workshop data is a static snapshot. In production, this check alerts you when a pipeline stops loading. Remove it again afterwards. Documentation: [Freshness](https://docs.datacontract.com/service-levels#freshness)
 
 
 ## Set to Active

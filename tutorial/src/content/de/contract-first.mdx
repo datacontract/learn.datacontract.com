@@ -101,7 +101,7 @@ quality:
 ```
 
 <Callout type="tip">
-Eindeutigkeit über zwei Spalten: `GROUP BY ... HAVING COUNT(*) > 1` in einer Subquery. Checks über mehrere Spalten gehören auf Schema-Ebene (`schema[].quality`), nicht an eine einzelne Property.
+Eindeutigkeit über zwei Spalten: `GROUP BY ... HAVING COUNT(*) > 1` in einer Subquery. Checks über mehrere Spalten gehören auf [Schema-Ebene](https://docs.datacontract.com/quality-rules/sql#schema-level-example) (`schema[].quality`), nicht an eine einzelne Property. Eindeutigkeit und „nicht leer“ gehen auch ohne SQL, als [Library-Metriken](https://docs.datacontract.com/quality-rules/library#supported-metrics) `duplicateValues` und `rowCount`.
 </Callout>
 
 </Step>

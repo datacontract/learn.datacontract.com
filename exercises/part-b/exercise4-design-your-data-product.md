@@ -46,6 +46,8 @@ You consume the `orders_v2` contract — it guarantees you the `quantity` column
    - `total_quantity` is never less than `order_count`
    - The view is not empty
 
+   Documentation: [library metrics](https://docs.datacontract.com/quality-rules/library#supported-metrics) like `duplicateValues` and `rowCount` need no SQL; for everything else, use a [SQL quality rule](https://docs.datacontract.com/quality-rules/sql#schema-level-example).
+
 5. Declare the semantic role of each property (`semanticType`, new in ODCS 3.2): `sku` and `year` are dimensions you group and filter by, `order_count` and `total_quantity` are measures. `transformLogic` says how a measure is computed. In the editor, open the property and set **Semantic Type** and **Transform Logic**:
 
    ```yaml

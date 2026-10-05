@@ -356,7 +356,7 @@ Testing orders_v1.odcs.yaml
 ```
 
 <Callout type="tip">
-„Zähle die fehlerhaften Zeilen, erwarte null“ funktioniert für fast jede Regel. Schlägt der Check fehl, hilft dir die Abfrage beim Debuggen.
+„Zähle die fehlerhaften Zeilen, erwarte null“ funktioniert für fast jede Regel. Schlägt der Check fehl, hilft dir die Abfrage beim Debuggen. Mehr in der [Doku zu SQL-Qualitätsregeln](https://docs.datacontract.com/quality-rules/sql#property-level-example).
 </Callout>
 
 </Step>
@@ -382,7 +382,7 @@ quality:
     mustBe: 0
 ```
 
-Alle Optionen: [ODCS-Referenz zur Datenqualität](https://bitol-io.github.io/open-data-contract-standard/latest/data-quality/#sql).
+Alle Optionen: die [Arten von Qualitätsregeln](https://docs.datacontract.com/quality-rules#quality-rule-types), [SQL-Regeln auf Schema-Ebene](https://docs.datacontract.com/quality-rules/sql#schema-level-example) für Checks über mehrere Spalten und Tabellen, [Library-Metriken](https://docs.datacontract.com/quality-rules/library#supported-metrics) wie `rowCount` und die [Vergleichsoperatoren](https://docs.datacontract.com/quality-rules/sql#comparators).
 
 </Step>
 
@@ -571,12 +571,12 @@ slaProperties:
 ```
 
 <Callout type="concept" title="Welche Service Levels werden getestet?">
-Die CLI macht aus zwei SLA-Eigenschaften Checks, wenn sie in `element` eine Zeitstempel-Spalte nennen (`schema.property`):
+Die CLI macht aus zwei SLA-Eigenschaften Checks, wenn sie in [`element`](https://docs.datacontract.com/service-levels#the-element-reference) eine Zeitstempel-Spalte nennen (`schema.property`):
 
-- `retention`: Der **älteste** Wert (MIN) muss jünger als der Zeitraum sein. Alte Daten werden also wirklich gelöscht.
-- `freshness`: Der **neueste** Wert (MAX) muss jünger als die Schwelle sein. Neue Daten kommen also weiterhin an.
+- [`retention`](https://docs.datacontract.com/service-levels#retention): Der **älteste** Wert (MIN) muss jünger als der Zeitraum sein. Alte Daten werden also wirklich gelöscht.
+- [`freshness`](https://docs.datacontract.com/service-levels#freshness): Der **neueste** Wert (MAX) muss jünger als die Schwelle sein. Neue Daten kommen also weiterhin an.
 
-Andere Eigenschaften wie `frequency` oder `latency` sind reine Dokumentation. Achtung: `unit: m` heißt bei freshness Minuten, bei retention Monate. Mehr in der [Doku zu Service Levels](https://docs.datacontract.com/service-levels).
+Andere Eigenschaften wie `frequency` oder `latency` sind [reine Dokumentation](https://docs.datacontract.com/service-levels#when-no-check-is-generated). Achtung: `unit: m` heißt bei freshness Minuten, bei retention Monate. Mehr in der [Doku zu Service Levels](https://docs.datacontract.com/service-levels).
 </Callout>
 
 Führe nur die Service-Level-Checks aus:
