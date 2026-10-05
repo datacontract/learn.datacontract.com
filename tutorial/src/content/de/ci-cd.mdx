@@ -101,7 +101,7 @@ jobs:
       - name: Install the CLIs
         run: |
           uv tool install --python 3.11 'datacontract-cli[postgres]==1.2.3'
-          uv tool install --python 3.11 'dataproduct-cli==0.2.0'
+          uv tool install --python 3.11 'dataproduct-cli==0.3.1'
 
       - name: Lint data contracts
         run: |
@@ -115,6 +115,8 @@ jobs:
             dataproduct lint "$file"
           done
 ```
+
+`dataproduct lint` prüft außerdem, ob die in den Ports verlinkten Datenkontrakte im Repository liegen.
 
 Committe und pushe die Datei, dann öffne den Tab **Actions**. Nach etwa einer Minute ist der Run grün.
 

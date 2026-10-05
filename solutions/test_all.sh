@@ -10,7 +10,7 @@ export DATACONTRACT_POSTGRES_PASSWORD="${DATACONTRACT_POSTGRES_PASSWORD:-worksho
 
 check_odps() {
   echo "=== Validating $1 ==="
-  dataproduct lint "$1"
+  dataproduct lint --local-references "$1"
 }
 
 psql_cmd() {

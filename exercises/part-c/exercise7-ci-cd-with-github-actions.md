@@ -66,7 +66,7 @@ Builds on Parts A and B only. You need a [GitHub](https://github.com) account.
          - name: Install the CLIs
            run: |
              uv tool install --python 3.11 'datacontract-cli[postgres]==1.2.3'
-             uv tool install --python 3.11 'dataproduct-cli==0.2.0'
+             uv tool install --python 3.11 'dataproduct-cli==0.3.1'
 
          - name: Lint data contracts
            run: |
@@ -81,7 +81,7 @@ Builds on Parts A and B only. You need a [GitHub](https://github.com) account.
              done
    ```
 
-   Linting checks that every file is valid ODCS or ODPS. No database needed.
+   Linting checks that every file is valid ODCS or ODPS. `dataproduct lint` also checks that the data contracts linked in the ports exist in the repository. No database needed.
 
 7. Commit, push, and watch the run in the **Actions** tab. It should turn green.
 

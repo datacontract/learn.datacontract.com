@@ -123,6 +123,12 @@ dataproduct lint orders.odps.yaml
 
 ```output
 ✅ Data product is valid against ODPS v1.1.0
+✅ Data contract 'orders_v1' linked by outputPorts[orders_v1] is resolvable:
+Found at orders_v1.odcs.yaml
+✅ Data contract 'orders_v2' linked by outputPorts[orders_v2] is resolvable:
+Found at orders_v2.odcs.yaml
+✅ Data contract 'orders_v1' passes datacontract lint: orders_v1.odcs.yaml
+✅ Data contract 'orders_v2' passes datacontract lint: orders_v2.odcs.yaml
 🟢 Data product is valid.
 ```
 
@@ -137,8 +143,14 @@ dataproduct lint orders.odps.yaml
 ```
 
 ```output
-❌ Check that data product is valid against ODPS v1.1.0: kind: 'DataProdukt' is not one of
-['DataProduct']
+❌ Check that data product is valid against ODPS v1.1.0: kind: 'DataProdukt' is
+not one of ['DataProduct']
+✅ Data contract 'orders_v1' linked by outputPorts[orders_v1] is resolvable:
+Found at orders_v1.odcs.yaml
+✅ Data contract 'orders_v2' linked by outputPorts[orders_v2] is resolvable:
+Found at orders_v2.odcs.yaml
+✅ Data contract 'orders_v1' passes datacontract lint: orders_v1.odcs.yaml
+✅ Data contract 'orders_v2' passes datacontract lint: orders_v2.odcs.yaml
 🔴 Data product is invalid.
 ```
 
@@ -154,7 +166,7 @@ The CLI names the wrong field and exits with code `1`. Revert afterwards.
 </Step>
 
 <Callout type="note" title="Lint vs. test">
-`dataproduct lint` checks that the file is *well-formed* according to the standard. It doesn't connect to a database.
+`dataproduct lint` checks that the file is *well-formed* according to the standard and that the linked data contracts exist. It doesn't connect to a database.
 Whether the data behind an output port keeps its promise is checked by `datacontract test` on the contract.
 </Callout>
 
