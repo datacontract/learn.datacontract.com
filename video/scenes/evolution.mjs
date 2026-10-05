@@ -10,7 +10,7 @@ const editV2 = {
   async run({ page, cue, sleep, start }) {
     const dir = freshDir('evolution', 'v2')
     // the copy of v1, with the SQL of quality checks and verified statements already on orders_v2
-    prepare(dir, 'orders_v2.odcs.yaml', 'solutions/exercise1/orders_v1.odcs.yaml', (s) =>
+    prepare(dir, 'orders_v2.odcs.yaml', '.solutions/exercise1/orders_v1.odcs.yaml', (s) =>
       s.replaceAll('orders_v1.', 'orders_v2.').replace('status: active', 'status: draft'))
     const ed = await startEditor({ workdir: dir, file: 'orders_v2.odcs.yaml', port: 4352 })
     try {

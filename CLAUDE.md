@@ -2,13 +2,13 @@
 
 # Maintaining this repository
 
-Everything below is for maintainers changing the workshop or the online tutorial. When helping a workshop participant, the rule in AGENTS.md applies: do not read or quote `solutions/`.
+Everything below is for maintainers changing the workshop or the online tutorial. When helping a workshop participant, the rule in AGENTS.md applies: do not read or quote `.solutions/`.
 
 ## What lives here
 
 - **Online tutorial** at https://learn.datacontract.com: `tutorial/`, a self-paced SPA in English and German. Deployed by `.github/workflows/tutorial.yml` to GitHub Pages on every push to `main` (only in `datacontract/learn.datacontract.com`). The custom domain is configured in the GitHub Pages settings; DNS is a proxied CNAME at Cloudflare.
 - **On-site workshop**: `README.md`, `exercises/part-*/`, used with slides (intro and retro are on the slides, not in the repo).
-- **Shared**: `solutions/` (reference solutions, also embedded in the tutorial), `initdb/` + `data/` (PostgreSQL sample data), `scripts/` (install and Community Edition setup), `schemas/` (official JSON schemas), `entropy-data-ce/`.
+- **Shared**: `.solutions/` (reference solutions, also embedded in the tutorial), `initdb/` + `data/` (PostgreSQL sample data), `scripts/` (install and Community Edition setup), `schemas/` (official JSON schemas), `entropy-data-ce/`.
 - **Walkthrough videos**: `video/` records one video per tutorial chapter (see `video/README.md`).
 - The data2day 2026 version lives in a separate repo, `datacontract/workshop-data2day-2026` (no SPA).
 
@@ -16,7 +16,7 @@ Online and on-site use the same numbering: Part C is CI/CD (exercise 7), Part D 
 
 ## Versions (keep in sync everywhere)
 
-- datacontract-cli `1.2.3`, dataproduct-cli `0.3.1`, entropy-data `0.3.24`: pinned in `scripts/install.sh`, `install.ps1`, `install.bat`, and in `solutions/exercise7/datacontract.yml`.
+- datacontract-cli `1.2.3`, dataproduct-cli `0.3.1`, entropy-data `0.3.24`: pinned in `scripts/install.sh`, `install.ps1`, `install.bat`, and in `.solutions/exercise7/datacontract.yml`.
 - ODCS `v3.2.0` and ODPS `v1.1.0` in all solutions, examples, and `schemas/` (mapped in `.vscode/settings.json`).
 - GitHub Actions: `actions/checkout@v7`, `astral-sh/setup-uv@v10.2.0` (setup-uv has no floating major tags).
 - When bumping a CLI, re-capture the terminal outputs in the tutorial and re-record the affected videos.
@@ -43,7 +43,7 @@ Online and on-site use the same numbering: Part C is CI/CD (exercise 7), Part D 
 - `<Step id="...">` ids are literal, unique per chapter, and identical in EN and DE. Changing an id resets participants' progress for that step.
 - Every terminal command is a ```` ```bash ```` block directly followed by a ```` ```powershell ```` block (Windows = native PowerShell, not Git Bash); the build fails otherwise (`plugins/remark-terminal.ts`). An optional ```` ```output ```` block right after the pair shows the example output in the terminal window.
 - Outputs must be real: run the commands with the pinned CLIs against the workshop database, strip ANSI codes, and trim long output with a `…` line.
-- Include reference solutions instead of copying them: ```` ```yaml file=../../../../solutions/exercise1/orders_v1.odcs.yaml ````.
+- Include reference solutions instead of copying them: ```` ```yaml file=../../../../.solutions/exercise1/orders_v1.odcs.yaml ````.
 - Components: `<Callout type="note|tip|warning|concept" title>`, `<OsTabs><Os name="unix|windows">` (only for prose that differs per OS), `<Solution title>`, `<Quiz question options answer feedback>` (`feedback` has one explanation per option, shown when that wrong option is picked), `<ScenarioDiagram variant="all|contract|evolution|data-product|contract-first|implement|consumer-driven" />` (drawn like the Entropy Data map; arrows point from consumer to provider; each of exercises 1 to 6 shows its variant after the intro), markdown images.
 - Links between chapters: `/en/<slug>/` (absolute). Images: `![Caption](/screenshots/name.webp)`; the alt text is the caption.
 
@@ -53,7 +53,7 @@ Online and on-site use the same numbering: Part C is CI/CD (exercise 7), Part D 
 - Only `freshness` and `retention` SLA properties with an `element` become checks; `frequency` and `latency` are documentation.
 - Verified statement answers used in the content: 876 orders in 2023; top SKUs by units in 2024: D3KT74L5EV46T (146), IWMJ3ZX164 (62), TFH11HYOR (46).
 - `datacontract breaking` exits 1 on ERROR (removed field, type change, added `required`); adding a column is INFO. `datacontract ci` writes GitHub annotations and the step summary.
-- Semantics: one ontology file (`solutions/exercise9/semantics.yaml`, prefix `ecom: https://learn.datacontract.com/ontology/ecommerce#`) uploaded with `PUT /api/semantics/experimental/namespaces/{ns}/ontology.yaml`; the entropy-data CLI has no command for it.
+- Semantics: one ontology file (`.solutions/exercise9/semantics.yaml`, prefix `ecom: https://learn.datacontract.com/ontology/ecommerce#`) uploaded with `PUT /api/semantics/experimental/namespaces/{ns}/ontology.yaml`; the entropy-data CLI has no command for it.
 - The hosted Data Contract Editor (editor.datacontract.com) runs tests via `api.datacontract.com`, which has credentials for the public Supabase copy (host `aws-1-eu-central-2.pooler.supabase.com`, port `6543`, database `postgres`, schemas `orders_v1`, `orders_v2`).
 - Participants remove the last `.gitignore` block (`# files created during the exercises`) in their fork before committing for the CI/CD exercise.
 
@@ -67,5 +67,5 @@ Online and on-site use the same numbering: Part C is CI/CD (exercise 7), Part D 
 - `cd tutorial && npm run build` (typecheck, build, prerender) passes.
 - `grep -r "—" tutorial/src exercises solutions` finds nothing new.
 - Step ids match between EN and DE.
-- `./solutions/test_all.sh` passes with the pinned CLIs and the database running (`docker compose up -d`).
+- `./.solutions/test_all.sh` passes with the pinned CLIs and the database running (`docker compose up -d`).
 - Commit to `main`; push only when the maintainer asks.

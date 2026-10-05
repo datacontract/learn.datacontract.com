@@ -22,6 +22,8 @@ Hands-on: put a PostgreSQL dataset under contract with [ODCS](https://bitol-io.g
 
 ## Getting Started
 
+Run all commands and create all your files in the repository root.
+
 Start the database (PostgreSQL on `localhost:5433`, preloaded with e-commerce data):
 
 ```

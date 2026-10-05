@@ -6,7 +6,7 @@ import { click, showCursor, startEditor, type } from '../lib/browser.mjs'
 import { codeScene } from '../lib/helpers-c.mjs'
 
 const c = (step, includes) => command('consumer-driven', step, includes)
-const solution = (path) => new URL(`../../solutions/${path}`, import.meta.url).pathname
+const solution = (path) => new URL(`../../.solutions/${path}`, import.meta.url).pathname
 const scratch = (name) => join(tmpdir(), 'tutorial-videos', 'consumer-driven', name)
 const inputSql = readFileSync(solution('exercise6/sku_sales_input.sql'), 'utf8').trimEnd()
 const rebasedSql = readFileSync(solution('exercise6/sku_sales_per_year.sql'), 'utf8').trimEnd()

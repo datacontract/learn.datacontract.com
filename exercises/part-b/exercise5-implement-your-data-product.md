@@ -15,7 +15,7 @@ This is the perfect task for an **AI coding agent**: your data contract is machi
 
    - Does it read both contracts — yours for the target, `orders_v2` for the source?
    - Does it run the tests and react to failures?
-   - The repository tells agents not to peek into `solutions/` — it has to work from the contract, just like a real engineer would.
+   - The repository tells agents not to peek into `.solutions/` — it has to work from the contract, just like a real engineer would.
 
 
 ## Or Implement Manually

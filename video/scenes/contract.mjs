@@ -148,7 +148,7 @@ const context = editor('context', 4346, BASE + SERVER + SCHEMA, async ({ page, c
 })
 
 // the final contract from the solutions, tested from the editor's Tests panel
-const editorTests = editor('tests', 4347, new URL('../../solutions/exercise1/orders_v1.odcs.yaml', import.meta.url).pathname, async ({ page, cue, sleep }) => {
+const editorTests = editor('tests', 4347, new URL('../../.solutions/exercise1/orders_v1.odcs.yaml', import.meta.url).pathname, async ({ page, cue, sleep }) => {
   cue({ en: 'Tip: you can run the tests right in the editor, too.', de: 'Tipp: Du kannst die Tests auch direkt im Editor ausführen.' })
   await sleep(1000)
   await click(page, page.getByRole('button', { name: 'Tests' }), { pause: 800 })

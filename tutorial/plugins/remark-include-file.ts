@@ -4,9 +4,9 @@ import { visit } from 'unist-util-visit'
 import type { Root, Code } from 'mdast'
 
 // Replaces the body of a fenced code block with the contents of a file, so that
-// reference solutions are rendered from solutions/ instead of being duplicated:
+// reference solutions are rendered from .solutions/ instead of being duplicated:
 //
-//   ```yaml file=../../../../solutions/exercise1/orders_v1.odcs.yaml
+//   ```yaml file=../../../../.solutions/exercise1/orders_v1.odcs.yaml
 //   ```
 //
 // The path is resolved relative to the MDX file.

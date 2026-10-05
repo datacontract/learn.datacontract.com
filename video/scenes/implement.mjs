@@ -6,8 +6,8 @@ import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 
 const c = (step, includes) => command('implement', step, includes)
-const sql = readFileSync(new URL('../../solutions/exercise5/sku_sales_per_year.sql', import.meta.url), 'utf8').trimEnd()
-const contractPath = new URL('../../solutions/exercise4/sku_sales_per_year.odcs.yaml', import.meta.url).pathname
+const sql = readFileSync(new URL('../../.solutions/exercise5/sku_sales_per_year.sql', import.meta.url), 'utf8').trimEnd()
+const contractPath = new URL('../../.solutions/exercise4/sku_sales_per_year.odcs.yaml', import.meta.url).pathname
 
 // the part of the contract that specifies the view: columns, types, semantic roles
 const spec = (() => {
