@@ -36,6 +36,7 @@ Online and on-site use the same numbering: Part C is CI/CD (exercise 7), Part D 
 - `npm run build` typechecks, builds the client, builds `src/entry-server.tsx` for SSR, and runs `scripts/prerender.mjs`. That script prerenders every page to static HTML (hydrated in the browser) with title, description, canonical, hreflang, Open Graph, and JSON-LD (Course, HowTo, VideoObject, BreadcrumbList), and writes `sitemap.xml`, `robots.txt`, `llms.txt`, `llms-full.txt`, and a Markdown version of every page (`scripts/mdx-to-md.mjs`). Components must be SSR-safe: no `window`, `document`, `localStorage`, or `navigator` during render; read browser state in effects.
 - Progress, theme, and OS choice are stored in localStorage. Progress is keyed by chapter slug and step id.
 - Umami analytics is loaded in `tutorial/index.html`; it tracks page changes via `history.pushState` itself.
+- Custom Umami events (`src/state/track.ts`, fired from `src/state/progress.tsx`): `step-done-<slug>` (data `step`, `lang`) and `chapter-done-<slug>` (data `via` = steps|button, `lang`), each at most once per browser (sent keys in localStorage `tutorial-tracked-v1`). The online-presence-dashboard reads them, so keep the names; renaming a step id or chapter slug starts a new series.
 
 ## Authoring MDX chapters
 
